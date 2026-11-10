@@ -590,6 +590,10 @@ body.rainbow .stage{animation:rainbowHue 3s linear infinite}
 .supporterRow .star{color:#ffd96f;flex:none}
 .supporterRow.special{border-color:#5b8cff;background:#0a1220;color:#cfe0ff;justify-content:center;text-align:center}
 .supportersIntro{font-size:11.5px;color:#9a9aae;line-height:1.95;border-left:3px solid #ffd96f;padding-left:10px}
+.supFrame{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:4px 0;padding:14px 12px;border:2px dashed #33333f;background:#08080e;line-height:2.1;min-height:60px}
+.supName{display:inline-block;font-size:12px;color:#d8d8e4;padding:0 8px;position:relative}
+.supName:not(:last-child)::after{content:"· ";color:#4a4a58;margin-left:6px}
+.supNote{font-size:11px;color:#8a8a9c;text-align:center;line-height:1.9;margin-top:6px}
 .adminGroupTitle{font-size:11px;color:#ffd96f;letter-spacing:.12em;border-bottom:2px solid #33333f;padding-bottom:5px;margin-top:10px}
 .adminRow{display:flex;align-items:center;gap:8px}
 .adminRow label{flex:none;width:104px;font-size:11.5px;color:#b9b9c8;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -755,6 +759,9 @@ body.theme-cyber .footerBar{border-top-color:#3a1060}
 @media (max-height:520px) and (orientation:landscape){
   .stageWrap{height:56vh}
 }
+
+#editorLocLabel{position:absolute;left:14px;top:12px;z-index:9;background:rgba(0,0,0,.62);border-left:4px solid #fff;color:#fff;font-size:.85em;padding:.32em .8em;opacity:0;transform:translateX(-8px);transition:opacity .35s,transform .35s;pointer-events:none;letter-spacing:.08em;max-width:60%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#editorLocLabel.show{opacity:1;transform:none}
 
 /* ===== v5.9 主题修正：舞台按钮不受主题影响 ===== */
 html body .stage .choice{background:#000;color:#fff;border:3px solid #fff;box-shadow:4px 4px 0 0 #4a4a58}
@@ -1000,6 +1007,10 @@ body.theme-paper .toastItem.err{border-color:#a83232;color:#8a2222}
 body.theme-paper .supporterRow{background:#fffdf7;border-color:#d5c9b0;color:#3a3226}
 body.theme-paper .supporterRow.special{background:#efe7d7;border-color:#6d5f47;color:#4a4236}
 body.theme-paper .supportersIntro{color:#5a4f3c}
+body.theme-paper .supFrame{background:#fffdf7;border-color:#c9bda3}
+body.theme-paper .supName{color:#2f2a21}
+body.theme-paper .supName:not(:last-child)::after{color:#a89a7e}
+body.theme-paper .supNote{color:#6b6050}
 body.theme-paper .interactGuide{background:#f2ead9;border-color:#c9bda3}
 body.theme-paper .igStep{color:#4a4236}
 body.theme-paper .interactStatus{background:#f2ead9;border-left-color:#6d5f47;color:#4a4236}
@@ -1452,6 +1463,18 @@ body.theme-paper .aboutUpdated{color:#8a7c62;border-left-color:#d5c9b0}
     <label style="margin:0">🌈 界面主题</label>
     <div class="hintTip" style="margin:0">内置四套配色，也可以自己写一份。教程在「进阶教程 → 主题自定义」。</div>
     <button id="openTheme" style="align-self:flex-start;padding:7px 12px;font-size:12px;border-color:#7dfba0;color:#cfe8d4">🌈 主题与配色</button>
+    <div style="border-top:2px solid #33333f;margin:8px 0 0;padding-top:12px"></div>
+    <label style="margin:0">🔤 自定义字体</label>
+    <div class="hintTip" style="margin:0">支持 .ttf / .otf / .woff / .woff2（建议 &lt;4MB）。可分别应用到舞台或编辑界面。</div>
+    <button id="btnImportFont" style="align-self:flex-start;padding:7px 12px;font-size:12px;border-color:#7fd0ff;color:#cfe6ff">⬆ 导入字体文件</button>
+    <div class="adminNote" id="fontInfo">当前：未导入</div>
+    <label style="flex-direction:row;align-items:center;gap:8px;cursor:pointer">
+      <input type="checkbox" id="fontStageChk" style="width:16px;height:16px;accent-color:#fff;cursor:pointer"><span>应用到舞台（游戏画面）</span>
+    </label>
+    <label style="flex-direction:row;align-items:center;gap:8px;cursor:pointer">
+      <input type="checkbox" id="fontEditorChk" style="width:16px;height:16px;accent-color:#fff;cursor:pointer"><span>应用到编辑器界面</span>
+    </label>
+    <button id="btnClearFont" style="align-self:flex-start;padding:5px 10px;font-size:11px;border-color:#5a3030;color:#ffb4b4;box-shadow:none">✕ 移除字体</button>
     <div style="border-top:2px solid #33333f;margin:6px 0 0;padding-top:12px"></div>
     <label style="margin:0">📖 示例剧本 / 欢迎页</label>
     <div class="hintTip" style="margin:0">随时可以把示例剧本拉回来看看，不会影响已导入的角色 / 场景。</div>
@@ -1466,7 +1489,7 @@ body.theme-paper .aboutUpdated{color:#8a7c62;border-left-color:#d5c9b0}
       <div class="aboutTitle" id="aboutTitle">✦ 关于作者</div>
       <div class="aboutRow"><span>作者</span><b>@Teasssss</b></div>
       <div class="aboutRow"><span>辅助制作工具</span><b>Deepseek</b></div>
-      <div class="aboutRow"><span>版本</span><b class="aboutVer" id="aboutVer" title="多戳几下看看……">v6.0.3</b><span class="aboutUpdated" id="aboutUpdated">2026-11-09 更新</span></div>
+      <div class="aboutRow"><span>版本</span><b class="aboutVer" id="aboutVer" title="多戳几下看看……">v6.1</b><span class="aboutUpdated" id="aboutUpdated">2026-11-10 更新</span></div>
       <div class="aboutQuote">“每一个像素，都是你亲手写下的世界。”<br>—— 把故事讲出来的人，永远是作者。</div>
       <div class="aboutBtns">
         <button id="eggCat">🐱 摸一下</button>
@@ -1705,6 +1728,23 @@ button{ background:#0d0d18; border-color:#4a4a80; color:#e8e8f4; }</div>
   <div class="sheetTitle" id="confirmTitle">确认操作</div>
   <div class="sheetBody"><div id="confirmMessage" style="font-size:12.5px;color:#c8c8d8;line-height:1.9;white-space:pre-wrap"></div></div>
   <div class="sheetFoot"><button id="confirmCancel">取消</button><button class="danger" id="confirmOk">确认</button></div>
+</div></div>
+
+<div class="sheet" id="noticeModal" hidden><div class="sheetCard" style="width:min(540px,94vw)">
+  <div class="sheetTitle">📌 使用前请读一下</div>
+  <div class="sheetBody">
+    <div class="hintTip" style="margin:0;border-left-color:#ffd96f;color:#ffe6b4">本工具<b>完全免费</b>，并且已经<b>开源</b>。</div>
+    <div style="font-size:12px;line-height:2.05;color:#c8c8d8">
+      如果你是在某个地方<b style="color:#ff9a9a">付费购买</b>了这份工具，那钱并没有到作者手里——请立刻：<br>
+      　　1. 联系卖家<b>退款</b><br>
+      　　2. 向平台<b>举报</b>该付费分发
+    </div>
+    <div class="adminNote" style="line-height:1.9">作者：@Teasssss　｜　辅助制作：DeepSeek<br>源码：github.com/Kizunoneko/vns-studio</div>
+    <label style="flex-direction:row;align-items:center;gap:8px;cursor:pointer">
+      <input type="checkbox" id="noticeAgree" style="width:16px;height:16px;accent-color:#fff;cursor:pointer"><span>我已了解：这个工具是免费开源的</span>
+    </label>
+  </div>
+  <div class="sheetFoot"><button id="noticeOk" class="primary" disabled>开始使用</button></div>
 </div></div>
 
 <div class="inputModal" id="inputModal" hidden><div class="inputModalCard">
@@ -2735,8 +2775,22 @@ function updateCgActiveClass(){
   document.body.classList.toggle('cg-active', !!(scene && scene.hideChars));
 }
 
+/* 编辑器内地点提示 */
+let editorLocEl = null, editorLocTimer = null;
+function showEditorLocation(name){
+  try{
+    if (!name) return;
+    if (!editorLocEl){ editorLocEl = document.createElement('div'); editorLocEl.id = 'editorLocLabel'; stage.appendChild(editorLocEl); }
+    editorLocEl.textContent = name;
+    void editorLocEl.offsetWidth;
+    editorLocEl.classList.add('show');
+    clearTimeout(editorLocTimer);
+    editorLocTimer = setTimeout(() => editorLocEl.classList.remove('show'), 2300);
+  } catch(e){}
+}
 function setBg(name, transition){
   transition = (transition || 'fade').toLowerCase();
+  if (name) showEditorLocation(name);
   const scene = getScene(name);
   const parts = getSceneParts(scene);
   const hideChars = scene ? !!scene.hideChars : false;
@@ -3380,6 +3434,7 @@ function endWithCredits(title, sub){
   }
 }
 function endStory(title, sub){
+  try{ markCleared(); }catch(e){}
   vm.running = false;
   vm.awaitingHotspot = false;
   vm.awaitingInput = false;
@@ -6236,7 +6291,17 @@ safeBind('#featureToggle', () => {
 });
 
 const CHANGELOG = [
-  { version: 'v6.0.3', date: '2026-11-09', title: '音频改走 WebAudio，终于能响了 (๑•̀ㅂ•́)و✧', current: true, items: [
+  { version: 'v6.1', date: '2026-11-10', title: '字体 / 封面进化 / 备份重做 (ﾉ◕ヮ◕)ﾉ*:･ﾟ✧', current: true, items: [
+    { tag: 'add', text: '🔤 自定义字体：可导入 ttf/otf/woff，分别应用到舞台或编辑器界面' },
+    { tag: 'add', text: '🎵 开始界面可以挂 BGM（音量可调），进游戏自动停' },
+    { tag: 'add', text: '🖼 依靠进度换封面：设置「通关后封面图」，看到结局后再回封面就变了' },
+    { tag: 'add', text: '⚙ 播放内新增设置面板：音量滑块、静音、音频诊断、退出游戏都在里面' },
+    { tag: 'add', text: '📍 场景切换时左上角弹出地点名提示（默认用场景名）' },
+    { tag: 'add', text: '🎗 支持者感谢改成整块名单框（不按条排），并新增「有限局域网」' },
+    { tag: 'fix', text: '💾 自动备份改用 IndexedDB：角色/场景/音频一起存，不再只剩剧本' },
+    { tag: 'add', text: '📌 首次使用弹出「免费开源」确认，封面底部也会显示一句小字声明' },
+  ]},
+  { version: 'v6.0.3', date: '2026-11-09', title: '音频改走 WebAudio，终于能响了 (๑•̀ㅂ•́)و✧', items: [
     { tag: 'fix', text: '🎵 播放器改用 WebAudio 解码播放，绕开“<audio> 显示在播、时间却卡在 0.00”的毛病；解不了再回退到 HtmlAudio' },
     { tag: 'add', text: '🔊 播放界面新增「声音 / 静音」按钮，不想听 BGM 一键关掉' },
     { tag: 'add', text: '⏱ 音频库每条带进度条 + 时间，支持播放/暂停，点进度条可跳转试听' },
@@ -6646,6 +6711,8 @@ html,body{height:100%;overflow:hidden;background:#000;color:#fff;font-family:'Co
 #gameUI.show{display:flex}
 #gameUI button{background:rgba(0,0,0,.55);border:2px solid rgba(255,255,255,.5);color:#fff;font-family:inherit;font-size:.72em;padding:.28em .6em;border-radius:5px;cursor:pointer;opacity:.75}
 #gameUI button:hover{opacity:1;background:#fff;color:#000}
+#locLabel{position:absolute;left:14px;top:12px;z-index:35;background:rgba(0,0,0,.6);border-left:4px solid #fff;color:#fff;font-size:.82em;padding:.32em .8em;opacity:0;transform:translateX(-8px);transition:opacity .35s,transform .35s;pointer-events:none;letter-spacing:.08em;max-width:60%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#locLabel.show{opacity:1;transform:none}
 #panelWrap{position:absolute;inset:0;z-index:80;background:rgba(0,0,0,.88);display:flex;align-items:center;justify-content:center;padding:3%}
 #panelCard{width:min(560px,94%);max-height:88%;background:#000;border:3px solid #fff;padding:14px;display:flex;flex-direction:column;gap:8px;overflow:auto}
 #panelTitle{font-size:1em;letter-spacing:.1em;border-bottom:2px solid #33333f;padding-bottom:8px}
@@ -6704,7 +6771,7 @@ function ensureCtx(){
     if(!C)return null;
     AC=new C();
     masterGain=AC.createGain();
-    masterGain.gain.value=waMuted?0:1;
+    masterGain.gain.value=waMuted?0:(typeof masterVolume==='number'?masterVolume:1);
     masterGain.connect(AC.destination);
   }catch(e){AC=null;}
   return AC;
@@ -6852,7 +6919,7 @@ var bgFront=0,shown={},curExpr={},lastSpeakers=[],textColor=null,currentScene=nu
 function canShowChars(){var sc=bgs[currentScene];if(!sc)return true;return !(sc.hideChars);}
 function setFb(v){fadeBlackLevel=Math.max(0,Math.min(1,v));fb.style.opacity=String(fadeBlackLevel);}
 function clearChars(){Object.keys(shown).forEach(function(n){var el=shown[n];el.classList.remove('in');setTimeout(function(){if(el.parentNode)el.parentNode.removeChild(el);},350);});shown={};curExpr={};}
-function setBg(name,trans){trans=trans||'fade';var sc=bgs[name];var parts=sceneParts(sc);currentScene=name;currentPart=0;var url=parts.length?parts[0].url:null;var nxt=bgFront===0?bgB:bgA,cur=bgFront===0?bgA:bgB;if(url){nxt.style.backgroundImage='url("'+url+'")';}else nxt.style.backgroundImage='none';nxt.classList.add('on');cur.classList.remove('on');bgFront=bgFront===0?1:0;if(sc&&sc.hideChars)clearChars();renderHotspots();}
+function setBg(name,trans){trans=trans||'fade';var sc=bgs[name];var parts=sceneParts(sc);currentScene=name;currentPart=0;var url=parts.length?parts[0].url:null;var nxt=bgFront===0?bgB:bgA,cur=bgFront===0?bgA:bgB;if(url){nxt.style.backgroundImage='url("'+url+'")';}else nxt.style.backgroundImage='none';nxt.classList.add('on');cur.classList.remove('on');bgFront=bgFront===0?1:0;if(sc&&sc.hideChars)clearChars();renderHotspots();if(name)showLocation((sc&&sc.title)?sc.title:name);}
 function applySpriteAdjust(img,name){var c=chs[name];var adj=c&&c.spriteAdjust;if(!adj){img.style.transform='';return;}img.style.transform='translate('+(adj.x||0)+'px,'+(adj.y||0)+'px) scale('+(adj.scale||1)+')';}var imgSizes={};
 function layoutSprite(el,posName){
   var url=el.dataset.src; var s=url&&imgSizes[url];
@@ -6947,17 +7014,91 @@ function buildUI(){
   b1.onclick=function(e){if(e&&e.stopPropagation)e.stopPropagation();openSaves();};
   var b2=document.createElement('button');b2.textContent='📖 历史';
   b2.onclick=function(e){if(e&&e.stopPropagation)e.stopPropagation();openHistory();};
-  var b3=document.createElement('button');b3.textContent='🔍';b3.title='音频诊断';
-  b3.onclick=function(e){if(e&&e.stopPropagation)e.stopPropagation();openPanel('音频诊断',function(card){var d=document.createElement('div');d.style.cssText='font-size:.72em;line-height:1.9;white-space:pre-wrap;word-break:break-all';d.textContent=(window.__vnsAudioDebug?window.__vnsAudioDebug():'无调试信息');card.appendChild(d);});};
-  var b0=document.createElement('button');b0.id='muteBtn';b0.textContent='🔊 声音';b0.title='静音 / 恢复';
-  b0.onclick=function(e){if(e&&e.stopPropagation)e.stopPropagation();toggleMute();};
-  uiBar.appendChild(b0);
+  var b3=document.createElement('button');b3.textContent='⚙ 设置';b3.title='设置';
+  b3.onclick=function(e){if(e&&e.stopPropagation)e.stopPropagation();openSettingsPanel();};
   uiBar.appendChild(b1);uiBar.appendChild(b2);uiBar.appendChild(b3);stage.appendChild(uiBar);
 }
+/* 音量 / 设置 / 退出 */
+var masterVolume=1;
+try{ var sv=localStorage.getItem('vns_vol'); if(sv!==null) masterVolume=parseFloat(sv); }catch(e){}
+function applyVolume(){
+  try{ if(masterGain) masterGain.gain.value = waMuted?0:masterVolume; }catch(e){}
+  Object.keys(players).forEach(function(k){ try{ players[k].volume = waMuted?0:Math.min(1,masterVolume); }catch(e){} });
+}
+function setMasterVolume(v){
+  masterVolume=Math.max(0,Math.min(1,v));
+  try{ localStorage.setItem('vns_vol',String(masterVolume)); }catch(e){}
+  if(waMuted && masterVolume>0){ waMuted=false; }
+  applyVolume();
+  var lbl=document.getElementById('volVal'); if(lbl) lbl.textContent=Math.round(masterVolume*100)+'%';
+  var mb=document.getElementById('muteBtn'); if(mb){ mb.textContent=waMuted?'🔇 已静音':'🔊 声音'; }
+}
+function openSettingsPanel(){
+  openPanel('⚙ 设置', function(card){
+    var row=document.createElement('div');row.style.cssText='display:flex;align-items:center;gap:8px;font-size:.8em';
+    var l1=document.createElement('span');l1.textContent='音量';l1.style.cssText='flex:none;opacity:.8';
+    var rng=document.createElement('input');rng.type='range';rng.min='0';rng.max='100';rng.value=String(Math.round(masterVolume*100));rng.style.cssText='flex:1;accent-color:#fff';
+    var vv=document.createElement('span');vv.id='volVal';vv.style.cssText='width:42px;text-align:right;opacity:.8';vv.textContent=Math.round(masterVolume*100)+'%';
+    rng.oninput=function(){ setMasterVolume(parseInt(rng.value,10)/100); };
+    row.appendChild(l1);row.appendChild(rng);row.appendChild(vv);card.appendChild(row);
+
+    var btnRow=document.createElement('div');btnRow.style.cssText='display:flex;gap:8px;flex-wrap:wrap;margin-top:4px';
+    var mute=document.createElement('button');mute.id='muteBtn';mute.textContent=waMuted?'🔇 已静音':'🔊 声音';
+    mute.style.cssText='font-size:.78em;padding:.35em .8em;background:#000;color:#fff;border:2px solid #fff;cursor:pointer;font-family:inherit';
+    mute.onclick=function(){ toggleMute(); mute.textContent=waMuted?'🔇 已静音':'🔊 声音'; };
+    btnRow.appendChild(mute);
+
+    var dbg=document.createElement('button');dbg.textContent='🔍 音频诊断';
+    dbg.style.cssText='font-size:.78em;padding:.35em .8em;background:#000;color:#fff;border:2px solid #444;cursor:pointer;font-family:inherit';
+    dbg.onclick=function(){ var d=document.createElement('div');d.style.cssText='font-size:.68em;line-height:1.9;white-space:pre-wrap;word-break:break-all;border-top:1px solid #333;padding-top:8px;margin-top:4px;opacity:.85';d.textContent=(window.__vnsAudioDebug?window.__vnsAudioDebug():'无调试信息');card.appendChild(d); };
+    btnRow.appendChild(dbg);
+    card.appendChild(btnRow);
+
+    var tip=document.createElement('div');tip.style.cssText='font-size:.7em;opacity:.5;line-height:1.7;margin-top:2px';
+    tip.textContent='音量会记住；静音不影响剧情推进。';
+    card.appendChild(tip);
+
+    var quit=document.createElement('button');quit.textContent='✕ 退出游戏';
+    quit.style.cssText='margin-top:8px;font-size:.78em;padding:.4em .9em;background:transparent;color:#ff9a9a;border:2px solid #7a3a3a;cursor:pointer;font-family:inherit;align-self:flex-start';
+    quit.onclick=function(){ if(confirm('确定退出游戏？未保存的进度会丢失。')) exitGame(); };
+    card.appendChild(quit);
+  });
+}
+function exitGame(){
+  closePanel();
+  try{ stopAll(); }catch(e){}
+  clearInterval(typing.timer); typing.active=false;
+  try{ clearChars(); }catch(e){}
+  try{ hotspotsEl.innerHTML=''; }catch(e){}
+  choicesEl.classList.remove('show'); choicesEl.innerHTML='';
+  endEl.classList.remove('show'); dlg.classList.remove('show');
+  vm.running=false;
+  if(uiBar) uiBar.classList.remove('show');
+  if(coverEl){ showCover(); if(TITLE&&TITLE.bgm&&auds[TITLE.bgm]){ playBgm(TITLE.bgm,{volume:(TITLE.bgmVolume!==undefined?TITLE.bgmVolume:0.6)}); } }
+  else { location.reload(); }
+}
+/* 场景地点提示 */
+var locEl=null, locTimer=null;
+function showLocation(name){
+  try{
+    if(!name) return;
+    if(!locEl){ locEl=document.createElement('div'); locEl.id='locLabel'; stage.appendChild(locEl); }
+    locEl.textContent=name;
+    void locEl.offsetWidth;
+    locEl.classList.add('show');
+    clearTimeout(locTimer);
+    locTimer=setTimeout(function(){ locEl.classList.remove('show'); },2300);
+  }catch(e){}
+}
+function vnsClearedKey(){return 'vns_cleared_'+(DATA.projectName||'project');}
+function isCleared(){try{return localStorage.getItem(vnsClearedKey())==='1';}catch(e){return false;}}
+function markCleared(){try{localStorage.setItem(vnsClearedKey(),'1');}catch(e){}}
 function buildCover(){
   if(!TITLE||!TITLE.enabled)return;
   coverEl=document.createElement('div');coverEl.id='cover';
-  coverEl.style.background=TITLE.bgImage?('url("'+TITLE.bgImage+'") center/cover no-repeat'):(TITLE.bgColor||'#05060c');
+  var _img=TITLE.bgImage;
+  if(isCleared()&&TITLE.imageCleared)_img=TITLE.imageCleared;
+  coverEl.style.background=_img?('url("'+_img+'") center/cover no-repeat'):(TITLE.bgColor||'#05060c');
   var ov=document.createElement('div');ov.style.cssText='position:absolute;inset:0;background:#000;opacity:'+(TITLE.overlay||0);coverEl.appendChild(ov);
   if(TITLE.titleImage){var im=document.createElement('img');im.src=TITLE.titleImage;im.style.cssText='position:absolute;left:50%;top:30%;transform:translate(-50%,-50%);max-width:60%;max-height:34%';coverEl.appendChild(im);}
   else{var tt=document.createElement('div');tt.style.cssText='position:absolute;left:50%;top:26%;transform:translateX(-50%);white-space:nowrap;color:'+(TITLE.titleColor||'#fff')+';font-size:'+(TITLE.titleSize||2.8)+'em;letter-spacing:.12em';tt.textContent=TITLE.title||(DATA.projectName||'视觉小说');coverEl.appendChild(tt);}
@@ -6979,7 +7120,9 @@ function buildCover(){
     coverEl.appendChild(el);
   });
   if(TITLE.showVersion){var v=document.createElement('div');v.style.cssText='position:absolute;right:18px;bottom:12px;font-size:.7em;color:rgba(255,255,255,.45)';v.textContent=(DATA.projectName||'')+' · VNS Studio';coverEl.appendChild(v);}
+  if(TITLE.showNotice!==false){var nt=document.createElement('div');nt.style.cssText='position:absolute;left:16px;bottom:10px;font-size:.6em;color:rgba(255,255,255,.38);letter-spacing:.02em';nt.textContent='本作使用免费开源的 VNS Studio 制作 · 如你为此付费，请立即退款并举报';coverEl.appendChild(nt);}
   stage.appendChild(coverEl);
+  if(TITLE.bgm&&auds[TITLE.bgm]){try{playBgm(TITLE.bgm,{volume:(TITLE.bgmVolume!==undefined?TITLE.bgmVolume:0.6)});}catch(e){}}
 }
 function doCoverAction(a){
   if(a==='start'){startGame();}
@@ -7532,19 +7675,23 @@ function collectProjectData(){
   Object.keys(characters).forEach(n => ensureAdjust(n));
   return { script: scriptInput.value, characters, assets: { bg: assets.bg, audio: assets.audio }, items, settings, credits, mode: displayMode, projectName, titleScreen };
 }
+const BACKUP_META = 'vn_backup_meta';
 function saveAutoBackup(){
   try {
     if (!scriptInput.value.trim() && !Object.keys(characters).length && !Object.keys(assets.bg).length) return;
     const data = collectProjectData();
     data.savedAt = Date.now();
-    try {
-      localStorage.setItem(BACKUP_KEY, JSON.stringify(data));
-    } catch(e1){
-      try { localStorage.setItem(BACKUP_KEY, JSON.stringify({ savedAt: data.savedAt, script: data.script, settings: data.settings, credits: data.credits, mode: data.mode })); }
-      catch(e2){ console.warn('自动备份失败:', e2); return; }
-    }
-    lastBackupTime = Date.now();
-    updateBackupIndicator();
+    idbSet('backup', data).then(() => {
+      try { localStorage.setItem(BACKUP_META, JSON.stringify({ savedAt: data.savedAt, style: 'idb' })); } catch(e){}
+      lastBackupTime = data.savedAt;
+      updateBackupIndicator();
+    }).catch(() => {
+      try {
+        localStorage.setItem(BACKUP_KEY, JSON.stringify(data));
+        try { localStorage.setItem(BACKUP_META, JSON.stringify({ savedAt: data.savedAt, style: 'ls' })); } catch(e){}
+        lastBackupTime = data.savedAt; updateBackupIndicator();
+      } catch(e){ console.warn('自动备份失败（空间不足）', e); }
+    });
   } catch(e){ console.warn('自动备份失败:', e); }
 }
 function applyProjectData(data){
@@ -7560,25 +7707,31 @@ function applyProjectData(data){
   if (data.mode === 'avatar' || data.mode === 'sprite'){ displayMode = data.mode; document.querySelectorAll('#displayMode button').forEach(b => b.classList.toggle('active', b.dataset.mode === displayMode)); applyModeToBody(); }
   renderAssets(); renderItems(); updateLineCount(); updateHighlight(); renderBranches();
 }
-function restoreAutoBackup(){
+async function restoreAutoBackup(){
   try {
-    const raw = localStorage.getItem(BACKUP_KEY); if (!raw){ alert('没有可恢复的备份'); return; }
-    const parsedBackup = JSON.parse(raw);
-    const hasAssets = parsedBackup && parsedBackup.assets && (Object.keys(parsedBackup.assets.bg||{}).length + Object.keys(parsedBackup.assets.audio||{}).length > 0);
-    const hasChars = parsedBackup && parsedBackup.characters && Object.keys(parsedBackup.characters).length > 0;
+    let parsedBackup = null;
+    try { parsedBackup = await idbGet('backup'); } catch(e){}
+    if (!parsedBackup){
+      const raw = localStorage.getItem(BACKUP_KEY);
+      if (raw) parsedBackup = JSON.parse(raw);
+    }
+    if (!parsedBackup){ alert('没有可恢复的备份'); return; }
+    const hasAssets = parsedBackup.assets && (Object.keys(parsedBackup.assets.bg||{}).length + Object.keys(parsedBackup.assets.audio||{}).length > 0);
+    const hasChars = parsedBackup.characters && Object.keys(parsedBackup.characters).length > 0;
     applyProjectData(parsedBackup);
-    if (!hasAssets && !hasChars) showToast('这次备份里只有剧本，没有角色/场景/音频（可能是存储空间不足）。需要重新导入素材。', 'warn', 6500);
     $('#backupBanner').hidden = true;
-    try { backupAck(JSON.parse(raw).savedAt); } catch(e){}
+    try { backupAck(parsedBackup.savedAt); } catch(e){}
+    if (!hasAssets && !hasChars) showToast('这次备份里只有剧本，没有角色/场景/音频。需要重新导入素材。', 'warn', 6500);
+    else showToast('已恢复备份（含角色 / 场景 / 音频）', 'ok', 2600);
   } catch(e){ alert('恢复备份失败：' + e.message); }
 }
 function backupAck(ts){ try { localStorage.setItem('vn_backup_ack', String(ts || 0)); } catch(e){} }
 function checkAutoBackup(){
   try {
-    const raw = localStorage.getItem(BACKUP_KEY);
-    if (!raw) return;
     let ts = 0;
-    try { ts = Number(JSON.parse(raw).savedAt) || 0; } catch(e){ ts = 0; }
+    try { ts = Number(JSON.parse(localStorage.getItem(BACKUP_META)||'{}').savedAt) || 0; } catch(e){}
+    if (!ts){ try { ts = Number(JSON.parse(localStorage.getItem(BACKUP_KEY)||'{}').savedAt) || 0; } catch(e){} }
+    if (!ts) return;
     const ack = Number(localStorage.getItem('vn_backup_ack')) || 0;
     if (ts > ack) $('#backupBanner').hidden = false;
   } catch(e){}
@@ -7767,6 +7920,7 @@ const DEFAULT_SUPPORTERS = [
   '所有在深夜还对着剧本删删改改的作者 🌙',
   '把演示剧本点完、还认真挑出三个 bug 的朋友 🐛',
   '愿意把 END 看到最后一行的每一位玩家 💫',
+  '有限局域网',
   '—— 以及，此刻正在读这句话的你 ——'
 ];
 
@@ -7809,13 +7963,11 @@ function applyUiTexts(){
 function renderSupporters(){
   const list = $('#supporterList'); if (!list) return;
   const arr = currentCfg().supporters || DEFAULT_SUPPORTERS;
-  list.innerHTML = arr.map(s => {
-    const raw = String(s || '');
-    const special = /^[—-]/.test(raw.trim());
-    return '<div class="supporterRow' + (special ? ' special' : '') + '">' +
-      (special ? '' : '<span class="star">✦</span>') +
-      '<span>' + escapeHtml(raw) + '</span></div>';
-  }).join('');
+  const special = [], names = [];
+  arr.forEach(s => { const t = String(s || '').trim(); if (!t) return; if (/^[—-]/.test(t)) special.push(t); else names.push(t); });
+  let html = '<div class="supFrame">' + names.map(n => '<span class="supName">' + escapeHtml(n) + '</span>').join('') + '</div>';
+  if (special.length) html += '<div class="supNote">' + special.map(t => escapeHtml(t)).join('<br>') + '</div>';
+  list.innerHTML = html;
 }
 function mergeBaseCfg(data){
   if (!data || typeof data !== 'object') return;
@@ -8115,6 +8267,67 @@ scriptInput.addEventListener('click', () => {
   previewSchedule(line);
 });
 
+/* ===== v6.1 IndexedDB 存储 + 自定义字体 ===== */
+function idbOpen(){ return new Promise((res,rej)=>{ const req=indexedDB.open('vns_db',1); req.onupgradeneeded=()=>{ const db=req.result; if(!db.objectStoreNames.contains('kv')) db.createObjectStore('kv'); }; req.onsuccess=()=>res(req.result); req.onerror=()=>rej(req.error); }); }
+function idbSet(k,v){ return idbOpen().then(db=>new Promise((res,rej)=>{ const t=db.transaction('kv','readwrite'); t.objectStore('kv').put(v,k); t.oncomplete=()=>res(true); t.onerror=()=>rej(t.error); })); }
+function idbGet(k){ return idbOpen().then(db=>new Promise((res,rej)=>{ const t=db.transaction('kv','readonly'); const q=t.objectStore('kv').get(k); q.onsuccess=()=>res(q.result); q.onerror=()=>rej(q.error); })); }
+function idbDel(k){ return idbOpen().then(db=>new Promise((res)=>{ const t=db.transaction('kv','readwrite'); t.objectStore('kv').delete(k); t.oncomplete=()=>res(true); t.onerror=()=>res(false); })).catch(()=>false); }
+
+let customFont = { name:'', url:'' };
+function applyFontCss(){
+  let el = document.getElementById('vnsFontCss');
+  if (!el){ el = document.createElement('style'); el.id = 'vnsFontCss'; document.head.appendChild(el); }
+  if (!customFont.url){ el.textContent = ''; }
+  else {
+    let css = '@font-face{font-family:"VNSUserFont";src:url("' + customFont.url + '");font-display:swap}';
+    if (settings.fontOnStage) css += '.stage,.stage *{font-family:"VNSUserFont",\'Zpix\',ui-monospace,monospace!important}';
+    if (settings.fontOnEditor) css += 'body,button,input,textarea,select,pre,code,.sidebar,.topbar,.tabs button{font-family:"VNSUserFont",\'Zpix\',ui-monospace,monospace!important}';
+    el.textContent = css;
+  }
+  const info = $('#fontInfo');
+  if (info) info.textContent = customFont.name ? ('当前：' + customFont.name) : '当前：未导入';
+  const sa = $('#fontStageChk'); if (sa) sa.checked = !!settings.fontOnStage;
+  const ea = $('#fontEditorChk'); if (ea) ea.checked = !!settings.fontOnEditor;
+}
+function pickFontFile(cb){
+  const inp = document.createElement('input');
+  inp.type = 'file';
+  inp.accept = '.ttf,.otf,.woff,.woff2,font/*';
+  inp.style.display = 'none';
+  document.body.appendChild(inp);
+  inp.onchange = () => {
+    const f = inp.files && inp.files[0];
+    if (!f){ inp.remove(); return; }
+    if (f.size > 6 * 1024 * 1024) showToast('字体较大（' + (f.size/1048576).toFixed(1) + 'MB），加载可能变慢', 'warn', 4200);
+    const fr = new FileReader();
+    fr.onload = () => { cb({ name: f.name, url: fr.result }); inp.remove(); };
+    fr.onerror = () => { showToast('字体读取失败', 'err'); inp.remove(); };
+    fr.readAsDataURL(f);
+  };
+  inp.click();
+}
+safeBind('#btnImportFont', () => pickFontFile(async r => {
+  customFont = { name: r.name, url: r.url };
+  try { await idbSet('font', customFont); } catch(e){}
+  settings.fontOnStage = true;
+  saveSettings(); applyFontCss();
+  showToast('字体已导入，已应用到舞台（可取消勾选）', 'ok', 3200);
+}));
+safeBind('#fontStageChk', () => {});
+$('#fontStageChk').addEventListener('change', e => { settings.fontOnStage = e.target.checked; saveSettings(); applyFontCss(); });
+$('#fontEditorChk').addEventListener('change', e => { settings.fontOnEditor = e.target.checked; saveSettings(); applyFontCss(); });
+safeBind('#btnClearFont', () => {
+  customFont = { name:'', url:'' };
+  idbDel('font');
+  settings.fontOnStage = false; settings.fontOnEditor = false;
+  saveSettings(); applyFontCss();
+  showToast('已移除自定义字体', 'ok');
+});
+async function loadCustomFont(){
+  try { const f = await idbGet('font'); if (f && f.url) customFont = f; } catch(e){}
+  applyFontCss();
+}
+
 /* ===== v6.0 开始界面 / 封面编辑器 ===== */
 function defaultCover(){
   return {
@@ -8239,6 +8452,13 @@ function renderCoverProps(){
   h += '<div class="coverRow"><label>副标题</label><input type="text" id="cvSub" value="' + escapeHtml(t.subtitle||'') + '"></div>';
   h += '<div class="coverRow"><label>颜色</label>' + colorInput('cvTitleColor', t.titleColor) + '</div>';
   h += '<div class="coverRow"><label>字号</label><input type="range" id="cvTitleSize" min="1.2" max="5" step="0.1" value="' + (t.titleSize||2.8) + '"><span class="coverVal" id="cvTitleSizeVal">' + (t.titleSize||2.8).toFixed(1) + 'em</span></div>';
+  h += '<div class="coverSec">封面音乐 / 变化</div>';
+  const audioNames = Object.keys(assets.audio);
+  h += '<div class="coverRow"><label>音乐</label><select id="cvBgm"><option value="">（无）</option>' + audioNames.map(n=>'<option value="'+escapeHtml(n)+'"'+(t.bgm===n?' selected':'')+'>'+escapeHtml(n)+'</option>').join('') + '</select></div>';
+  if (audioNames.length === 0) h += '<div class="adminNote">还没有音频，先去「🎵 音频」导入。</div>';
+  if (t.bgm) h += '<div class="coverRow"><label>音量</label><input type="range" id="cvBgmVol" min="0" max="1" step="0.05" value="' + (t.bgmVolume!==undefined?t.bgmVolume:0.6) + '"><span class="coverVal" id="cvBgmVolVal">' + Math.round((t.bgmVolume!==undefined?t.bgmVolume:0.6)*100) + '%</span></div>';
+  h += '<div class="adminBtns"><button id="cvClearedImg">🖼 通关后封面' + (t.imageCleared?' ✓':'') + '</button><button id="cvClearedClear">✕ 清除</button></div>';
+  h += '<label style="flex-direction:row;align-items:center;gap:8px;cursor:pointer;font-size:11.5px;color:#b9b9c8"><input type="checkbox" id="cvNotice" ' + (t.showNotice!==false?'checked':'') + ' style="width:15px;height:15px;accent-color:#fff"><span>底部显示「免费开源」声明</span></label>';
   h += '<div class="coverSec">按钮 ' + (t.buttons.length ? (coverSel+1) + ' / ' + t.buttons.length : '（无）') + '</div>';
   if (t.buttons.length){
     h += '<div class="coverRow"><label>选择</label><select id="cvPick">' + t.buttons.map((x,i)=>'<option value="'+i+'"'+(i===coverSel?' selected':'')+'>'+(i+1)+'. '+escapeHtml(x.text||'按钮')+'</option>').join('') + '</select></div>';
@@ -8300,6 +8520,13 @@ function renderCoverProps(){
   const sb = $('#cvSub'); if (sb) sb.addEventListener('input', () => { coverDraft.subtitle = sb.value; rebind(); });
   const ts = $('#cvTitleSize');
   if (ts) ts.addEventListener('input', () => { coverDraft.titleSize = parseFloat(ts.value); const v=$('#cvTitleSizeVal'); if(v) v.textContent = parseFloat(ts.value).toFixed(1)+'em'; rebind(); });
+  const bgmSel = $('#cvBgm');
+  if (bgmSel) bgmSel.addEventListener('change', () => { coverDraft.bgm = bgmSel.value || ''; renderCoverProps(); });
+  const bgmVol = $('#cvBgmVol');
+  if (bgmVol) bgmVol.addEventListener('input', () => { coverDraft.bgmVolume = parseFloat(bgmVol.value); const v=$('#cvBgmVolVal'); if(v) v.textContent = Math.round(parseFloat(bgmVol.value)*100)+'%'; });
+  const clrImg = $('#cvClearedImg'); if (clrImg) clrImg.addEventListener('click', () => pickImage(r => { coverDraft.imageCleared = r.url; renderCoverProps(); }));
+  const clrClear = $('#cvClearedClear'); if (clrClear) clrClear.addEventListener('click', () => { coverDraft.imageCleared = ''; renderCoverProps(); });
+  const ntc = $('#cvNotice'); if (ntc) ntc.addEventListener('change', () => { coverDraft.showNotice = ntc.checked; });
   const ov = $('#cvOverlay');
   if (ov) ov.addEventListener('input', () => { coverDraft.overlay = parseFloat(ov.value); const v=$('#cvOverlayVal'); if(v) v.textContent = Math.round(parseFloat(ov.value)*100)+'%'; rebind(); });
   const bc = $('#cvBgColor'); if (bc) bc.addEventListener('input', () => { coverDraft.bgColor = bc.value; rebind(); });
@@ -8369,6 +8596,7 @@ safeInit(() => checkAutoBackup(), 'checkAutoBackup');
 safeInit(() => loadProjectName(), 'projectName');
 safeInit(() => initQuickBar(), 'quickBar');
 safeInit(() => loadTitleScreen(), 'titleScreen');
+safeInit(() => loadCustomFont(), 'customFont');
 safeInit(() => initUiConfig(), 'uiConfig');
 
 // 关键：多重兜底修正面板显示
@@ -8385,6 +8613,18 @@ setTimeout(() => {
   if (!seen) openWelcome();
   diagnosticsCheck();
 }, 400);
+
+/* 使用前确认（免费 / 开源） */
+(function initNotice(){
+  const m = $('#noticeModal'); if (!m) return;
+  let seen = false;
+  try { seen = !!localStorage.getItem('vn_notice_seen_v3'); } catch(e){ seen = false; }
+  if (seen) return;
+  const chk = $('#noticeAgree'), ok = $('#noticeOk');
+  if (chk && ok) chk.onchange = () => { ok.disabled = !chk.checked; };
+  if (ok) ok.onclick = () => { m.hidden = true; try { localStorage.setItem('vn_notice_seen_v3','1'); } catch(e){} };
+  m.hidden = false;
+})();
 
 setTimeout(() => {
   safeBind('#btnPlay', startPlaying);
