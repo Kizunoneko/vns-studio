@@ -594,6 +594,12 @@ body.rainbow .stage{animation:rainbowHue 3s linear infinite}
 .supName{display:inline-block;font-size:12px;color:#d8d8e4;padding:0 8px;position:relative}
 .supName:not(:last-child)::after{content:"· ";color:#4a4a58;margin-left:6px}
 .supNote{font-size:11px;color:#8a8a9c;text-align:center;line-height:1.9;margin-top:6px}
+.supBlock{margin-bottom:12px}
+.supBlockTitle{font-size:11px;color:#ffd96f;letter-spacing:.1em;margin-bottom:6px}
+.supLines{border:2px solid #26262f;background:#08080e;padding:12px 14px;line-height:2;font-size:11.5px;color:#c8c8d8}
+.supLines p{margin:0 0 4px}
+.supLines p:last-child{margin-bottom:0;color:#9aa0b0}
+.supEmpty{font-size:11px;color:#5a5a70}
 .adminGroupTitle{font-size:11px;color:#ffd96f;letter-spacing:.12em;border-bottom:2px solid #33333f;padding-bottom:5px;margin-top:10px}
 .adminRow{display:flex;align-items:center;gap:8px}
 .adminRow label{flex:none;width:104px;font-size:11.5px;color:#b9b9c8;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -1020,6 +1026,10 @@ body.theme-paper .supFrame{background:#fffdf7;border-color:#c9bda3}
 body.theme-paper .supName{color:#2f2a21}
 body.theme-paper .supName:not(:last-child)::after{color:#a89a7e}
 body.theme-paper .supNote{color:#6b6050}
+body.theme-paper .supBlockTitle{color:#8a6a1f}
+body.theme-paper .supLines{background:#fffdf7;border-color:#c9bda3;color:#3a3226}
+body.theme-paper .supLines p:last-child{color:#6b6050}
+body.theme-paper .supEmpty{color:#8a7c62}
 body.theme-paper .interactGuide{background:#f2ead9;border-color:#c9bda3}
 body.theme-paper .igStep{color:#4a4236}
 body.theme-paper .interactStatus{background:#f2ead9;border-left-color:#6d5f47;color:#4a4236}
@@ -1499,7 +1509,7 @@ body.theme-paper .aboutUpdated{color:#8a7c62;border-left-color:#d5c9b0}
       <div class="aboutTitle" id="aboutTitle">✦ 关于作者</div>
       <div class="aboutRow"><span>作者</span><b>@Teasssss</b></div>
       <div class="aboutRow"><span>辅助制作工具</span><b>Deepseek</b></div>
-      <div class="aboutRow"><span>版本</span><b class="aboutVer" id="aboutVer" title="多戳几下看看……">v6.1.1</b><span class="aboutUpdated" id="aboutUpdated">2026-11-10 更新</span></div>
+      <div class="aboutRow"><span>版本</span><b class="aboutVer" id="aboutVer" title="多戳几下看看……">v6.1.2</b><span class="aboutUpdated" id="aboutUpdated">2026-11-10 更新</span></div>
       <div class="aboutQuote">“每一个像素，都是你亲手写下的世界。”<br>—— 把故事讲出来的人，永远是作者。</div>
       <div class="aboutBtns">
         <button id="eggCat">🐱 摸一下</button>
@@ -6316,7 +6326,12 @@ safeBind('#featureToggle', () => {
 });
 
 const CHANGELOG = [
-  { version: 'v6.1.1', date: '2026-11-10', title: '地点提示收敛 + 结局判定', current: true, items: [
+  { version: 'v6.1.2', date: '2026-11-10', title: '支持者栏拆框 + 自动记录感谢', current: true, items: [
+    { tag: 'opt', text: '🎗 「支持者名单」和「写在最后」的文案拆成两个框，不再混在一起' },
+    { tag: 'fix', text: '✏️ 名字订正：有限局域网 → 有线局域网' },
+    { tag: 'add', text: '📜 以后在名单里新增名字，更新日志会自动多写一句感谢（只记新增的）' },
+  ]},
+  { version: 'v6.1.1', date: '2026-11-10', title: '地点提示收敛 + 结局判定', items: [
     { tag: 'fix', text: '📍 地点提示只在「互动场景」之间切换时出现；黑屏 / 故障转场、普通视觉小说的背景切换都不再弹提示' },
     { tag: 'fix', text: '📍 从 A 场景切到 B 场景时，只提示 B 的名字（不再在首次进游戏时弹一次）' },
     { tag: 'add', text: '🏁 新增「结局判定」：可以按「持有某物品 / 变量比较」自动分流到不同结局' },
@@ -6502,15 +6517,20 @@ const CHANGELOG = [
 ];
 function renderChangelog(){
   const wrap = $('#logScroll'); if (!wrap) return;
-  wrap.innerHTML = CHANGELOG.map((entry, idx) => `
+  const thanks = (currentCfg().thanks || []);
+  const extra = thanks.length ? [{ tag: 'add', text: '🎗 感谢新增支持者：' + thanks.map(t => t.name).join('、') + ' —— 谢谢你们的支持！' }] : [];
+  wrap.innerHTML = CHANGELOG.map((entry, idx) => {
+    const items = (idx === 0) ? entry.items.concat(extra) : entry.items;
+    return `
     <div class="logItem${entry.current ? ' current' : ''}${idx > 0 ? ' collapsed' : ''}" data-idx="${idx}">
       <div class="logVer">${escapeHtml(entry.version)}</div>
       <div class="logBody">
         <div class="logDate">${escapeHtml(entry.date)}</div>
         <div class="logTitle"><span class="logToggleIcon">▼</span><span>${escapeHtml(entry.title)}</span></div>
-        <ul class="logUl">${entry.items.map(it => `<li class="tag-${it.tag}">${escapeHtml(it.text)}</li>`).join('')}</ul>
+        <ul class="logUl">${items.map(it => `<li class="tag-${it.tag}">${escapeHtml(it.text)}</li>`).join('')}</ul>
       </div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
   wrap.querySelectorAll('.logItem .logBody').forEach(body => {
     body.addEventListener('click', () => body.closest('.logItem').classList.toggle('collapsed'));
   });
@@ -7952,17 +7972,19 @@ const VT_KEYS = [
   { g: '关于作者 / 彩蛋', id: 'about.foot',  name: '底部小字',            sel: '.aboutFoot' }
 ];
 
-const DEFAULT_SUPPORTERS = [
+const DEFAULT_SUPPORTER_NAMES = ['有线局域网'];
+const DEFAULT_SUPPORTER_LINES = [
   '第一位点开这个页面的人 —— 也许就是你自己 ✨',
   '所有在深夜还对着剧本删删改改的作者 🌙',
   '把演示剧本点完、还认真挑出三个 bug 的朋友 🐛',
   '愿意把 END 看到最后一行的每一位玩家 💫',
-  '有限局域网',
   '—— 以及，此刻正在读这句话的你 ——'
 ];
+const OLD_SUPPORTER_LINES = DEFAULT_SUPPORTER_LINES.concat(['有限局域网']);
 
-let baseCfg = { texts: {}, supporters: null };
-let localCfg = { texts: {}, supporters: null };
+let baseCfg = { texts: {}, supporters: null, lines: null, thanks: [] };
+let localCfg = { texts: {}, supporters: null, lines: null, thanks: [] };
+let supporterBaseline = [];
 
 function hashPin(s){
   let h = 2166136261;
@@ -7975,16 +7997,41 @@ function setAuthorMode(){ try { localStorage.setItem(ADMIN_MODE_KEY, '1'); } cat
 function loadLocalCfg(){
   try {
     const v = JSON.parse(localStorage.getItem(UICFG_KEY) || '{}');
-    localCfg = { texts: (v.texts && typeof v.texts === 'object') ? v.texts : {}, supporters: Array.isArray(v.supporters) ? v.supporters : null };
-  } catch(e){ localCfg = { texts: {}, supporters: null }; }
+    localCfg = {
+      texts: (v.texts && typeof v.texts === 'object') ? v.texts : {},
+      supporters: Array.isArray(v.supporters) ? v.supporters : null,
+      lines: Array.isArray(v.lines) ? v.lines : null,
+      thanks: Array.isArray(v.thanks) ? v.thanks : []
+    };
+    /* 旧版把文案和名字混在 supporters 里，这里自动拆开 */
+    if (localCfg.supporters && !localCfg.lines){
+      const names = [], lines = [];
+      localCfg.supporters.forEach(s => {
+        const t = String(s || '').trim();
+        if (!t) return;
+        if (OLD_SUPPORTER_LINES.indexOf(t) >= 0) lines.push(t.replace('有限局域网', '有线局域网'));
+        else names.push(t === '有限局域网' ? '有线局域网' : t);
+      });
+      localCfg.supporters = names;
+      localCfg.lines = lines;
+    }
+  } catch(e){ localCfg = { texts: {}, supporters: null, lines: null, thanks: [] }; }
 }
 function saveLocalCfg(){ try { localStorage.setItem(UICFG_KEY, JSON.stringify(localCfg)); } catch(e){ showToast('本机存储空间不足，文案未能保存', 'warn'); } }
 function currentCfg(){
   const useLocal = authorModeOn();
+  const pick = (k, def) => {
+    const lv = useLocal ? localCfg[k] : null;
+    if (Array.isArray(lv) && lv.length) return lv;
+    const bv = baseCfg[k];
+    if (Array.isArray(bv) && bv.length) return bv;
+    return def;
+  };
   return {
     texts: Object.assign({}, baseCfg.texts || {}, useLocal ? (localCfg.texts || {}) : {}),
-    supporters: (useLocal && localCfg.supporters && localCfg.supporters.length) ? localCfg.supporters
-      : ((baseCfg.supporters && baseCfg.supporters.length) ? baseCfg.supporters : DEFAULT_SUPPORTERS)
+    supporters: pick('supporters', DEFAULT_SUPPORTER_NAMES),
+    lines: pick('lines', DEFAULT_SUPPORTER_LINES),
+    thanks: (useLocal ? (localCfg.thanks || []) : (baseCfg.thanks || []))
   };
 }
 function applyUiTexts(){
@@ -7999,17 +8046,21 @@ function applyUiTexts(){
 }
 function renderSupporters(){
   const list = $('#supporterList'); if (!list) return;
-  const arr = currentCfg().supporters || DEFAULT_SUPPORTERS;
-  const special = [], names = [];
-  arr.forEach(s => { const t = String(s || '').trim(); if (!t) return; if (/^[—-]/.test(t)) special.push(t); else names.push(t); });
-  let html = '<div class="supFrame">' + names.map(n => '<span class="supName">' + escapeHtml(n) + '</span>').join('') + '</div>';
-  if (special.length) html += '<div class="supNote">' + special.map(t => escapeHtml(t)).join('<br>') + '</div>';
+  const cfg = currentCfg();
+  const names = (cfg.supporters || []).map(s => String(s || '').trim()).filter(Boolean);
+  const lines = (cfg.lines || []).map(s => String(s || '').trim()).filter(Boolean);
+  let html = '<div class="supBlock"><div class="supBlockTitle">🎗 支持者名单</div>';
+  html += '<div class="supFrame">' + (names.length ? names.map(n => '<span class="supName">' + escapeHtml(n) + '</span>').join('') : '<span class="supEmpty">还没有支持者</span>') + '</div></div>';
+  html += '<div class="supBlock"><div class="supBlockTitle">💬 写在最后</div><div class="supLines">' +
+    (lines.length ? lines.map(t => '<p>' + escapeHtml(t) + '</p>').join('') : '<p class="supEmpty">（暂无）</p>') + '</div></div>';
   list.innerHTML = html;
 }
 function mergeBaseCfg(data){
   if (!data || typeof data !== 'object') return;
   if (data.texts && typeof data.texts === 'object') Object.assign(baseCfg.texts, data.texts);
   if (Array.isArray(data.supporters)) baseCfg.supporters = data.supporters.slice();
+  if (Array.isArray(data.lines)) baseCfg.lines = data.lines.slice();
+  if (Array.isArray(data.thanks)) baseCfg.thanks = data.thanks.slice();
 }
 async function initUiConfig(){
   loadLocalCfg();
@@ -8071,10 +8122,13 @@ function collectEffectiveTexts(){
   return out;
 }
 function exportTextsJson(){
+  const cfg = currentCfg();
   const data = {
-    version: 1,
+    version: 2,
     texts: collectEffectiveTexts(),
-    supporters: (localCfg.supporters && localCfg.supporters.length) ? localCfg.supporters : (currentCfg().supporters || DEFAULT_SUPPORTERS)
+    supporters: (cfg.supporters || []),
+    lines: (cfg.lines || []),
+    thanks: (cfg.thanks || [])
   };
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
   const a = document.createElement('a');
@@ -8098,9 +8152,13 @@ function renderAdminPanel(){
               '<input data-vt="' + k.id + '" value="' + escapeHtml(val) + '"></div>';
     });
   });
-  html += '<div class="adminGroupTitle">🎗 支持者感谢名单</div>';
-  html += '<div class="adminNote">一行一位；以「——」或「-」开头的行会居中显示为特别行。</div>';
-  html += '<textarea class="adminTxt" id="adminSupporters" rows="7">' + escapeHtml((cfg.supporters || []).join('\n')) + '</textarea>';
+  html += '<div class="adminGroupTitle">🎗 支持者名单（只写名字）</div>';
+  html += '<div class="adminNote">一行一个名字；新增名字会自动在更新日志里记一句感谢。</div>';
+  html += '<textarea class="adminTxt" id="adminSupporters" rows="4">' + escapeHtml((cfg.supporters || []).join('\n')) + '</textarea>';
+  html += '<div class="adminGroupTitle">💬 写在最后（文案）</div>';
+  html += '<div class="adminNote">一行一句，显示在名单框下面。</div>';
+  html += '<textarea class="adminTxt" id="adminSupporterLines" rows="6">' + escapeHtml((cfg.lines || []).join('\n')) + '</textarea>';
+  supporterBaseline = (cfg.supporters || []).slice();
   box.innerHTML = html;
 
   box.querySelectorAll('input[data-vt]').forEach(inp => {
@@ -8114,9 +8172,25 @@ function renderAdminPanel(){
     localCfg.supporters = ta.value.split('\n').map(s => s.trim()).filter(Boolean);
     saveLocalCfg(); renderSupporters();
   });
+  if (ta) ta.addEventListener('change', () => {
+    const cur = ta.value.split('\n').map(s => s.trim()).filter(Boolean);
+    const added = cur.filter(n => supporterBaseline.indexOf(n) < 0);
+    if (added.length){
+      const d = new Date().toISOString().slice(0, 10);
+      localCfg.thanks = (localCfg.thanks || []).concat(added.map(n => ({ name: n, date: d })));
+      supporterBaseline = cur.slice();
+      saveLocalCfg(); renderChangelog();
+      showToast('已把「' + added.join('、') + '」记进更新日志', 'ok', 3000);
+    }
+  });
+  const tla = $('#adminSupporterLines');
+  if (tla) tla.addEventListener('input', () => {
+    localCfg.lines = tla.value.split('\n').map(s => s.trim()).filter(Boolean);
+    saveLocalCfg(); renderSupporters();
+  });
   $('#adminExport').onclick = exportTextsJson;
   $('#adminCopy').onclick = () => {
-    const code = 'window.__VNS_TEXTS__ = ' + JSON.stringify({ texts: collectEffectiveTexts(), supporters: (localCfg.supporters || currentCfg().supporters) }, null, 2) + ';';
+    const code = 'window.__VNS_TEXTS__ = ' + JSON.stringify({ texts: collectEffectiveTexts(), supporters: currentCfg().supporters, lines: currentCfg().lines, thanks: currentCfg().thanks }, null, 2) + ';';
     if (navigator.clipboard && navigator.clipboard.writeText){
       navigator.clipboard.writeText(code).then(() => showToast('嵌入代码已复制，粘到 HTML 的 <head> 里即可', 'ok'), () => showToast('复制失败，请用导出文件', 'warn'));
     } else showToast('当前环境不支持剪贴板，请用导出文件', 'warn');
