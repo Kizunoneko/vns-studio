@@ -819,6 +819,15 @@ body.theme-paper .coverRow > label{color:#6b6050}
 body.theme-paper .coverRow input[type=text],body.theme-paper .coverRow input[type=number],body.theme-paper .coverRow select{background:#fffefb;border-color:#bfb196;color:#2f2a21}
 body.theme-paper .coverSec{color:#8a6a1f;border-bottom-color:#d5c9b0}
 
+/* 结局判定行 */
+.endingRow{border:2px solid #2a2a36;padding:8px;margin-bottom:7px;display:flex;flex-direction:column;gap:6px;background:#08080e}
+.endingTop{display:flex;gap:6px;align-items:center}
+.endingTop b{flex:none;width:18px;height:18px;display:flex;align-items:center;justify-content:center;background:#ffb46f;color:#1a1000;font-size:11px}
+.endingCond{display:flex;gap:6px;align-items:center;flex-wrap:wrap;padding-left:24px}
+body.theme-paper .endingRow{background:#fffdf7;border-color:#c9bda3}
+body.theme-paper .endingTop b{background:#8a6a1f;color:#fff}
+body.theme-paper .endingCond span{color:#6b6050!important}
+
 /* ===== v5.9 上方对话框：播放控件让位 ===== */
 .stage.dlg-top .autoPlayBtn,
 .stage.dlg-mid .autoPlayBtn{top:auto;bottom:12px}
@@ -1179,6 +1188,7 @@ body.theme-paper .aboutUpdated{color:#8a7c62;border-left-color:#d5c9b0}
   <button class="editOnly" id="btnTutorial" style="background:#25304a;border-color:#5b8cff;color:#cfe0ff">🎓</button>
   <button class="editOnly" id="btnCredits" title="致谢表" style="background:#2a1a10;border-color:#ffd96f;color:#ffe6b4">🎞 致谢表</button>
   <button class="editOnly" id="btnCover" title="开始界面 / 封面" style="background:#101a2a;border-color:#7fd0ff;color:#cfe6ff">🎬 封面</button>
+  <button class="editOnly" id="btnEnding" title="结局判定" style="background:#241a10;border-color:#ffb46f;color:#ffdcc0">🏁 结局</button>
   <button class="editOnly" id="btnBackup" title="立即备份" style="background:#1a1a14;border-color:#b8b88a;color:#e8e8c8">💾 备份</button>
   <input type="file" id="fileProj" accept=".json,application/json" hidden>
   <input type="file" id="fileAudio" accept="audio/*" hidden>
@@ -1489,7 +1499,7 @@ body.theme-paper .aboutUpdated{color:#8a7c62;border-left-color:#d5c9b0}
       <div class="aboutTitle" id="aboutTitle">✦ 关于作者</div>
       <div class="aboutRow"><span>作者</span><b>@Teasssss</b></div>
       <div class="aboutRow"><span>辅助制作工具</span><b>Deepseek</b></div>
-      <div class="aboutRow"><span>版本</span><b class="aboutVer" id="aboutVer" title="多戳几下看看……">v6.1</b><span class="aboutUpdated" id="aboutUpdated">2026-11-10 更新</span></div>
+      <div class="aboutRow"><span>版本</span><b class="aboutVer" id="aboutVer" title="多戳几下看看……">v6.1.1</b><span class="aboutUpdated" id="aboutUpdated">2026-11-10 更新</span></div>
       <div class="aboutQuote">“每一个像素，都是你亲手写下的世界。”<br>—— 把故事讲出来的人，永远是作者。</div>
       <div class="aboutBtns">
         <button id="eggCat">🐱 摸一下</button>
@@ -2010,6 +2020,12 @@ button{ background:#0d0d18; border-color:#4a4a80; color:#e8e8f4; }</div>
     <div class="adminNote">可用选择器：<b>.dialog</b> 对话框盒子、<b>.name</b> 名字框、<b>.text</b> 正文、<b>.avatarBox</b> 头像框、<b>.dialog.pos-top</b> 上方位置。<br>导出游戏时会自动换成对应的 <b>#dialog / #name / #text</b> 选择器，不用手动改。</div>
   </div>
   <div class="sheetFoot"><button id="dialogStyleClose" class="primary">完成</button></div>
+</div></div>
+
+<div class="sheet" id="endingModal" hidden><div class="sheetCard" style="width:min(720px,96vw)">
+  <div class="sheetTitle">🏁 结局判定</div>
+  <div class="sheetBody" id="endingBody"></div>
+  <div class="sheetFoot"><button id="endingClose">关闭</button><button class="primary" id="endingGen">⚡ 生成判定代码</button></div>
 </div></div>
 
 <div class="sheet" id="coverModal" hidden><div class="sheetCard" style="width:min(980px,97vw)">
@@ -2790,7 +2806,16 @@ function showEditorLocation(name){
 }
 function setBg(name, transition){
   transition = (transition || 'fade').toLowerCase();
-  if (name) showEditorLocation(name);
+  const prevScene = vm.currentSceneName;
+  const nextScene = getScene(name);
+  const nextParts = getSceneParts(nextScene);
+  const nextInteractive = nextParts.some(p => p && p.hotspots && p.hotspots.length);
+  const prevSceneObj = prevScene ? getScene(prevScene) : null;
+  const prevParts = prevSceneObj ? getSceneParts(prevSceneObj) : [];
+  const prevInteractive = prevParts.some(p => p && p.hotspots && p.hotspots.length);
+  if (name && prevScene && prevScene !== name && transition !== 'black' && transition !== 'glitch' && (nextInteractive || prevInteractive)){
+    showEditorLocation(name);
+  }
   const scene = getScene(name);
   const parts = getSceneParts(scene);
   const hideChars = scene ? !!scene.hideChars : false;
@@ -6291,7 +6316,13 @@ safeBind('#featureToggle', () => {
 });
 
 const CHANGELOG = [
-  { version: 'v6.1', date: '2026-11-10', title: '字体 / 封面进化 / 备份重做 (ﾉ◕ヮ◕)ﾉ*:･ﾟ✧', current: true, items: [
+  { version: 'v6.1.1', date: '2026-11-10', title: '地点提示收敛 + 结局判定', current: true, items: [
+    { tag: 'fix', text: '📍 地点提示只在「互动场景」之间切换时出现；黑屏 / 故障转场、普通视觉小说的背景切换都不再弹提示' },
+    { tag: 'fix', text: '📍 从 A 场景切到 B 场景时，只提示 B 的名字（不再在首次进游戏时弹一次）' },
+    { tag: 'add', text: '🏁 新增「结局判定」：可以按「持有某物品 / 变量比较」自动分流到不同结局' },
+    { tag: 'add', text: '⚡ 一键生成判定代码：自动写好 ending_check 与每个结局的 @end，排好优先级顺序' },
+  ]},
+  { version: 'v6.1', date: '2026-11-10', title: '字体 / 封面进化 / 备份重做 (ﾉ◕ヮ◕)ﾉ*:･ﾟ✧', items: [
     { tag: 'add', text: '🔤 自定义字体：可导入 ttf/otf/woff，分别应用到舞台或编辑器界面' },
     { tag: 'add', text: '🎵 开始界面可以挂 BGM（音量可调），进游戏自动停' },
     { tag: 'add', text: '🖼 依靠进度换封面：设置「通关后封面图」，看到结局后再回封面就变了' },
@@ -6919,7 +6950,10 @@ var bgFront=0,shown={},curExpr={},lastSpeakers=[],textColor=null,currentScene=nu
 function canShowChars(){var sc=bgs[currentScene];if(!sc)return true;return !(sc.hideChars);}
 function setFb(v){fadeBlackLevel=Math.max(0,Math.min(1,v));fb.style.opacity=String(fadeBlackLevel);}
 function clearChars(){Object.keys(shown).forEach(function(n){var el=shown[n];el.classList.remove('in');setTimeout(function(){if(el.parentNode)el.parentNode.removeChild(el);},350);});shown={};curExpr={};}
-function setBg(name,trans){trans=trans||'fade';var sc=bgs[name];var parts=sceneParts(sc);currentScene=name;currentPart=0;var url=parts.length?parts[0].url:null;var nxt=bgFront===0?bgB:bgA,cur=bgFront===0?bgA:bgB;if(url){nxt.style.backgroundImage='url("'+url+'")';}else nxt.style.backgroundImage='none';nxt.classList.add('on');cur.classList.remove('on');bgFront=bgFront===0?1:0;if(sc&&sc.hideChars)clearChars();renderHotspots();if(name)showLocation((sc&&sc.title)?sc.title:name);}
+function isInteractiveScene(name){var sc=bgs[name];if(!sc)return false;var ps=sceneParts(sc);for(var i=0;i<ps.length;i++){if(ps[i].hotspots&&ps[i].hotspots.length)return true;}return false;}
+function setBg(name,trans){trans=trans||'fade';var sc=bgs[name];var parts=sceneParts(sc);var prevScene=currentScene;currentScene=name;currentPart=0;var url=parts.length?parts[0].url:null;var nxt=bgFront===0?bgB:bgA,cur=bgFront===0?bgA:bgB;if(url){nxt.style.backgroundImage='url("'+url+'")';}else nxt.style.backgroundImage='none';nxt.classList.add('on');cur.classList.remove('on');bgFront=bgFront===0?1:0;if(sc&&sc.hideChars)clearChars();renderHotspots();
+  if(name&&prevScene&&prevScene!==name&&trans!=='black'&&trans!=='glitch'&&isInteractiveScene(name))showLocation((sc&&sc.title)?sc.title:name);
+}
 function applySpriteAdjust(img,name){var c=chs[name];var adj=c&&c.spriteAdjust;if(!adj){img.style.transform='';return;}img.style.transform='translate('+(adj.x||0)+'px,'+(adj.y||0)+'px) scale('+(adj.scale||1)+')';}var imgSizes={};
 function layoutSprite(el,posName){
   var url=el.dataset.src; var s=url&&imgSizes[url];
@@ -7263,7 +7297,7 @@ $('#btnGameExport').onclick = () => {
     const data = {
       script: scriptInput.value,
       characters, assets: { bg: assets.bg, audio: assets.audio }, items,
-      settings, credits, mode: displayMode, projectName, titleScreen
+      settings, credits, mode: displayMode, projectName, titleScreen, endings
     };
     const html = buildPlayerHtml(data);
     const blob = new Blob([html], { type: 'text/html' });
@@ -7318,6 +7352,7 @@ $('#expOk').onclick = () => {
     if (doSettings) data.settings = settings;
     data.credits = credits;
     data.titleScreen = titleScreen;
+    data.endings = endings;
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
@@ -7350,6 +7385,7 @@ $('#fileProj').onchange = async e => {
     if (data.settings){ settings = Object.assign(settings, data.settings); applySettings(); }
     if (data.credits){ Object.assign(credits, data.credits); }
     if (data.titleScreen) titleScreen = Object.assign(defaultCover(), data.titleScreen);
+    if (Array.isArray(data.endings)) endings = data.endings;
     if (data.mode === 'avatar' || data.mode === 'sprite'){
       displayMode = data.mode;
       document.querySelectorAll('#displayMode button').forEach(b => b.classList.toggle('active', b.dataset.mode === displayMode));
@@ -7673,7 +7709,7 @@ function setupDemoScene(){
 const BACKUP_KEY = 'vn_autobackup_v1';
 function collectProjectData(){
   Object.keys(characters).forEach(n => ensureAdjust(n));
-  return { script: scriptInput.value, characters, assets: { bg: assets.bg, audio: assets.audio }, items, settings, credits, mode: displayMode, projectName, titleScreen };
+  return { script: scriptInput.value, characters, assets: { bg: assets.bg, audio: assets.audio }, items, settings, credits, mode: displayMode, projectName, titleScreen, endings };
 }
 const BACKUP_META = 'vn_backup_meta';
 function saveAutoBackup(){
@@ -7698,6 +7734,7 @@ function applyProjectData(data){
   if (typeof data.script === 'string'){ scriptInput.value = data.script; lastScriptValue = data.script; }
   if (data.projectName) setProjectName(data.projectName);
   if (data.titleScreen) titleScreen = Object.assign(defaultCover(), data.titleScreen);
+  if (Array.isArray(data.endings)) endings = data.endings;
   if (data.characters){ characters = data.characters; Object.keys(characters).forEach(n => migrateCharacter(characters[n])); }
   if (data.assets && data.assets.bg){ assets.bg = data.assets.bg; migrateSceneData(); }
   if (data.assets && data.assets.audio){ assets.audio = data.assets.audio; migrateAudioData(); audioPlayers.clear(); renderAudio(); }
@@ -8327,6 +8364,96 @@ async function loadCustomFont(){
   try { const f = await idbGet('font'); if (f && f.url) customFont = f; } catch(e){}
   applyFontCss();
 }
+
+/* ===== v6.1.1 结局判定 ===== */
+let endings = [];
+function defaultEnding(){ return { title:'好结局', sub:'你达成了条件。', type:'none', item:'', varName:'', op:'>=', value:'1' }; }
+let endingDraft = [];
+function openEndingModal(){
+  endingDraft = JSON.parse(JSON.stringify(endings || []));
+  if (!endingDraft.length) endingDraft = [ JSON.parse(JSON.stringify(defaultEnding())) ];
+  renderEndingEditor();
+  $('#endingModal').hidden = false;
+}
+function renderEndingEditor(){
+  const box = $('#endingBody'); if (!box) return;
+  let h = '<div class="hintTip" style="margin:0">从上到下依次判定，<b>第一个满足条件的结局生效</b>；类型选「无」就是兵底。生成后记得在主剧情末尾写 <code>@jump ending_check</code>。</div>';
+  h += '<div id="endingRows"></div>';
+  h += '<div class="adminBtns" style="margin-top:6px"><button id="endingAdd">＋ 新增结局</button></div>';
+  box.innerHTML = h;
+  const wrap = $('#endingRows');
+  endingDraft.forEach((e, i) => {
+    const row = document.createElement('div');
+    row.className = 'endingRow';
+    let cond = '';
+    if (e.type === 'item'){
+      cond = '<input class="condItem adminTxt" style="flex:1;min-width:120px;padding:5px 8px" list="itemOptions" value="' + escapeHtml(e.item || '') + '" placeholder="物品名（如：钥匙）">';
+    } else if (e.type === 'var'){
+      cond = '<input class="condVar adminTxt" style="flex:1;min-width:90px;padding:5px 8px" value="' + escapeHtml(e.varName || '') + '" placeholder="变量名">' +
+        '<select class="condOp adminTxt" style="flex:0 0 74px;padding:5px 4px">' + ['>=','==','<=','>','<','!='].map(o=>'<option value="'+o+'"'+(e.op===o?' selected':'')+'>'+o+'</option>').join('') + '</select>' +
+        '<input class="condVal adminTxt" style="flex:0 0 70px;padding:5px 8px" value="' + escapeHtml(e.value || '') + '" placeholder="值">';
+    } else {
+      cond = '<span style="font-size:11px;color:#7a7a8c">不判定，直接进入这个结局</span>';
+    }
+    row.innerHTML = '<div class="endingTop"><b>' + (i+1) + '</b>' +
+      '<input class="endingTitle adminTxt" style="flex:1;min-width:100px;padding:5px 8px" value="' + escapeHtml(e.title || '') + '" placeholder="结局标题">' +
+      '<input class="endingSub adminTxt" style="flex:1;min-width:100px;padding:5px 8px" value="' + escapeHtml(e.sub || '') + '" placeholder="副标题（可空）">' +
+      '<button class="iconBtn up" title="上移">↑</button><button class="iconBtn down" title="下移">↓</button><button class="iconBtn del" title="删除">✕</button></div>' +
+      '<div class="endingCond"><span style="font-size:11px;color:#9a9aae;flex:none">条件</span>' +
+      '<select class="condType adminTxt" style="flex:0 0 120px;padding:5px 6px">' +
+      '<option value="none"' + (e.type==='none'?' selected':'') + '>无（兵底）</option>' +
+      '<option value="item"' + (e.type==='item'?' selected':'') + '>持有物品</option>' +
+      '<option value="var"' + (e.type==='var'?' selected':'') + '>变量比较</option></select>' + cond + '</div>';
+    wrap.appendChild(row);
+    const q = sel => row.querySelector(sel);
+    q('.endingTitle').oninput = ev => { endingDraft[i].title = ev.target.value; };
+    q('.endingSub').oninput = ev => { endingDraft[i].sub = ev.target.value; };
+    q('.condType').onchange = ev => { endingDraft[i].type = ev.target.value; renderEndingEditor(); };
+    if (q('.condItem')) q('.condItem').oninput = ev => { endingDraft[i].item = ev.target.value; };
+    if (q('.condVar')) q('.condVar').oninput = ev => { endingDraft[i].varName = ev.target.value; };
+    if (q('.condOp')) q('.condOp').onchange = ev => { endingDraft[i].op = ev.target.value; };
+    if (q('.condVal')) q('.condVal').oninput = ev => { endingDraft[i].value = ev.target.value; };
+    q('.up').onclick = () => { if (i > 0){ const t = endingDraft.splice(i,1)[0]; endingDraft.splice(i-1,0,t); renderEndingEditor(); } };
+    q('.down').onclick = () => { if (i < endingDraft.length-1){ const t = endingDraft.splice(i,1)[0]; endingDraft.splice(i+1,0,t); renderEndingEditor(); } };
+    q('.del').onclick = () => { endingDraft.splice(i,1); renderEndingEditor(); };
+  });
+  const add = $('#endingAdd');
+  if (add) add.onclick = () => { endingDraft.push(JSON.parse(JSON.stringify(defaultEnding()))); renderEndingEditor(); };
+}
+function buildEndingScript(){
+  const valid = endingDraft.filter(e => e.title || e.type !== 'none');
+  const L = [];
+  L.push('', '// ===== 结局判定（自动生成） =====');
+  L.push('::ending_check');
+  valid.forEach((e) => {
+    const idx = endingDraft.indexOf(e) + 1;
+    if (e.type === 'item' && (e.item||'').trim()) L.push('@has ' + e.item.trim() + ' -> end_' + idx);
+    else if (e.type === 'var' && (e.varName||'').trim()) L.push('@check ' + e.varName.trim() + ' ' + (e.op||'>=') + ' ' + (e.value||'0') + ' -> end_' + idx);
+  });
+  L.push('@jump end_default');
+  L.push('', '::end_default', '@end 普通结局 你没有达成任何结局条件');
+  valid.forEach((e) => {
+    const idx = endingDraft.indexOf(e) + 1;
+    L.push('', '::end_' + idx);
+    L.push('// 在这里写「' + (e.title || ('结局' + idx)) + '」之前的剧情');
+    L.push('@end ' + (e.title || ('结局' + idx)) + (e.sub ? (' ' + e.sub) : ''));
+  });
+  return L.join('\n');
+}
+safeBind('#btnEnding', openEndingModal);
+safeBind('#endingClose', () => { $('#endingModal').hidden = true; });
+$('#endingModal').addEventListener('click', e => { if (e.target === $('#endingModal')) $('#endingModal').hidden = true; });
+safeBind('#endingGen', () => {
+  endings = JSON.parse(JSON.stringify(endingDraft));
+  const script = buildEndingScript();
+  const base = scriptInput.value.replace(/\s*$/, '');
+  commitScriptChange(base + (base ? '\n' : '') + script);
+  $('#endingModal').hidden = true;
+  const tb = document.querySelector('.tabs button[data-tab="script"]');
+  if (tb) tb.click();
+  showToast('已生成结局判定，别忘了在主剧情末尾写 @jump ending_check', 'ok', 5200);
+  try { saveAutoBackup(); } catch(e){}
+});
 
 /* ===== v6.0 开始界面 / 封面编辑器 ===== */
 function defaultCover(){
