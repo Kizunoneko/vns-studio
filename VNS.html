@@ -250,6 +250,7 @@ body.playing .editOnly{display:none}
 .branchScroll{flex:1;overflow-y:auto;padding:10px 12px}
 .branchFlowWrap{flex:1;overflow:auto;background:#08080c;background-image:linear-gradient(#12121a 1px,transparent 1px),linear-gradient(90deg,#12121a 1px,transparent 1px);background-size:20px 20px}
 .branchFlow{position:relative;min-width:100%;min-height:100%}
+.branchFlow,.branchFlow *{user-select:none;-webkit-user-select:none}
 .branchSummary{font-size:11px;color:#7a7a8c;padding:2px 2px 10px;display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #26262f;margin-bottom:10px}
 .branchSummary b{color:#c8c8d8;font-weight:400}
 .branchCard{background:#000;border:2px solid #2e2e3a;margin-bottom:6px;padding:8px 10px;cursor:pointer}
@@ -1542,7 +1543,7 @@ body.theme-paper .aboutUpdated{color:#8a7c62;border-left-color:#d5c9b0}
 <h3>🗺 流程视图（程序框图）</h3>
 <p>「分支」面板切到 <b>「🗺 流程视图」</b>：从 <b>▶ 开始</b> 一路往下，剧情是方框、条件判定是菱形（左右分叉，边上写着条件）、选项是六边形，没出口的分支会亮黄提醒。</p>
 <p>拖动节点摆位置（会记住）；节点右上角 <b>📌</b> 写标注；右下角 <b>＋</b> 新建跳转；左侧 <b>⇢</b> 拖到另一个节点就直接连线。</p>
-<p>想看得更大：点 <b>⛶ 独立窗口</b> 单独开一个窗口放流程图——里面<b>点节点就能编辑那一分支的剧本</b>，也能拖节点摆位置、点 ＋ 新建跳转、点 ✕ 删分支、按住 ⇢ 拖到另一个节点连线；滚轮/双指缩放，空白处拖动平移。主窗口里也可以用 <b>Ctrl + 滚轮</b> 缩放。</p>
+<p>想看得更大：点 <b>⛶ 独立窗口</b> 单独开一个窗口放流程图——里面<b>点节点就能编辑那一分支的剧本</b>（编辑框带快捷栏：场景 / 立绘 / 跳转 下拉 + 12 个常用模板），也能拖节点摆位置、点 ＋ 新建跳转、点 ✕ 删分支、按住 ⇢ 拖到另一个节点连线；滚轮/双指缩放，空白处拖动平移。主窗口里也可以用 <b>Ctrl + 滚轮</b> 缩放。</p>
 <h3>⚡ 批量导入立绘</h3>
 <p>「＋ 角色」→ <b>⚡ 批量</b> 或表情弹窗里的 <b>⚡ 批量</b>：选完图会先列出<b>缩略图 + 文件名 + 要用的名字</b>，可以逐张改。</p>
 <p>带 <b>_talk</b> / <b>_说话</b> 的会自动拼成上一个表情的说话差分；公共前缀（sakura_微笑 → 微笑）自动去掉；重名会提前标出来。</p>
@@ -1647,7 +1648,7 @@ body.theme-paper .aboutUpdated{color:#8a7c62;border-left-color:#d5c9b0}
       <div class="aboutTitle" id="aboutTitle">✦ 关于作者</div>
       <div class="aboutRow"><span>作者</span><b>@Teasssss</b></div>
       <div class="aboutRow"><span>辅助制作工具</span><b>Deepseek</b></div>
-      <div class="aboutRow"><span>版本</span><b class="aboutVer" id="aboutVer" title="多戳几下看看……">v6.6.1</b><span class="aboutUpdated" id="aboutUpdated">2026-11-12 更新</span></div>
+      <div class="aboutRow"><span>版本</span><b class="aboutVer" id="aboutVer" title="多戳几下看看……">v6.7</b><span class="aboutUpdated" id="aboutUpdated">2026-11-12 更新</span></div>
       <div class="aboutQuote">“每一个像素，都是你亲手写下的世界。”<br>—— 把故事讲出来的人，永远是作者。</div>
       <div class="aboutBtns">
         <button id="eggCat">🐱 摸一下</button>
@@ -6632,6 +6633,7 @@ function flowViewerCss(){
     'body.theme-paper .vnsVP{background-color:#f1e9da;background-image:linear-gradient(#e0d5bf 1px,transparent 1px),linear-gradient(90deg,#e0d5bf 1px,transparent 1px)}',
     '.vnsVP.grabbing{cursor:grabbing}',
     '.vnsVC{position:absolute;left:0;top:0;transform-origin:0 0;will-change:transform}',
+    '.vnsVC,.vnsVC *,.vnsVP{user-select:none;-webkit-user-select:none}',
     '.vnsVC .flowBlock{cursor:move}',
     '.vnsVModal{position:absolute;inset:0;background:rgba(0,0,0,.66);display:flex;align-items:center;justify-content:center;z-index:60}',
     '.vnsVCard{width:min(680px,92%);max-height:86%;display:flex;flex-direction:column;background:#0d0d14;border:2px solid #5b8cff;box-shadow:4px 4px 0 0 #000}',
@@ -6652,6 +6654,12 @@ function flowViewerCss(){
     'body.theme-paper .vnsVToast{background:#fffdf7;border-color:#4a7a3a;color:#2f5a22}',
     'body.theme-paper .vnsVToast.warn{background:#fffdf7;border-color:#b08a2a;color:#7a5a10}',
     'body.theme-paper .vnsVBtn.primary{background:#6d5f47;border-color:#6d5f47;color:#fcf9f1}',
+    '.vnsVTools{display:flex;flex-wrap:wrap;gap:5px;padding:8px 12px 0}',
+    '.vnsVTool{font-family:inherit;font-size:11px;padding:3px 8px;border:2px solid #4a4a58;background:#0a0a12;color:#c8c8d8;cursor:pointer;box-shadow:none}',
+    '.vnsVTool:hover{background:#16233a;border-color:#5b8cff;color:#cfe0ff}',
+    'body.theme-paper .vnsVTool{background:#fffdf7;border-color:#bfb196;color:#5a4f3c}',
+    '.vnsVSel{font-family:inherit;font-size:11px;padding:3px 6px;background:#0a0a12;color:#cfe0ff;border:2px solid #5b8cff;max-width:170px}',
+    'body.theme-paper .vnsVSel{background:#fffdf7;border-color:#9a8a6a;color:#4a4236}',
     '.vnsVOverlay{position:fixed;inset:0;z-index:9999;display:flex;flex-direction:column;background:#08080c}'
   ].join('\n');
 }
@@ -6698,6 +6706,8 @@ function makeViewerControls(vp, cv, onChange){
   vp.addEventListener('wheel', onWheel, { passive:false });
   vp.addEventListener('pointerdown', e => {
     if (e.button !== 0 && e.pointerType === 'mouse') return;
+    e.preventDefault();
+    try { const s = vp.ownerDocument.getSelection(); if (s && s.removeAllRanges) s.removeAllRanges(); } catch(err){}
     try { vp.setPointerCapture(e.pointerId); } catch(err){}
     pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
     vp.classList.add('grabbing');
@@ -7001,6 +7011,20 @@ function startViewerLink(fv, e, fromLabel){
   doc.addEventListener('pointerup', up);
 }
 
+function viewerInsertText(ta, text){
+  if (!ta) return;
+  const start = ta.selectionStart, end = ta.selectionEnd;
+  const before = ta.value.slice(0, start), after = ta.value.slice(end);
+  const prefix = (before.length && !before.endsWith('\n')) ? '\n' : '';
+  const suffix = (after.length && !after.startsWith('\n')) ? '\n' : '';
+  const insert = prefix + text + suffix;
+  ta.value = before + insert + after;
+  const pos = before.length + insert.length;
+  ta.setSelectionRange(pos, pos);
+  ta.focus();
+  if (ta._vnsCount) ta._vnsCount();
+}
+
 function openViewerBranch(fv, label){
   const doc = fv.doc || document;
   const old = doc.getElementById('vnsVBranch');
@@ -7010,24 +7034,94 @@ function openViewerBranch(fv, label){
   mask.id = 'vnsVBranch';
   const card = doc.createElement('div');
   card.className = 'vnsVCard';
+  card.style.width = 'min(780px,94%)';
   const head = doc.createElement('div');
   head.className = 'vnsVCardHead';
   head.textContent = '📖 编辑分支 · ' + (label === '（开头）' ? '开头' : label);
+
+  // 快捷插入
+  const tools = doc.createElement('div');
+  tools.className = 'vnsVTools';
   const ta = doc.createElement('textarea');
   ta.className = 'vnsVCardTa';
   ta.spellcheck = false;
   ta.value = (fv.contents && fv.contents[label]) || '';
+
+  const mkTool = (txt, title, snippet) => {
+    const b = doc.createElement('button');
+    b.className = 'vnsVTool';
+    b.textContent = txt;
+    b.title = title || snippet;
+    b.onclick = ev => { ev.preventDefault(); viewerInsertText(ta, snippet); };
+    return b;
+  };
+  const mkSel = (placeholder, opts, build) => {
+    const s = doc.createElement('select');
+    s.className = 'vnsVSel';
+    const o0 = doc.createElement('option');
+    o0.value = ''; o0.textContent = placeholder;
+    s.appendChild(o0);
+    opts.forEach(o => {
+      const op = doc.createElement('option');
+      op.value = o.value; op.textContent = o.label;
+      s.appendChild(op);
+    });
+    s.onchange = () => {
+      if (!s.value) return;
+      viewerInsertText(ta, build(s.value));
+      s.value = '';
+    };
+    return s;
+  };
+
+  const sceneOpts = Object.keys(assets.bg).map(n => ({ value: n, label: n + (assets.bg[n].hideChars ? ' 🎬' : '') }));
+  const charOpts = Object.keys(characters).map(n => ({ value: n, label: n }));
+  const labelOpts = splitBranches(scriptInput.value).filter(b => !b.isEntry).map(b => ({ value: b.label, label: b.label }));
+
+  tools.appendChild(mkSel('🖼 插入场景…', sceneOpts, n => (assets.bg[n] && assets.bg[n].hideChars ? '@cg ' : '@bg ') + n));
+  tools.appendChild(mkSel('👤 插入立绘…', charOpts, n => '@show ' + n + ' 中'));
+  tools.appendChild(mkSel('↪ 跳到分支…', labelOpts, n => '@jump ' + n));
+  tools.appendChild(mkSel('👋 隐藏立绘…', charOpts, n => '@hide ' + n));
+
+  const tplRow = doc.createElement('div');
+  tplRow.className = 'vnsVTools';
+  [
+    ['💬 台词', '@show 角色 中\n角色：这里写台词'],
+    ['🔀 选项', '- 选项文字 -> 目标标签'],
+    ['🎯 条件', '@check 变量 >= 1 -> 目标标签'],
+    ['🧩 @when', '@when item:钥匙 -> 目标标签'],
+    ['🚩 标签', '::新标签'],
+    ['⏸ 等待', '@wait'],
+    ['🎁 获得', '@get 物品名'],
+    ['🔔 音效', '@sfx 音效名'],
+    ['🎵 BGM', '@bgm 曲名'],
+    ['✨ 特效', '@fx text-shake on 800'],
+    ['🎨 文字色', '@textcolor #ff6b6b'],
+    ['⏹ 结束', '@end 结局名']
+  ].forEach(([txt, snip]) => {
+    tplRow.appendChild(mkTool(txt, snip, snip));
+  });
+
   const foot = doc.createElement('div');
   foot.className = 'vnsVCardFoot';
   const hint = doc.createElement('span');
   hint.className = 'vnsVHint';
-  hint.textContent = '一行一条指令 · Ctrl+Enter 保存 · Esc 关闭';
+  const updateCount = () => {
+    const lines = ta.value.split('\n').filter(l => l.trim()).length;
+    const jumps = (ta.value.match(/@(jump|has|check|visited|when)/gi) || []).length;
+    const choices = (ta.value.match(/^[-*]\s.*->/gm) || []).length;
+    hint.textContent = '有效 ' + lines + ' 行 · 跳转 ' + jumps + ' · 选项 ' + choices + ' · Ctrl+Enter 保存';
+  };
+  ta._vnsCount = updateCount;
+  ta.addEventListener('input', updateCount);
+  updateCount();
   const bCancel = doc.createElement('button');
   bCancel.className = 'vnsVBtn'; bCancel.textContent = '取消';
   const bSave = doc.createElement('button');
   bSave.className = 'vnsVBtn primary'; bSave.textContent = '保存';
   foot.append(hint, bCancel, bSave);
-  card.append(head, ta, foot);
+
+  card.append(head, tools, tplRow, ta, foot);
   mask.appendChild(card);
   (doc.body || doc.documentElement).appendChild(mask);
   const close = () => { if (mask.parentNode) mask.remove(); };
@@ -7249,6 +7343,8 @@ function applyFlowZoom(k, fromRender){
     if (branchViewMode !== 'flow') return;
     if (e.button !== 0 && e.pointerType === 'mouse') return;
     if (e.target.closest('.flowBlock') || e.target.closest('.flowGhost')) return;
+    e.preventDefault();
+    try { const sel = window.getSelection(); if (sel && sel.removeAllRanges) sel.removeAllRanges(); } catch(err){}
     pan = { x: e.clientX, y: e.clientY, sl: wrapEl.scrollLeft, st: wrapEl.scrollTop };
     wrapEl.classList.add('flow-panning');
   });
@@ -7957,7 +8053,13 @@ safeBind('#featureToggle', () => {
 });
 
 const CHANGELOG = [
-  { version: 'v6.6.1', date: '2026-11-12', title: '独立窗口修正：按钮不挡字、操作有提示 (・∀・)', current: true, items: [
+  { version: 'v6.7', date: '2026-11-12', title: '独立窗口里的编辑框也能快捷插入了 ✍(◔◡◔)', current: true, items: [
+    { tag: 'add', text: '⚡ 窗口内的分支编辑框新增快捷栏：场景 / 立绘 / 跳转 / 隐藏 四个下拉，选一下就插到光标处' },
+    { tag: 'add', text: '🧩 另一排是 12 个常用模板：台词、选项、@check、@when、标签、等待、物品、音效、BGM、特效、颜色、结局' },
+    { tag: 'add', text: '📊 编辑框底部实时统计有效行数 / 跳转数 / 选项数，编辑框也加宽了' },
+    { tag: 'fix', text: '🖐 拖拽画布时不会再选中文字了（主窗口、独立窗口都修了），拖起来不粘手' },
+  ]},
+  { version: 'v6.6.1', date: '2026-11-12', title: '独立窗口修正：按钮不挡字、操作有提示 (・∀・)', items: [
     { tag: 'fix', text: '🔧 节点按钮重新排：✕ 和 📌 并排右上、＋ 在右下、⇢ 在左侧，不会再压在文字上（标注图标顺手改成 📌，不再跟「编辑」搞混）' },
     { tag: 'fix', text: '🔧 窗口里拖完节点，连线立刻跟着重画，不再留着旧线' },
     { tag: 'add', text: '💬 窗口里的保存 / 新建 / 删除 / 连线都会在窗口底部弹提示，不用回头看主窗口' },
