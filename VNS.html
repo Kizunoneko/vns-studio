@@ -1649,7 +1649,7 @@ body.theme-paper .aboutUpdated{color:#8a7c62;border-left-color:#d5c9b0}
       <div class="aboutTitle" id="aboutTitle">✦ 关于作者</div>
       <div class="aboutRow"><span>作者</span><b>@Teasssss</b></div>
       <div class="aboutRow"><span>辅助制作工具</span><b>Deepseek</b></div>
-      <div class="aboutRow"><span>版本</span><b class="aboutVer" id="aboutVer" title="多戳几下看看……">v7.0</b><span class="aboutUpdated" id="aboutUpdated">2026-11-12 更新</span></div>
+      <div class="aboutRow"><span>版本</span><b class="aboutVer" id="aboutVer" title="多戳几下看看……">v7.0.1</b><span class="aboutUpdated" id="aboutUpdated">2026-11-12 更新</span></div>
       <div class="aboutQuote">“每一个像素，都是你亲手写下的世界。”<br>—— 把故事讲出来的人，永远是作者。</div>
       <div class="aboutBtns">
         <button id="eggCat">🐱 摸一下</button>
@@ -3150,6 +3150,7 @@ function renderHotspots(){
   hotspotLayer.innerHTML = '';
   if (!vm.running) return;
   hotspotLayer.classList.toggle('active', !!vm.awaitingHotspot);
+  if (!vm.awaitingHotspot) return;
   const hotspots = getCurrentHotspots();
   hotspots.forEach((h, idx) => {
     const key = getHotspotKey(idx);
@@ -3527,7 +3528,7 @@ function execCmd(n){
       dialogEl.classList.remove('has-avatar');
       hintEl.classList.remove('show');
       renderHotspots();
-      break;
+      return 'stop';
     }
     case 'end': {
       endWithCredits(n.args[0] || 'END', n.args.slice(1).join(' ') || '—— 故事到这里就结束了 ——');
@@ -3552,7 +3553,7 @@ function next(){
     if (n.type === 'cmd'){
       vm.pc++;
       const stop = execCmd(n);
-      if (stop === 'stop') return;
+      if (stop === 'stop' || (n.cmd === 'wait' && vm.awaitingHotspot)) return;
       if (!vm.running) return;
       continue;
     }
@@ -8267,7 +8268,13 @@ safeBind('#featureToggle', () => {
 });
 
 const CHANGELOG = [
-  { version: 'v7.0', date: '2026-11-12', title: '互动场景手感大修 + 流程图缩放升级 ✧٩(ˊωˋ*)و✧', current: true, items: [
+  { version: 'v7.0.1', date: '2026-11-12', title: '互动场景致命 bug 修复 (@_@;)', current: true, items: [
+    { tag: 'fix', text: '⚠ 修好 @wait 失效：上一版为了「没热点时跳过」动了循环判断，结果 @wait 不再暂停，剧情一路自动跑（对话框挡场景、不输密码也能开门、自动进分支都是它引起的）' },
+    { tag: 'fix', text: '🎮 对话进行中不再生成热点标记，画面干净、也不会误触；到了 @wait 才出现' },
+    { tag: 'fix', text: '🔐 播放器里的 @input 改用自研输入框（浏览器原生 prompt 会被拦或直接跳过），不输入/输错就不放行' },
+    { tag: 'add', text: '🧪 重新跑了一遍完整流程：拿钥匙 → 点门 → 输错密码重试 → 输对密码 → 圆满结局，以及无热点的纯对话剧本' },
+  ]},
+  { version: 'v7.0', date: '2026-11-12', title: '互动场景手感大修 + 流程图缩放升级 ✧٩(ˊωˋ*)و✧', items: [
     { tag: 'fix', text: '↪ 流程图里按住节点左侧的 ⇢ 拖到另一个节点又能连线了（手柄被节点边框裁掉了，已修）' },
     { tag: 'add', text: '🎮 互动场景：对话进行中点击画面不会误触热点；到 @wait 时会自动隐藏对话框和立绘，点中热点后再回来' },
     { tag: 'fix', text: '🎮 示例里反复点门反复提示输密码的问题：门 / 书架热点加了次数上限，触发几次后就不再出现' },
@@ -9047,7 +9054,7 @@ function preloadSizes(){
 }
 function applyDim(el,name){if(!lastSpeakers.length)el.classList.add('dim');else el.classList.toggle('dim',lastSpeakers.indexOf(name)<0);}
 function hideChar(name){var el=shown[name];if(!el)return;el.classList.remove('in');delete shown[name];delete curExpr[name];setTimeout(function(){if(el.parentNode)el.parentNode.removeChild(el);},350);}
-function renderHotspots(){hotspotsEl.innerHTML='';hotspotsEl.classList.toggle('on',!!vm.awaitingHotspot);var sc=bgs[currentScene];if(!sc)return;var parts=sceneParts(sc);var part=parts[currentPart];if(!part)return;(part.hotspots||[]).forEach(function(h,idx){var key=currentScene+'::'+currentPart+'::'+idx;var count=hotspotCounts[key]||0;var maxT=h.maxTrigger===undefined?1:Number(h.maxTrigger);if(maxT>0&&count>=maxT)return;if(h.needItem&&inv.indexOf(h.needItem)<0)return;if(!canShowHotspot(h))return;var el=document.createElement('div');el.className='hs';el.style.left=(h.x*100)+'%';el.style.top=(h.y*100)+'%';el.style.width=(h.w*100)+'%';el.style.height=(h.h*100)+'%';el.onclick=function(){triggerHotspot(h,idx);};hotspotsEl.appendChild(el);});}
+function renderHotspots(){hotspotsEl.innerHTML='';hotspotsEl.classList.toggle('on',!!vm.awaitingHotspot);if(!vm.awaitingHotspot)return;var sc=bgs[currentScene];if(!sc)return;var parts=sceneParts(sc);var part=parts[currentPart];if(!part)return;(part.hotspots||[]).forEach(function(h,idx){var key=currentScene+'::'+currentPart+'::'+idx;var count=hotspotCounts[key]||0;var maxT=h.maxTrigger===undefined?1:Number(h.maxTrigger);if(maxT>0&&count>=maxT)return;if(h.needItem&&inv.indexOf(h.needItem)<0)return;if(!canShowHotspot(h))return;var el=document.createElement('div');el.className='hs';el.style.left=(h.x*100)+'%';el.style.top=(h.y*100)+'%';el.style.width=(h.w*100)+'%';el.style.height=(h.h*100)+'%';el.onclick=function(){triggerHotspot(h,idx);};hotspotsEl.appendChild(el);});}
 function triggerHotspot(h,idx){if(!vm.awaitingHotspot)return;var key=currentScene+'::'+currentPart+'::'+idx;var count=hotspotCounts[key]||0;var nc=count+1;var maxT=h.maxTrigger===undefined?1:Number(h.maxTrigger);if(maxT>0&&nc>maxT){renderHotspots();return;}hotspotCounts[key]=nc;if(h.giveItem&&inv.indexOf(h.giveItem)<0)inv.push(h.giveItem);var target;var fc=Number(h.finalCount)||0;if(fc>0&&nc>=fc&&h.labelFinal)target=h.labelFinal;else if(nc===1)target=h.label;else if(h.labelSecond)target=h.labelSecond;else target=h.label;if(target&&vm.labels[target]!==undefined){vm.awaitingHotspot=false;document.body.classList.remove('awaiting-hotspot');vm.pc=vm.labels[target];renderHotspots();next();}else renderHotspots();}
 function fitDialogText(){
   try {
@@ -9149,11 +9156,12 @@ function execCmd(n){switch(n.cmd){case 'bg':setBg(n.args[0]||'',n.args[1]||'fade
   case 'use':if(n.args[0]){var uix=inv.indexOf(n.args[0]);if(uix>=0){inv.splice(uix,1);showItemToast(n.args[0],'lost');}}renderHotspots();break;
   case 'endsay':dlg.classList.remove('show');nameEl.style.display='none';textEl.textContent='';hint.classList.remove('show');vm.sayEnded=true;break;
   case 'timer':{var tsec=parseFloat(n.args[0]);var tix=n.args.indexOf('->');var ttg=tix>0?n.args[tix+1]:null;if(!isNaN(tsec)&&tsec>0)vm.choiceTimer={sec:tsec,target:ttg};break;}
-  case 'when':{var ar=n.args.slice();var ai=ar.indexOf('->');var tgw=null,conds=ar;if(ai>=0){conds=ar.slice(0,ai);tgw=ar[ai+1];}else{for(var z=0;z<ar.length;z++){if(String(ar[z]).slice(-2)==='->'){tgw=String(ar[z]).slice(0,-2);conds=ar.slice(0,z);break;}}}if(tgw&&vm.labels[tgw]!==undefined&&evalExpr(conds))vm.pc=vm.labels[tgw];break;}case 'give':if(n.args[0]){var gi=inv.indexOf(n.args[0]);if(gi>=0)inv.splice(gi,1);}renderHotspots();break;case 'has':{var id=n.args[0];var ix=n.args.indexOf('->');var tgt=ix>0?n.args[ix+1]:null;if(id&&inv.indexOf(id)>=0&&tgt&&vm.labels[tgt]!==undefined)vm.pc=vm.labels[tgt];break;}case 'mark':if(n.args[0])visited[n.args[0]]=true;break;case 'visited':{var tag=n.args[0];var ix2=n.args.indexOf('->');var tgt2=ix2>0?n.args[ix2+1]:null;if(tag&&visited[tag]&&tgt2&&vm.labels[tgt2]!==undefined)vm.pc=vm.labels[tgt2];break;}case 'set':if(n.args[0]){var k=n.args[0],val=n.args[1]!==undefined?n.args[1]:'0';var num=Number(val);vars[k]=(!isNaN(num)&&val!=='')?num:val;}break;case 'add':if(n.args[0]){var k2=n.args[0];vars[k2]=(Number(vars[k2])||0)+(Number(n.args[1])||1);}break;case 'check':{var k3=n.args[0],op=n.args[1],val2=n.args[2];var ix3=n.args.indexOf('->');var tgt3=ix3>0?n.args[ix3+1]:null;if(!k3||!op||val2===undefined||!tgt3)break;var raw=vars[k3];var aN=Number(raw),bN=Number(val2);var isNum=!isNaN(aN)&&!isNaN(bN)&&raw!==''&&raw!==undefined;var pass=false;switch(op){case '>=':pass=isNum?aN>=bN:String(raw)>=String(val2);break;case '>':pass=isNum?aN>bN:String(raw)>String(val2);break;case '<=':pass=isNum?aN<=bN:String(raw)<=String(val2);break;case '<':pass=isNum?aN<bN:String(raw)<String(val2);break;case '==':pass=isNum?aN===bN:String(raw)===String(val2);break;case '!=':pass=isNum?aN!==bN:String(raw)!==String(val2);break;}if(pass&&vm.labels[tgt3]!==undefined)vm.pc=vm.labels[tgt3];break;}case 'input':{var varName=n.args[0];if(!varName)break;var val3=prompt(n.args.slice(1).join(' ')||'请输入');vars[varName]=val3===null?'':val3;break;}case 'wait':{var _sc0=bgs[currentScene],_pp0=_sc0?sceneParts(_sc0)[currentPart]:null;if(!((_pp0&&_pp0.hotspots)||[]).length)break;vm.awaitingHotspot=true;document.body.classList.add('awaiting-hotspot');dlg.classList.remove('show');hint.classList.remove('show');renderHotspots();return 'stop';}case 'end':endWithCredits(n.args[0]||'END',n.args.slice(1).join(' '));return 'stop';}return null;}
+  case 'when':{var ar=n.args.slice();var ai=ar.indexOf('->');var tgw=null,conds=ar;if(ai>=0){conds=ar.slice(0,ai);tgw=ar[ai+1];}else{for(var z=0;z<ar.length;z++){if(String(ar[z]).slice(-2)==='->'){tgw=String(ar[z]).slice(0,-2);conds=ar.slice(0,z);break;}}}if(tgw&&vm.labels[tgw]!==undefined&&evalExpr(conds))vm.pc=vm.labels[tgw];break;}case 'give':if(n.args[0]){var gi=inv.indexOf(n.args[0]);if(gi>=0)inv.splice(gi,1);}renderHotspots();break;case 'has':{var id=n.args[0];var ix=n.args.indexOf('->');var tgt=ix>0?n.args[ix+1]:null;if(id&&inv.indexOf(id)>=0&&tgt&&vm.labels[tgt]!==undefined)vm.pc=vm.labels[tgt];break;}case 'mark':if(n.args[0])visited[n.args[0]]=true;break;case 'visited':{var tag=n.args[0];var ix2=n.args.indexOf('->');var tgt2=ix2>0?n.args[ix2+1]:null;if(tag&&visited[tag]&&tgt2&&vm.labels[tgt2]!==undefined)vm.pc=vm.labels[tgt2];break;}case 'set':if(n.args[0]){var k=n.args[0],val=n.args[1]!==undefined?n.args[1]:'0';var num=Number(val);vars[k]=(!isNaN(num)&&val!=='')?num:val;}break;case 'add':if(n.args[0]){var k2=n.args[0];vars[k2]=(Number(vars[k2])||0)+(Number(n.args[1])||1);}break;case 'check':{var k3=n.args[0],op=n.args[1],val2=n.args[2];var ix3=n.args.indexOf('->');var tgt3=ix3>0?n.args[ix3+1]:null;if(!k3||!op||val2===undefined||!tgt3)break;var raw=vars[k3];var aN=Number(raw),bN=Number(val2);var isNum=!isNaN(aN)&&!isNaN(bN)&&raw!==''&&raw!==undefined;var pass=false;switch(op){case '>=':pass=isNum?aN>=bN:String(raw)>=String(val2);break;case '>':pass=isNum?aN>bN:String(raw)>String(val2);break;case '<=':pass=isNum?aN<=bN:String(raw)<=String(val2);break;case '<':pass=isNum?aN<bN:String(raw)<String(val2);break;case '==':pass=isNum?aN===bN:String(raw)===String(val2);break;case '!=':pass=isNum?aN!==bN:String(raw)!==String(val2);break;}if(pass&&vm.labels[tgt3]!==undefined)vm.pc=vm.labels[tgt3];break;}case 'input':{var varName=n.args[0];if(!varName)break;vm.awaitingInput=true;hint.classList.remove('show');playerAskInput(n.args.slice(1).join(' ')||'请输入',function(v3){vars[varName]=v3==null?'':v3;vm.awaitingInput=false;if(vm.running)next();});return 'stop';}case 'wait':{var _sc0=bgs[currentScene],_pp0=_sc0?sceneParts(_sc0)[currentPart]:null;if(!((_pp0&&_pp0.hotspots)||[]).length)break;vm.awaitingHotspot=true;document.body.classList.add('awaiting-hotspot');dlg.classList.remove('show');hint.classList.remove('show');renderHotspots();return 'stop';}case 'end':endWithCredits(n.args[0]||'END',n.args.slice(1).join(' '));return 'stop';}return null;}
 var vm={nodes:[],labels:{},pc:0,running:false,awaitingChoice:false,awaitingHotspot:false};
 var typing={active:false,text:'',i:0,timer:null};
 function next(){if(!vm.running)return;while(vm.running&&vm.pc<vm.nodes.length){var n=vm.nodes[vm.pc];if(n.type==='cmd'){vm.pc++;var stop=execCmd(n);if(stop==='stop')return;if(!vm.running)return;continue;}if(n.type==='say'){vm.pc++;vm.lastSayIdx=vm.pc-1;showSay(n);return;}var opts=[];while(vm.pc<vm.nodes.length&&vm.nodes[vm.pc].type==='choice'){opts.push(vm.nodes[vm.pc]);vm.pc++;}showChoices(opts);return;}if(vm.running&&!vm.awaitingHotspot)endWithCredits();}
-function advance(){if(coverEl&&coverEl.style.display!=='none')return;if(!vm.running||vm.awaitingChoice)return;if(typing.active){skipTyping();return;}if(vm.awaitingHotspot)return;next();}
+function playerAskInput(msg,cb){var d=document;var old=d.getElementById('vnsAskP');if(old&&old.parentNode)old.parentNode.removeChild(old);var mask=d.createElement('div');mask.id='vnsAskP';mask.style.cssText='position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.68);display:flex;align-items:center;justify-content:center;font-family:inherit';var card=d.createElement('div');card.style.cssText='width:min(420px,90%);background:#0d0d14;border:2px solid #5b8cff;box-shadow:4px 4px 0 0 #000;padding:14px';var ttl=d.createElement('div');ttl.textContent=msg;ttl.style.cssText='color:#fff;font-size:13px;margin-bottom:10px;line-height:1.7;white-space:pre-wrap';var inp=d.createElement('input');inp.type='text';inp.style.cssText='width:100%;box-sizing:border-box;padding:8px;font-family:inherit;font-size:13px;background:#07070b;color:#fff;border:2px solid #3a3a48;outline:none';var row=d.createElement('div');row.style.cssText='display:flex;justify-content:flex-end;gap:8px;margin-top:12px';var cancel=d.createElement('button');cancel.textContent='取消';cancel.style.cssText='font-family:inherit;font-size:12px;padding:6px 14px;background:#101a2a;color:#cfe0ff;border:2px solid #5b8cff;cursor:pointer';var ok=d.createElement('button');ok.textContent='确定';ok.style.cssText='font-family:inherit;font-size:12px;padding:6px 14px;background:#5b8cff;color:#04102a;border:2px solid #5b8cff;cursor:pointer';row.appendChild(cancel);row.appendChild(ok);card.appendChild(ttl);card.appendChild(inp);card.appendChild(row);mask.appendChild(card);d.body.appendChild(mask);var done=false;var close=function(v){if(done)return;done=true;if(mask.parentNode)mask.parentNode.removeChild(mask);try{cb(v);}catch(e){}};ok.onclick=function(){close(inp.value);};cancel.onclick=function(){close('');};inp.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();close(inp.value);}});mask.addEventListener('click',function(e){if(e.target===mask)close('');});setTimeout(function(){try{inp.focus();}catch(e){}},60);}
+function advance(){if(coverEl&&coverEl.style.display!=='none')return;if(!vm.running||vm.awaitingChoice||vm.awaitingInput)return;if(typing.active){skipTyping();return;}if(vm.awaitingHotspot)return;next();}
 stage.addEventListener('click',advance);
 document.addEventListener('keydown',function(e){if(!vm.running)return;if(e.key===' '||e.key==='Enter'){e.preventDefault();advance();}});
 document.getElementById('again').onclick=function(){start();};
