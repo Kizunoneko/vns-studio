@@ -746,7 +746,7 @@ body.theme-paper .miniBtn{background:#fffefb;border-color:#9a8a6a;color:#4a4236}
 
 /* ===== v6.3 流程图：程序框图（菱形判定 / 六边形选项 / 可标注） ===== */
 .flowBlock{position:absolute;width:172px;touch-action:none}
-.flowNode.proc{position:relative;box-sizing:border-box;display:flex;flex-direction:column;justify-content:center;background:#000;border:2px solid #6a6a90;padding:6px 34px 6px 10px;overflow:hidden;cursor:pointer;user-select:none}
+.flowNode.proc{position:relative;box-sizing:border-box;display:flex;flex-direction:column;justify-content:center;background:#000;border:2px solid #6a6a90;padding:6px 48px 6px 10px;overflow:hidden;cursor:pointer;user-select:none}
 .flowNode.proc.entry{border-color:#7dfba0;background:#07130c;border-radius:14px}
 .flowTitle{font-size:12px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .flowNode.proc.entry .flowTitle{color:#aef5c4}
@@ -1543,7 +1543,7 @@ body.theme-paper .aboutUpdated{color:#8a7c62;border-left-color:#d5c9b0}
 <h3>🗺 流程视图（程序框图）</h3>
 <p>「分支」面板切到 <b>「🗺 流程视图」</b>：从 <b>▶ 开始</b> 一路往下，剧情是方框、条件判定是菱形（左右分叉，边上写着条件）、选项是六边形，没出口的分支会亮黄提醒。</p>
 <p>拖动节点摆位置（会记住）；节点右上角 <b>📌</b> 写标注；右下角 <b>＋</b> 新建跳转；左侧 <b>⇢</b> 拖到另一个节点就直接连线。</p>
-<p>想看得更大：点 <b>⛶ 独立窗口</b> 单独开一个窗口放流程图——里面<b>点节点就能编辑那一分支的剧本</b>（编辑框带快捷栏：场景 / 立绘 / 跳转 下拉 + 12 个常用模板），也能拖节点摆位置、点 ＋ 新建跳转、点 ✕ 删分支、按住 ⇢ 拖到另一个节点连线；滚轮/双指缩放，空白处拖动平移。主窗口里也可以用 <b>Ctrl + 滚轮</b> 缩放。</p>
+<p>想看得更大：点 <b>⛶ 独立窗口</b> 单独开一个窗口放流程图——里面<b>点节点就能编辑那一分支的剧本</b>（编辑框带快捷栏：场景 / 立绘 / 跳转 下拉 + 12 个常用模板），<b>点「选项」六边形只改选项部分</b>；也能拖节点摆位置、点 ＋ 新建跳转、点 ✕ 删分支、按住 ⇢ 拖到另一个节点连线；滚轮/双指缩放，空白处拖动平移。主窗口里也可以用 <b>Ctrl + 滚轮</b> 缩放。</p>
 <h3>⚡ 批量导入立绘</h3>
 <p>「＋ 角色」→ <b>⚡ 批量</b> 或表情弹窗里的 <b>⚡ 批量</b>：选完图会先列出<b>缩略图 + 文件名 + 要用的名字</b>，可以逐张改。</p>
 <p>带 <b>_talk</b> / <b>_说话</b> 的会自动拼成上一个表情的说话差分；公共前缀（sakura_微笑 → 微笑）自动去掉；重名会提前标出来。</p>
@@ -1648,7 +1648,7 @@ body.theme-paper .aboutUpdated{color:#8a7c62;border-left-color:#d5c9b0}
       <div class="aboutTitle" id="aboutTitle">✦ 关于作者</div>
       <div class="aboutRow"><span>作者</span><b>@Teasssss</b></div>
       <div class="aboutRow"><span>辅助制作工具</span><b>Deepseek</b></div>
-      <div class="aboutRow"><span>版本</span><b class="aboutVer" id="aboutVer" title="多戳几下看看……">v6.8</b><span class="aboutUpdated" id="aboutUpdated">2026-11-12 更新</span></div>
+      <div class="aboutRow"><span>版本</span><b class="aboutVer" id="aboutVer" title="多戳几下看看……">v6.9</b><span class="aboutUpdated" id="aboutUpdated">2026-11-12 更新</span></div>
       <div class="aboutQuote">“每一个像素，都是你亲手写下的世界。”<br>—— 把故事讲出来的人，永远是作者。</div>
       <div class="aboutBtns">
         <button id="eggCat">🐱 摸一下</button>
@@ -6675,6 +6675,10 @@ function flowViewerCss(){
     'body.theme-paper .vnsVToast.warn{background:#fffdf7;border-color:#b08a2a;color:#7a5a10}',
     'body.theme-paper .vnsVBtn.primary{background:#6d5f47;border-color:#6d5f47;color:#fcf9f1}',
     '.vnsVTools{display:flex;flex-wrap:wrap;gap:5px;padding:8px 12px 0}',
+    '.vnsVChoiceList{max-height:52vh;overflow:auto;padding:10px 12px;display:flex;flex-direction:column;gap:6px}',
+    '.vnsVChoiceRow{display:flex;align-items:center;gap:6px}',
+    '.vnsVChoiceNo{font-size:11px;color:#7a7a8c;width:18px;flex:none;text-align:right}',
+    '.vnsVChoiceArrow{font-size:11px;color:#8a8a9a;flex:none}',
     '.vnsVTool{font-family:inherit;font-size:11px;padding:3px 8px;border:2px solid #4a4a58;background:#0a0a12;color:#c8c8d8;cursor:pointer;box-shadow:none}',
     '.vnsVTool:hover{background:#16233a;border-color:#5b8cff;color:#cfe0ff}',
     'body.theme-paper .vnsVTool{background:#fffdf7;border-color:#bfb196;color:#5a4f3c}',
@@ -6726,6 +6730,7 @@ function makeViewerControls(vp, cv, onChange){
   vp.addEventListener('wheel', onWheel, { passive:false });
   vp.addEventListener('pointerdown', e => {
     if (e.button !== 0 && e.pointerType === 'mouse') return;
+    if (e.target.closest && (e.target.closest('.flowBlock') || e.target.closest('button'))) return;
     e.preventDefault();
     try { const s = vp.ownerDocument.getSelection(); if (s && s.removeAllRanges) s.removeAllRanges(); } catch(err){}
     try { vp.setPointerCapture(e.pointerId); } catch(err){}
@@ -7161,6 +7166,123 @@ function openViewerBranch(fv, label){
   setTimeout(() => { try { ta.focus(); } catch(e){} }, 30);
 }
 
+
+/* 选项单独编辑：只列这个分支里的选项行 */
+function openViewerChoices(fv, label){
+  const doc = fv.doc || document;
+  const old = doc.getElementById('vnsVChoices');
+  if (old) old.remove();
+  const content = (fv.contents && fv.contents[label]) || '';
+  const lines = content.split('\n');
+  const rows = [];
+  lines.forEach((l, i) => {
+    if (!/^\s*[-*]\s/.test(l)) return;
+    const m = l.trim().match(/^[-*]\s*(.*?)\s*->\s*(\S+)\s*$/);
+    rows.push(m ? { text: m[1], target: m[2] } : { text: l.trim().replace(/^[-*]\s*/, ''), target: '' });
+  });
+
+  const allLabels = splitBranches(scriptInput.value).filter(b => !b.isEntry).map(b => b.label);
+
+  const mask = doc.createElement('div');
+  mask.className = 'vnsVModal';
+  mask.id = 'vnsVChoices';
+  const card = doc.createElement('div');
+  card.className = 'vnsVCard';
+  card.style.width = 'min(720px,94%)';
+  const head = doc.createElement('div');
+  head.className = 'vnsVCardHead';
+  head.textContent = '🔀 选项 · ' + (label === '（开头）' ? '开头' : label) + '（只改选项，其它内容不动）';
+  const list = doc.createElement('div');
+  list.className = 'vnsVChoiceList';
+
+  const renderRows = () => {
+    list.innerHTML = '';
+    rows.forEach((r, idx) => {
+      const row = doc.createElement('div');
+      row.className = 'vnsVChoiceRow';
+      const no = doc.createElement('span');
+      no.className = 'vnsVChoiceNo';
+      no.textContent = (idx + 1) + '.';
+      const inp = doc.createElement('input');
+      inp.className = 'vnsVInput';
+      inp.value = r.text;
+      inp.placeholder = '选项文字';
+      inp.oninput = () => { r.text = inp.value; };
+      const arrow = doc.createElement('span');
+      arrow.className = 'vnsVChoiceArrow';
+      arrow.textContent = '→';
+      const tgt = doc.createElement('input');
+      tgt.className = 'vnsVInput';
+      tgt.style.maxWidth = '170px';
+      tgt.value = r.target;
+      tgt.placeholder = '目标标签';
+      tgt.setAttribute('list', 'vnsVLabelList');
+      tgt.oninput = () => { r.target = tgt.value; };
+      const del = doc.createElement('button');
+      del.className = 'vnsVBtn';
+      del.textContent = '✕';
+      del.title = '删除这一项';
+      del.onclick = () => { rows.splice(idx, 1); renderRows(); };
+      row.append(no, inp, arrow, tgt, del);
+      list.appendChild(row);
+    });
+    if (!rows.length){
+      const empty = doc.createElement('div');
+      empty.className = 'vnsVHint';
+      empty.style.padding = '10px 4px';
+      empty.textContent = '这个分支还没有选项，点下面的「＋ 添加选项」。';
+      list.appendChild(empty);
+    }
+  };
+  renderRows();
+
+  const dl = doc.createElement('datalist');
+  dl.id = 'vnsVLabelList';
+  allLabels.forEach(n => { const o = doc.createElement('option'); o.value = n; dl.appendChild(o); });
+
+  const tools = doc.createElement('div');
+  tools.className = 'vnsVTools';
+  const addBtn = doc.createElement('button');
+  addBtn.className = 'vnsVTool';
+  addBtn.textContent = '＋ 添加选项';
+  addBtn.onclick = () => { rows.push({ text: '新的选项', target: allLabels[0] || '新分支' }); renderRows(); };
+  tools.appendChild(addBtn);
+
+  const foot = doc.createElement('div');
+  foot.className = 'vnsVCardFoot';
+  const hint = doc.createElement('span');
+  hint.className = 'vnsVHint';
+  hint.textContent = '只会替换这个分支里的选项行，其它台词 / 指令保持原样';
+  const bCancel = doc.createElement('button');
+  bCancel.className = 'vnsVBtn'; bCancel.textContent = '取消';
+  const bSave = doc.createElement('button');
+  bSave.className = 'vnsVBtn primary'; bSave.textContent = '保存选项';
+  foot.append(hint, bCancel, bSave);
+
+  card.append(head, list, tools, dl, foot);
+  mask.appendChild(card);
+  (doc.body || doc.documentElement).appendChild(mask);
+  const close = () => { if (mask.parentNode) mask.remove(); };
+  bCancel.onclick = close;
+  bSave.onclick = () => {
+    const firstIdx = (() => {
+      for (let i = 0; i < lines.length; i++) if (/^\s*[-*]\s/.test(lines[i])) return i;
+      return lines.length;
+    })();
+    const cleaned = lines.filter(l => !/^\s*[-*]\s/.test(l));
+    const newLines = rows
+      .filter(r => String(r.text).trim())
+      .map(r => '- ' + String(r.text).trim() + (String(r.target).trim() ? ' -> ' + String(r.target).trim() : ''));
+    const at = Math.min(firstIdx, cleaned.length);
+    cleaned.splice(at, 0, ...newLines);
+    close();
+    if (!replaceBranchContent(label, cleaned.join('\n'))) viewerToast(fv, '这个分支已经不存在了', 'warn');
+    else viewerToast(fv, '选项已保存（' + newLines.length + ' 项）', 'ok');
+  };
+  mask.addEventListener('pointerdown', ev => { if (ev.target === mask) close(); });
+  if (rows[0]) setTimeout(() => { try { list.querySelector('input').focus(); } catch(e){} }, 30);
+}
+
 function openViewerPrompt(fv, title, value, onOk){
   const doc = fv.doc || document;
   const old = doc.getElementById('vnsVPrompt');
@@ -7272,6 +7394,19 @@ function bindViewerNodes(fv){
         setFlowNote(label, (v || '').trim());
       });
     };
+  });
+
+  cv.querySelectorAll('.flowChoice').forEach(el => {
+    if (el.dataset.vbound) return;
+    el.dataset.vbound = '1';
+    el.style.cursor = 'pointer';
+    el.title = '编辑这些选项（只改选项部分）';
+    el.addEventListener('pointerdown', ev => ev.stopPropagation());
+    el.addEventListener('click', ev => {
+      ev.stopPropagation();
+      const b = el.closest('.flowBlock');
+      openViewerChoices(fv, b ? b.dataset.label : null);
+    });
   });
 
   cv.querySelectorAll('.flowNoteEdit').forEach(btn => {
@@ -7615,7 +7750,11 @@ function renderBranchFlow(){
     e.terminal = e.edges.length === 0;
     e.hasEnd = /^\s*@end\b/im.test(b.contentLines.join('\n'));
     const geo = flowBlockRects(e.blocks, e.terminal);
-    e.rects = geo.rects; e.colH = geo.height;
+    e.rects = geo.rects;
+    e.baseColH = geo.height;
+    const _note = (settings.flowNotes || {})[e.label];
+    e.noteH = _note ? (8 + Math.ceil(String(_note).length / 20) * 16) : 0;
+    e.colH = geo.height + e.noteH;
     return e;
   });
 
@@ -7741,8 +7880,8 @@ function renderBranchFlow(){
       proc.appendChild(b);
       return b;
     };
-    mkBtn('＋', '在这个分支后新建一个跳转分支', 'right:3px;bottom:3px;width:18px;height:18px;font-size:12px;', () => createJumpBranchFrom(e.branch), 'flowNodeAdd');
-    mkBtn('📌', '给这个节点写标注', 'right:24px;top:3px;width:18px;height:18px;border-color:#ffd96f;color:#ffd96f;font-size:9px;', () => {
+    mkBtn('＋', '在这个分支后新建一个跳转分支', 'right:3px;bottom:2px;width:16px;height:16px;font-size:11px;', () => createJumpBranchFrom(e.branch), 'flowNodeAdd');
+    mkBtn('📌', '给这个节点写标注', 'right:23px;top:2px;width:16px;height:16px;border-color:#ffd96f;color:#ffd96f;font-size:8px;', () => {
       askText('标注「' + (e.isEntry ? '开始' : e.label) + '」', (settings.flowNotes || {})[e.label] || '', v => {
         settings.flowNotes = settings.flowNotes || {};
         const val = (v || '').trim();
@@ -7751,7 +7890,7 @@ function renderBranchFlow(){
       });
     }, 'flowNoteEdit');
     if (!e.isEntry){
-      mkBtn('✕', '删除这个分支', 'right:3px;top:3px;width:18px;height:18px;border-color:#ff6b6b;color:#ff8a8a;font-size:11px;', () => confirmDeleteBranch(e.label), 'flowNodeDel');
+      mkBtn('✕', '删除这个分支', 'right:3px;top:2px;width:16px;height:16px;border-color:#ff6b6b;color:#ff8a8a;font-size:10px;', () => confirmDeleteBranch(e.label), 'flowNodeDel');
     }
     const linkHandle = document.createElement('button');
     linkHandle.className = 'flowLink';
@@ -7798,7 +7937,7 @@ function renderBranchFlow(){
     if (noteTxt){
       const note = document.createElement('div');
       note.className = 'flowNote';
-      note.style.top = (e.colH + 6) + 'px';
+      note.style.top = (e.baseColH + 6) + 'px';
       note.textContent = '📌 ' + noteTxt;
       note.title = '点击修改标注';
       note.onclick = ev => {
@@ -8084,7 +8223,13 @@ safeBind('#featureToggle', () => {
 });
 
 const CHANGELOG = [
-  { version: 'v6.8', date: '2026-11-12', title: '示例剧本重做 + 一批小修 (๑•̀ㅂ•́)و✧', current: true, items: [
+  { version: 'v6.9', date: '2026-11-12', title: '选项可单独编辑 + 窗口点击修复 (•̀ᴗ•́)و', current: true, items: [
+    { tag: 'add', text: '🔀 点流程图的「选项」六边形，现在只列出选项：一行一个「选项文字 → 目标标签」，可增删改，其它台词 / 指令原封不动' },
+    { tag: 'fix', text: '🖱 修好独立窗口里点不动按钮的根因：平移画布时对指钁按下调了 preventDefault，把 click 一起吞了' },
+    { tag: 'fix', text: '📌 节点右侧的 📌 / ✕ / ＋ 按钮缩得更紧凑并留出文字区，不会再压在标题和台词上' },
+    { tag: 'fix', text: '🗒 节点标注不再盖住下一层节点（布局会把标注的高度算进去）' },
+  ]},
+  { version: 'v6.8', date: '2026-11-12', title: '示例剧本重做 + 一批小修 (๑•̀ㅂ•́)و✧', items: [
     { tag: 'add', text: '📖 示例剧本重写：现在自带示例角色（小明 / 小红，含微筑、惊讶差分）、教室场景和一张「夕阳 CG」，载入就能直接玩' },
     { tag: 'add', text: '🎯 视觉小说示例把常用写法都过了一遍：表情差分、文字颜色、抖动、@get/@use、@when 条件跳转、@timer 限时选项、@cg、多结局' },
     { tag: 'add', text: '🎮 互动游戏示例补上 @use 钥匙 和表情写法，台词更通顺；两个示例都会自动补齐缺的素材' },
