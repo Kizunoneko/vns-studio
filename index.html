@@ -711,6 +711,38 @@ body.theme-paper .assetSearch{background:#fffefb;border-color:#bfb196;color:#2f2
 .flowNode .flowLink:hover{background:#7dfba0;color:#000}
 .flowNode.link-target{border-style:dashed!important;border-color:#7dfba0!important}
 
+/* ===== v6.5 素材面板筛选 / 分组 ===== */
+.assetFilters{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 8px}
+.assetFilters button{font-family:inherit;font-size:11px;padding:3px 9px;border:2px solid #3a3a48;background:#0d0d14;color:#9a9aae;box-shadow:none;cursor:pointer}
+.assetFilters button.active{background:#fff;color:#000;border-color:#fff}
+body.theme-paper .assetFilters button{background:#fffefb;border-color:#bfb196;color:#6b6255}
+body.theme-paper .assetFilters button.active{background:#4a7a3a!important;border-color:#4a7a3a!important;color:#fff!important}
+.assetSortRow{display:flex;align-items:center;gap:8px;font-size:10.5px;color:#7a7a8c;margin:0 0 12px;flex-wrap:wrap}
+.assetSortRow b{color:#c8c8d8;font-weight:400}
+body.theme-paper .assetSortRow{color:#6b6255}
+body.theme-paper .assetSortRow b{color:#3a3226}
+.assetSort{border:2px solid #3a3a48;background:#0d0d14;color:#c8c8da;font-family:inherit;font-size:10.5px;padding:2px 4px;outline:none}
+body.theme-paper .assetSort{background:#fffefb;border-color:#bfb196;color:#4a4236}
+.assetFilterNote{color:#c58bff}
+.assetTag.hot{color:#ffcf6f;border-color:#5a4a20}
+.assetTag.use{color:#7fb0d8;border-color:#35405a}
+.assetTag.dim{color:#6a6a80;border-color:#2e2e3a}
+.assetTag.linkTag{color:#ff9ad5;border-color:#5a3a5a}
+.assetItem.noUse .thumb{opacity:.7}
+.cgGroup{display:flex;align-items:center;gap:6px;margin:10px 0 4px;padding:4px 6px;background:#0d0d14;border-left:3px solid #ff7ad9;cursor:pointer}
+.cgGroup.none{border-left-color:#4a4a58}
+body.theme-paper .cgGroup{background:#f7f1e3;border-left-color:#b06a9a}
+.cgArrow{font-size:10px;color:#8a8a9a;width:10px;flex:none}
+.cgAvatar{width:20px;height:20px;border-radius:50%;background:#101018 center/cover no-repeat;border:1px solid #3a3a48;display:inline-block;flex:none}
+.cgAvatar.empty{background:#1a1a22}
+.cgGroupName{font-size:11.5px;color:#e8dfef;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+body.theme-paper .cgGroupName{color:#3a3243}
+.cgGroupCount{font-size:10px;color:#8a8a9a;flex:none}
+.miniBtn{font-family:inherit;font-size:9.5px;padding:2px 6px;border:1px solid #5b8cff;background:#101a2a;color:#cfe0ff;cursor:pointer;box-shadow:none;flex:none}
+.miniBtn:disabled{opacity:.4;cursor:default}
+body.theme-paper .miniBtn{background:#fffefb;border-color:#9a8a6a;color:#4a4236}
+.charCard.flash{outline:2px solid #7dfba0;outline-offset:1px}
+
 /* ===== v6.3 流程图：程序框图（菱形判定 / 六边形选项 / 可标注） ===== */
 .flowBlock{position:absolute;width:172px;touch-action:none}
 .flowNode.proc{position:relative;box-sizing:border-box;display:flex;flex-direction:column;justify-content:center;background:#000;border:2px solid #6a6a90;padding:6px 30px 6px 10px;overflow:hidden;cursor:pointer;user-select:none}
@@ -1384,6 +1416,18 @@ body.theme-paper .aboutUpdated{color:#8a7c62;border-left-color:#d5c9b0}
     <div class="panel" id="panel-assets">
       <div class="assetScroll">
         <input type="text" id="assetSearch" class="assetSearch" placeholder="🔍 搜索场景 / CG / 角色…">
+        <div class="assetFilters" id="assetFilters">
+          <button data-f="all" class="active">全部</button>
+          <button data-f="linked">已关联</button>
+          <button data-f="unlinked">未关联</button>
+          <button data-f="hotspot">有热点</button>
+          <button data-f="unused">未使用</button>
+        </div>
+        <div class="assetSortRow">
+          <span>共 <b id="assetCount">0</b></span>
+          <span class="assetFilterNote" id="assetFilterNote"></span>
+          <select id="assetSort" class="assetSort"><option value="default">导入顺序</option><option value="name">名称 A→Z</option><option value="use">用得最多</option></select>
+        </div>
         <div class="secTitle">🖼 背景（保留立绘）</div>
         <button class="fullBtn" id="btnScene" style="border-color:#5a8a6a;color:#cfe8d4">＋ 导入背景图（可多选）</button>
         <div class="hintTip">背景会<b>保留</b>角色立绘。点 <b>🎯</b> 给背景加可点击热点。</div>
@@ -1391,7 +1435,7 @@ body.theme-paper .aboutUpdated{color:#8a7c62;border-left-color:#d5c9b0}
 
         <div class="secTitle" style="margin-top:20px">🎬 CG 插画（隐藏立绘）</div>
         <button class="fullBtn" id="btnCg" style="border-color:#7a4a7a;color:#ffcfe8">＋ 导入 CG 插画（可多选）</button>
-        <div class="hintTip">CG 默认<b>隐藏</b>立绘，可关联角色；剧本里用 <code>@cg</code> 显示。</div>
+        <div class="hintTip">CG 默认<b>隐藏</b>立绘；关联角色后会按角色分组，还能 <b>🎭</b> 一键加成该角色的表情差分。</div>
         <div id="cgList"></div>
 
         <div class="secTitle" style="margin-top:20px">🎮 互动场景</div>
@@ -1490,7 +1534,12 @@ body.theme-paper .aboutUpdated{color:#8a7c62;border-left-color:#d5c9b0}
 你发现一把钥匙。
 @get 钥匙
 @jump start</pre>
-        <h3>🗺 流程视图（程序框图）</h3>
+        <h3>🗂 素材面板怎么用</h3>
+<p>顶部搜索框可以搜名字，也能搜<b>关联的角色名</b>；下面一排是筛选：<b>全部 / 已关联 / 未关联 / 有热点 / 未使用</b>，右边的下拉可以按「名称」或「用得最多」排序。</p>
+<p>CG 会按<b>关联角色自动分组</b>（组头带角色头像和数量）。关联后点 CG 行上的 <b>🎭</b>，就能把这张图加成该角色的<b>表情差分</b>，剧本里 <code>@show 角色 CG名</code> 直接用；组头还有「🎭 全部设为表情」一键导入整组。</p>
+<p>角色卡片上的 <b>🎬N</b> 可以反查这个角色有哪些 CG；每张图右侧用 <b>📜 ×N</b> 标出剧本里用了几次，没用过的会被标灰。</p>
+
+<h3>🗺 流程视图（程序框图）</h3>
 <p>「分支」面板切到 <b>「🗺 流程视图」</b>：从 <b>▶ 开始</b> 一路往下，剧情是方框、条件判定是菱形（左右分叉，边上写着条件）、选项是六边形，没出口的分支会亮黄提醒。</p>
 <p>拖动节点摆位置（会记住）；节点右上角 <b>✎</b> 写标注；右下角 <b>＋</b> 新建跳转；左侧 <b>⇢</b> 拖到另一个节点就直接连线。</p>
 <p>想看得更大：点 <b>⛶ 独立窗口</b> 单独开一个窗口放流程图，里面按住拖动平移、滚轮/双指缩放。主窗口里也可以用 <b>Ctrl + 滚轮</b> 缩放。</p>
@@ -1598,7 +1647,7 @@ body.theme-paper .aboutUpdated{color:#8a7c62;border-left-color:#d5c9b0}
       <div class="aboutTitle" id="aboutTitle">✦ 关于作者</div>
       <div class="aboutRow"><span>作者</span><b>@Teasssss</b></div>
       <div class="aboutRow"><span>辅助制作工具</span><b>Deepseek</b></div>
-      <div class="aboutRow"><span>版本</span><b class="aboutVer" id="aboutVer" title="多戳几下看看……">v6.4</b><span class="aboutUpdated" id="aboutUpdated">2026-11-12 更新</span></div>
+      <div class="aboutRow"><span>版本</span><b class="aboutVer" id="aboutVer" title="多戳几下看看……">v6.5</b><span class="aboutUpdated" id="aboutUpdated">2026-11-12 更新</span></div>
       <div class="aboutQuote">“每一个像素，都是你亲手写下的世界。”<br>—— 把故事讲出来的人，永远是作者。</div>
       <div class="aboutBtns">
         <button id="eggCat">🐱 摸一下</button>
@@ -5303,29 +5352,179 @@ $('#batchOk').onclick = () => {
 };
 batchModal.addEventListener('click', e => { if (pickingFile) return; if (e.target === batchModal) closeBatchModal(); });
 
+/* ===== v6.5 素材面板：筛选 / 分组 / 关联真正有用 ===== */
+let assetFilter = 'all';
+let assetSortBy = 'default';
+let cgCollapsed = {};
+let sceneUsageCache = {};
+
+function computeSceneUsage(){
+  const map = {};
+  const lines = scriptInput.value.split('\n');
+  for (const line of lines){
+    const t = line.trim();
+    if (t.charAt(0) !== '@') continue;
+    const m = t.match(/^@(bg|cg)\s+(\S+)/i);
+    if (m) map[m[2]] = (map[m[2]] || 0) + 1;
+  }
+  return map;
+}
+
+function assetPassFilter(name, scene, usage){
+  const u = usage[name] || 0;
+  if (assetFilter.indexOf('char:') === 0) return scene.linkedChar === assetFilter.slice(5);
+  if (assetFilter === 'linked') return !!scene.linkedChar;
+  if (assetFilter === 'unlinked') return !scene.linkedChar;
+  if (assetFilter === 'hotspot') return (scene.hotspots || []).length > 0 || getSceneParts(scene).length > 1;
+  if (assetFilter === 'unused') return u === 0;
+  return true;
+}
+
+function sortAssetList(list, usage){
+  if (assetSortBy === 'name') return list.slice().sort((a, b) => String(a).localeCompare(String(b), 'zh'));
+  if (assetSortBy === 'use') return list.slice().sort((a, b) => (usage[b] || 0) - (usage[a] || 0));
+  return list;
+}
+
+function setAssetFilter(f){
+  assetFilter = f;
+  document.querySelectorAll('#assetFilters button').forEach(b => {
+    b.classList.toggle('active', b.dataset.f === f || (f.indexOf('char:') === 0 && b.dataset.f === 'linked'));
+  });
+  const note = $('#assetFilterNote');
+  if (note){
+    if (f.indexOf('char:') === 0){
+      note.innerHTML = '🎭 只看「' + escapeHtml(f.slice(5)) + '」的 CG <button class="miniBtn" id="assetFilterClear">✕</button>';
+      const c = $('#assetFilterClear');
+      if (c) c.onclick = () => setAssetFilter('all');
+    } else note.innerHTML = '';
+  }
+  renderAssets();
+}
+
+function focusCharCard(name){
+  const tab = [...document.querySelectorAll('button')].find(b => b.textContent.trim() === '素材');
+  if (tab) tab.click();
+  setTimeout(() => {
+    const card = [...document.querySelectorAll('.charCard')].find(c => {
+      const n = c.querySelector('.charName');
+      return n && n.textContent === name;
+    });
+    if (!card) return;
+    card.scrollIntoView({ block:'center' });
+    card.classList.add('flash');
+    setTimeout(() => card.classList.remove('flash'), 1300);
+  }, 80);
+}
+
+function focusCgOfChar(name){
+  const tab = [...document.querySelectorAll('button')].find(b => b.textContent.trim() === '素材');
+  if (tab) tab.click();
+  setAssetFilter('char:' + name);
+  setTimeout(() => {
+    const cg = document.getElementById('cgList');
+    if (cg && cg.scrollIntoView) cg.scrollIntoView({ block:'center' });
+  }, 80);
+}
+
+function cgToExpression(cgName, charName){
+  const scene = assets.bg[cgName];
+  if (!scene) return false;
+  const c = characters[charName];
+  if (!c) return false;
+  c.expressions = c.expressions || {};
+  let base = cgName, key = base, i = 1;
+  while (c.expressions[key] && c.expressions[key].normal !== scene.url){ key = base + '_' + (++i); }
+  if (c.expressions[key] && c.expressions[key].normal === scene.url) return false;
+  c.expressions[key] = { normal: scene.url, talk: null };
+  return true;
+}
+
+function setCgAsExpression(cgName){
+  const scene = assets.bg[cgName];
+  const charName = scene && scene.linkedChar;
+  if (!charName || !characters[charName]){ showToast('这张 CG 还没关联角色，先点 🔗 关联', 'warn'); return; }
+  const ok = cgToExpression(cgName, charName);
+  renderAssets();
+  showToast(ok ? ('已加成「' + charName + '」的表情差分') : '这张 CG 已经是该角色的表情了', ok ? 'ok' : 'warn');
+}
+
+function cgGroupToExpressions(charName, names){
+  if (!characters[charName]) return;
+  let n = 0;
+  names.forEach(nm => { if (cgToExpression(nm, charName)) n++; });
+  renderAssets();
+  showToast(n ? ('已把 ' + n + ' 张 CG 加成「' + charName + '」的表情') : '这些 CG 都已经在该角色的表情里了', 'ok');
+}
+
+function renderCgGroups(list, usage){
+  const cgList = $('#cgList');
+  const groups = {};
+  list.forEach(n => {
+    const g = assets.bg[n].linkedChar || '';
+    (groups[g] = groups[g] || []).push(n);
+  });
+  const keys = Object.keys(groups).sort((a, b) => a === '' ? 1 : (b === '' ? -1 : a.localeCompare(b, 'zh')));
+  keys.forEach(g => {
+    const items = groups[g];
+    const open = !cgCollapsed[g];
+    const head = document.createElement('div');
+    head.className = 'cgGroup' + (g ? '' : ' none');
+    const avatar = (g && characters[g] && characters[g].main) ? characters[g].main : '';
+    head.innerHTML = '<span class="cgArrow">' + (open ? '▾' : '▸') + '</span>' +
+      (avatar ? '<i class="cgAvatar" style="background-image:url(\'' + avatar + '\')"></i>' : '<i class="cgAvatar empty"></i>') +
+      '<span class="cgGroupName">' + (g ? escapeHtml(g) : '未关联') + '</span>' +
+      '<span class="cgGroupCount">' + items.length + '</span>';
+    const bulk = document.createElement('button');
+    bulk.className = 'miniBtn';
+    bulk.textContent = '🎭 全部设为表情';
+    bulk.disabled = !g || !characters[g];
+    bulk.title = bulk.disabled ? '把这一组 CG 都加成表情差分（先关联角色）' : ('把这一组 CG 都加成「' + g + '」的表情差分');
+    bulk.onclick = ev => { ev.stopPropagation(); cgGroupToExpressions(g, items); };
+    head.appendChild(bulk);
+    head.onclick = () => { cgCollapsed[g] = !cgCollapsed[g]; renderAssets(); };
+    cgList.appendChild(head);
+    if (open) items.forEach(n => cgList.appendChild(makeBgRow(n, usage)));
+  });
+}
+
 function renderAssets(){
   const bgList = $('#bgList'), cgList = $('#cgList');
   const kwEl = $('#assetSearch');
   const kw = kwEl ? (kwEl.value || '').trim().toLowerCase() : '';
-  const match = n => !kw || String(n).toLowerCase().indexOf(kw) >= 0;
+  const match = n => {
+    if (!kw) return true;
+    const s = assets.bg[n] || {};
+    return String(n).toLowerCase().indexOf(kw) >= 0 || String(s.linkedChar || '').toLowerCase().indexOf(kw) >= 0;
+  };
+  const usage = sceneUsageCache = computeSceneUsage();
   const scenes = Object.keys(assets.bg);
-  const bgs = scenes.filter(n => !assets.bg[n].hideChars && match(n));
-  const cgs = scenes.filter(n => assets.bg[n].hideChars && match(n));
-  bgList.innerHTML = bgs.length ? '' : '<div class="empty">还没有背景</div>';
-  bgs.forEach(name => bgList.appendChild(makeBgRow(name)));
+  const filtered = (list) => sortAssetList(list.filter(n => match(n) && assetPassFilter(n, assets.bg[n], usage)), usage);
+  const bgs = filtered(scenes.filter(n => !assets.bg[n].hideChars));
+  const cgs = filtered(scenes.filter(n => assets.bg[n].hideChars));
+  const emptyWord = (kw || assetFilter !== 'all') ? '没有符合条件的' : '还没有';
+  bgList.innerHTML = bgs.length ? '' : '<div class="empty">' + emptyWord + '背景</div>';
+  bgs.forEach(n => bgList.appendChild(makeBgRow(n, usage)));
   if (cgList){
-    cgList.innerHTML = cgs.length ? '' : '<div class="empty">还没有 CG</div>';
-    cgs.forEach(name => cgList.appendChild(makeBgRow(name)));
+    cgList.innerHTML = '';
+    if (!cgs.length) cgList.innerHTML = '<div class="empty">' + emptyWord + 'CG</div>';
+    else renderCgGroups(cgs, usage);
   }
+  const cnt = $('#assetCount');
+  if (cnt) cnt.textContent = bgs.length + ' 背景 · ' + cgs.length + ' CG';
   const charList = $('#charList');
   charList.innerHTML = '';
   const names = Object.keys(characters).filter(match);
-  if (!names.length) charList.innerHTML = '<div class="empty">还没有角色</div>';
+  if (!names.length) charList.innerHTML = '<div class="empty">' + (kw ? '没有匹配的角色' : '还没有角色') + '</div>';
   else names.forEach(name => charList.appendChild(makeCharCard(name)));
   renderBranches();
 }
+
 const _assetSearchEl = document.getElementById('assetSearch');
 if (_assetSearchEl) _assetSearchEl.addEventListener('input', () => renderAssets());
+document.querySelectorAll('#assetFilters button').forEach(b => { b.onclick = () => setAssetFilter(b.dataset.f); });
+const _assetSortEl = document.getElementById('assetSort');
+if (_assetSortEl) _assetSortEl.onchange = () => { assetSortBy = _assetSortEl.value; renderAssets(); };
 const linkCharModal = $('#linkCharModal');
 let linkCharTarget = null;
 function openLinkCharModal(name){
@@ -5353,53 +5552,73 @@ safeBind('#linkCharOk', () => {
 safeBind('#linkCharCancel', () => { linkCharModal.hidden = true; });
 linkCharModal.addEventListener('click', e => { if (e.target === linkCharModal) linkCharModal.hidden = true; });
 
-function makeBgRow(name){
+function makeBgRow(name, usage){
+  usage = usage || sceneUsageCache || {};
   const scene = assets.bg[name];
+  const uses = usage[name] || 0;
+  const parts = getSceneParts(scene).length;
+  const hotspots = (scene.hotspots || []).length;
   const row = document.createElement('div');
-  row.className = 'assetItem' + (scene.hideChars ? ' isCG' : '');
+  row.className = 'assetItem' + (scene.hideChars ? ' isCG' : '') + (uses ? '' : ' noUse');
+  row.dataset.scene = name;
   const thumb = document.createElement('div');
   thumb.className = 'thumb';
   thumb.style.backgroundImage = `url("${scene.url}")`;
   const main = document.createElement('div');
   main.className = 'assetMain';
-  main.innerHTML = `<div class="assetName">${escapeHtml(name)}</div><div class="assetTags"><span class="assetTag ${scene.hideChars ? 'cg' : 'bg'}">${scene.hideChars ? '🎬 CG' : '背景'}</span>${isAnimatedUrl(scene.url) ? `<span class="assetTag anim">✦ ${animLabelOf(scene.url)}</span>` : ''}${getSceneParts(scene).length > 1 ? `<span class="assetTag long">🧩 ${getSceneParts(scene).length}</span>` : ''}${scene.linkedChar ? `<span class="assetTag">🔗 ${escapeHtml(scene.linkedChar)}</span>` : ''}</div>`;
-  const typeTag = main.querySelector('.assetTag');
-  typeTag.style.cursor = 'pointer';
-  typeTag.onclick = () => { scene.hideChars = !scene.hideChars; renderAssets(); };
-  const hotBtn = document.createElement('button');
-  hotBtn.className = 'iconBtn'; hotBtn.textContent = '🎯';
-  hotBtn.onclick = () => openHotspotModal(name, 0);
-  let linkBtn = null;
-  if (scene.hideChars){
-    linkBtn = document.createElement('button');
-    linkBtn.className = 'iconBtn';
-    linkBtn.textContent = '🔗';
-    linkBtn.title = scene.linkedChar ? ('已关联：' + scene.linkedChar + '（点击修改）') : '关联角色';
-    linkBtn.style.borderColor = scene.linkedChar ? '#5a3a5a' : '#4a4a58';
-    linkBtn.onclick = () => openLinkCharModal(name);
+  const tags = [];
+  tags.push(`<span class="assetTag ${scene.hideChars ? 'cg' : 'bg'}" data-role="typeSwitch">${scene.hideChars ? '🎬 CG' : '🖼 背景'}</span>`);
+  if (isAnimatedUrl(scene.url)) tags.push(`<span class="assetTag anim">✦ ${animLabelOf(scene.url)}</span>`);
+  if (parts > 1) tags.push(`<span class="assetTag long">🧩 ${parts}</span>`);
+  if (hotspots) tags.push(`<span class="assetTag hot">🎯 ${hotspots}</span>`);
+  tags.push(uses ? `<span class="assetTag use">📜 ×${uses}</span>` : `<span class="assetTag dim">未使用</span>`);
+  if (scene.linkedChar) tags.push(`<span class="assetTag linkTag">🎭 ${escapeHtml(scene.linkedChar)}</span>`);
+  main.innerHTML = `<div class="assetName">${escapeHtml(name)}</div><div class="assetTags">${tags.join('')}</div>`;
+  const switchTag = main.querySelector('[data-role="typeSwitch"]');
+  if (switchTag){
+    switchTag.style.cursor = 'pointer';
+    switchTag.title = '点击切换 背景 / CG';
+    switchTag.onclick = ev => { ev.stopPropagation(); scene.hideChars = !scene.hideChars; renderAssets(); };
   }
-  const renameBtn = document.createElement('button');
-  renameBtn.className = 'iconBtn'; renameBtn.textContent = '✎';
-  renameBtn.onclick = () => {
+  const linkTag = main.querySelector('.linkTag');
+  if (linkTag && characters[scene.linkedChar]){
+    linkTag.style.cursor = 'pointer';
+    linkTag.title = '点击查看这个角色';
+    linkTag.onclick = ev => { ev.stopPropagation(); focusCharCard(scene.linkedChar); };
+  }
+  row.append(thumb, main);
+  const mkIcon = (txt, title, handler, cls) => {
+    const b = document.createElement('button');
+    b.className = 'iconBtn' + (cls ? ' ' + cls : '');
+    b.textContent = txt; b.title = title;
+    b.onclick = ev => { ev.stopPropagation(); handler(ev); };
+    return b;
+  };
+  if (scene.hideChars){
+    const hasChar = !!characters[scene.linkedChar];
+    row.appendChild(mkIcon('🔗', hasChar ? ('已关联：' + scene.linkedChar + '（点击修改）') : '关联角色', () => openLinkCharModal(name)));
+    if (hasChar) row.appendChild(mkIcon('🎭', '把这张 CG 设成该角色的表情差分', () => setCgAsExpression(name)));
+  }
+  row.appendChild(mkIcon('🎯', parts > 1 ? '为这个场景加可点击热点' : '加可点击热点', () => openHotspotModal(name, 0)));
+  row.appendChild(mkIcon('✎', '重命名', () => {
     askText('重命名场景', name, v => {
       if (!v || !v.trim() || v.trim() === name) return;
       const nn = v.trim();
       if (assets.bg[nn]){ alert('已存在'); return; }
       assets.bg[nn] = assets.bg[name]; delete assets.bg[name]; renderAssets();
     });
-  };
-  const delBtn = document.createElement('button');
-  delBtn.className = 'iconBtn del'; delBtn.textContent = '✕';
-  delBtn.onclick = () => { showConfirm('删除场景', `确定删除场景「${name}」？`, () => { delete assets.bg[name]; renderAssets(); }); };
-  row.append(thumb, main);
-  if (linkBtn) row.append(linkBtn);
-  row.append(hotBtn, renameBtn, delBtn);
+  }));
+  row.appendChild(mkIcon('✕', '删除', () => {
+    showConfirm('删除场景', `确定删除场景「${name}」？`, () => { delete assets.bg[name]; renderAssets(); });
+  }, 'del'));
   row.onclick = e => {
     if (e.target.closest('button')) return;
     previewSceneByName(name);
   };
   return row;
 }
+
+
 function makeCharCard(name){
   ensureAdjust(name);
   const c = characters[name];
@@ -5434,7 +5653,15 @@ function makeCharCard(name){
   const delBtn = document.createElement('button');
   delBtn.className = 'iconBtn del'; delBtn.textContent = '✕';
   delBtn.onclick = () => { showConfirm('删除角色', `确定删除角色「${name}」？`, () => { delete characters[name]; renderAssets(); }); };
-  head.append(thumb, nameEl, talkBtn, showBtn, adjBtn, renameBtn, delBtn);
+  const _cgNames = Object.keys(assets.bg).filter(n => assets.bg[n].hideChars && assets.bg[n].linkedChar === name);
+  if (_cgNames.length){
+    const cgBtn = document.createElement('button');
+    cgBtn.className = 'iconBtn';
+    cgBtn.textContent = '🎬' + _cgNames.length;
+    cgBtn.title = '查看该角色关联的 ' + _cgNames.length + ' 张 CG';
+    cgBtn.onclick = () => focusCgOfChar(name);
+    head.append(thumb, nameEl, cgBtn, talkBtn, showBtn, adjBtn, renameBtn, delBtn);
+  } else head.append(thumb, nameEl, talkBtn, showBtn, adjBtn, renameBtn, delBtn);
   const expRow = document.createElement('div');
   expRow.className = 'charExprs';
   expRow.appendChild(makeDefaultExprItem(name));
@@ -7381,7 +7608,16 @@ safeBind('#featureToggle', () => {
 });
 
 const CHANGELOG = [
-  { version: 'v6.4', date: '2026-11-12', title: '流程图可以单独开个窗口看啦，拖动 + 缩放超顺手 ✧٩(ˊωˋ*)و✧', current: true, items: [
+  { version: 'v6.5', date: '2026-11-12', title: '素材面板大整理：筛选 / 分组 / CG 关联终于有用了 ୧(๑•̀⌄•́๑)૭', current: true, items: [
+    { tag: 'add', text: '🔎 素材面板新增筛选：全部 / 已关联 / 未关联 / 有热点 / 未使用，并能按名称或「用得最多」排序' },
+    { tag: 'add', text: '🎭 CG 按关联角色自动分组，组头带角色头像和张数，一眼看完某角色的所有 CG' },
+    { tag: 'add', text: '🎭 关联终于有用了：CG 行上点 🎭 就把它加成该角色的表情差分，@show 角色 CG名 直接能用' },
+    { tag: 'add', text: '📦 组头「🎭 全部设为表情」一键把整组 CG 都塞进角色表情' },
+    { tag: 'add', text: '🔗 角色卡片多了 🎬N 按钮，点一下直接筛出这个角色的 CG；反过来点 CG 上的 🎭 小标也能跳到角色' },
+    { tag: 'add', text: '📜 每张图显示被剧本用了几次（📜 ×2），没用过的标灰，方便清理' },
+    { tag: 'add', text: '🎯 场景行直接显示热点数，点类型标签就能切 背景 / CG' },
+  ]},
+  { version: 'v6.4', date: '2026-11-12', title: '流程图可以单独开个窗口看啦，拖动 + 缩放超顺手 ✧٩(ˊωˋ*)و✧', items: [
     { tag: 'add', text: '🪟 流程视图新增「⛶ 独立窗口」：新开一个窗口放流程图，拖到副屏边玩边看' },
     { tag: 'add', text: '🖐 独立窗口里按住拖动就是平移；滚轮 / 双指随时缩放，以鼠标或双指位置为中心' },
     { tag: 'add', text: '🔍 顶部工具条有 － / ＋ / 适应窗口 / 1:1 和实时百分比，双击画面也能一键适应' },
