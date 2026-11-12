@@ -758,6 +758,9 @@ body.theme-paper .miniBtn{background:#fffefb;border-color:#9a8a6a;color:#4a4236}
 .flowChoice{position:relative;margin:0 auto;background:#150a20;border:2px solid #c58bff;clip-path:polygon(10% 0,90% 0,100% 50%,90% 100%,10% 100%,0 50%);display:flex;align-items:center;justify-content:center;cursor:pointer;user-select:none}
 .flowChoice i{font-style:normal;font-size:10.5px;color:#dfc0ff;letter-spacing:.5px;pointer-events:none}
 .flowEndPill{margin:0 auto;background:#101a12;border:2px dashed #3f7a55;color:#7dfba0;font-size:10px;text-align:center;line-height:19px;height:22px;border-radius:11px;cursor:pointer}
+.flowNode.proc.orphan{border-style:dashed!important;border-color:#c9a227!important}
+.flowOrphan{position:absolute;left:-4px;top:-12px;font-family:inherit;font-size:9px;padding:1px 5px;border:1px solid #c9a227;background:#1a1608;color:#ffcf6f;cursor:pointer;white-space:nowrap;z-index:4;box-shadow:none;line-height:1.4}
+body.theme-paper .flowOrphan{background:#fdf6e0;color:#8a6a10;border-color:#c9a227}
 .flowGhost{position:absolute;border:2px dashed #ff6b6b;color:#ff8a8a;background:#140a0a;font-size:10px;padding:4px 8px;max-width:150px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .flowNote{position:absolute;left:0;font-size:10px;color:#ffe9a8;background:#2a2410;border-left:2px solid #ffd96f;padding:2px 6px;max-width:172px;white-space:pre-wrap;word-break:break-word;cursor:pointer;line-height:1.45}
 .flowZoomPct{font-size:11px;color:#7dfba0;min-width:40px;text-align:center;flex:none}
@@ -6955,6 +6958,79 @@ function buildViewerDom(doc, snap, showClose){
 }
 
 
+
+/* ===== 把 A 分支接到 B 分支：在 A 末尾写 @jump B（遇到 @end 插在它前面） ===== */
+function connectBranches(fromLabel, toLabel){
+  if (!fromLabel || !toLabel || fromLabel === toLabel) return false;
+  const branches = splitBranches(scriptInput.value);
+  const b = branches.find(x => x.label === fromLabel);
+  if (!b) return false;
+  const esc = String(toLabel).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  if (new RegExp('@jump\\s+' + esc + '(\\s|$)').test(b.contentLines.join('\n'))) return 'exists';
+  const lines = scriptInput.value.split('\n');
+  let at = b.endLine + 1;
+  // 分支里有 @end 时插在第一个 @end 前面，否则直接追加到分支末尾
+  for (let i = b.startLine; i <= b.endLine; i++){
+    const s = (lines[i] || '').trim();
+    if (/^@end\b/i.test(s)){ at = i; break; }
+  }
+  if (at < 0) at = 0;
+  if (at > lines.length) at = lines.length;
+  lines.splice(at, 0, '@jump ' + toLabel);
+  commitScriptChange(lines.join('\n'));
+  return true;
+}
+
+/* 孤岛分支：选择一个来源分支接过来 */
+function openOrphanPicker(orphanLabel, fv){
+  const doc = fv ? (fv.doc || document) : document;
+  const old = doc.getElementById('vnsOrphanPick');
+  if (old) old.remove();
+  const branches = splitBranches(scriptInput.value).filter(b => b.label !== orphanLabel);
+  if (!branches.length){ if (fv) viewerToast(fv, '没有其它分支可以接过来', 'warn'); else showToast('没有其它分支可以接过来', 'warn'); return; }
+  const mask = doc.createElement('div');
+  mask.className = 'vnsVModal';
+  mask.id = 'vnsOrphanPick';
+  const card = doc.createElement('div');
+  card.className = 'vnsVCard';
+  card.style.width = 'min(560px,92%)';
+  const head = doc.createElement('div');
+  head.className = 'vnsVCardHead';
+  head.textContent = '🔗 把「' + orphanLabel + '」接到哪个分支后面？';
+  const list = doc.createElement('div');
+  list.className = 'vnsVChoiceList';
+  const tip = doc.createElement('div');
+  tip.className = 'vnsVHint';
+  tip.style.padding = '8px 12px 0';
+  tip.textContent = '选择后，会在那个分支末尾写上 @jump ' + orphanLabel + '（末尾是 @end 就插在它前面）。';
+  branches.forEach(b => {
+    const btn = doc.createElement('button');
+    btn.className = 'vnsVTool';
+    btn.style.cssText = 'text-align:left;padding:8px 10px;font-size:12px';
+    btn.textContent = b.isEntry ? '▶（开头）' : (b.label + '  ·  ' + b.contentLines.filter(l => l.trim()).length + ' 行');
+    btn.onclick = () => {
+      mask.remove();
+      const res = connectBranches(b.label, orphanLabel);
+      if (res === 'exists'){ if (fv) viewerToast(fv, '这条跳转已经有了', 'warn'); else showToast('这条跳转已经有了', 'warn'); }
+      else if (res){ if (fv) viewerToast(fv, '已接上：' + (b.isEntry ? '开头' : b.label) + ' → ' + orphanLabel, 'ok'); else showToast('已接上：' + (b.isEntry ? '开头' : b.label) + ' → ' + orphanLabel, 'ok'); }
+    };
+    list.appendChild(btn);
+  });
+  const foot = doc.createElement('div');
+  foot.className = 'vnsVCardFoot';
+  const hint = doc.createElement('span');
+  hint.className = 'vnsVHint';
+  hint.textContent = '也可以直接拖节点左侧的 ⇢ 到目标节点连线';
+  const bCancel = doc.createElement('button');
+  bCancel.className = 'vnsVBtn'; bCancel.textContent = '取消';
+  bCancel.onclick = () => mask.remove();
+  foot.append(hint, bCancel);
+  card.append(head, tip, list, foot);
+  mask.appendChild(card);
+  (doc.body || doc.documentElement).appendChild(mask);
+  mask.addEventListener('pointerdown', ev => { if (ev.target === mask) mask.remove(); });
+}
+
 /* ===== v6.6 独立窗口编辑：写回主窗口 ===== */
 function replaceBranchContent(label, text){
   const branches = splitBranches(scriptInput.value);
@@ -7418,6 +7494,14 @@ function bindViewerNodes(fv){
     };
   });
 
+  cv.querySelectorAll('.flowOrphan').forEach(el => {
+    if (el.dataset.vbound) return;
+    el.dataset.vbound = '1';
+    const b = el.closest('.flowBlock');
+    el.addEventListener('pointerdown', ev => ev.stopPropagation());
+    el.addEventListener('click', ev => { ev.stopPropagation(); openOrphanPicker(b ? b.dataset.label : null, fv); });
+  });
+
   cv.querySelectorAll('.flowChoice').forEach(el => {
     if (el.dataset.vbound) return;
     el.dataset.vbound = '1';
@@ -7808,6 +7892,12 @@ function renderBranchFlow(){
   entries.forEach(e => e.edges.forEach(ed => { if (known[ed.to] && ed.to !== e.label) adj[e.label].push(ed.to); }));
 
   // 多源分层：没有入边的分支都算起点（热点 / 选项标签常常是独立入口）
+  const hotspotLabels = new Set();
+  Object.keys(assets.bg).forEach(_sn => {
+    getSceneParts(assets.bg[_sn]).forEach(_p => (_p.hotspots || []).forEach(_h => {
+      [_h.label, _h.labelSecond, _h.labelFinal].forEach(_x => { if (_x) hotspotLabels.add(_x); });
+    }));
+  });
   const inDeg = {};
   entries.forEach(e => { inDeg[e.label] = 0; });
   entries.forEach(e => e.edges.forEach(ed => { if (inDeg[ed.to] !== undefined && ed.to !== e.label) inDeg[ed.to]++; }));
@@ -7905,6 +7995,8 @@ function renderBranchFlow(){
     block.style.top = (p.y + pad + (off.dy || 0)) + 'px';
     block.style.height = e.colH + 'px';
     block.dataset.label = e.label;
+    e.orphan = !e.isEntry && entries[0] !== e && (inDeg[e.label] || 0) === 0 && !hotspotLabels.has(e.label);
+    if (e.orphan) block.classList.add('orphan');
     block.dataset.baseLeft = (p.x + shift);
     block.dataset.baseTop = (p.y + pad);
 
@@ -7936,6 +8028,15 @@ function renderBranchFlow(){
     }, 'flowNoteEdit');
     if (!e.isEntry){
       mkBtn('✕', '删除这个分支', 'right:3px;top:2px;width:16px;height:16px;border-color:#ff6b6b;color:#ff8a8a;font-size:10px;', () => confirmDeleteBranch(e.label), 'flowNodeDel');
+    }
+    if (e.orphan){
+      const ob = document.createElement('button');
+      ob.className = 'flowOrphan';
+      ob.textContent = '⚠ 未接入';
+      ob.title = '这个分支还没有任何地方能进入 · 点这里接上';
+      ob.addEventListener('pointerdown', ev => ev.stopPropagation());
+      ob.onclick = ev => { ev.stopPropagation(); openOrphanPicker(e.label, null); };
+      block.appendChild(ob);
     }
     const linkHandle = document.createElement('button');
     linkHandle.className = 'flowLink';
@@ -8040,20 +8141,7 @@ function renderBranchFlow(){
 
 /* v5.8 拖拽连线：按住节点左侧⇢拖到另一个节点即建立 @jump */
 let linkDrag = null;
-function addJumpLink(fromLabel, toLabel){
-  const branches = splitBranches(scriptInput.value);
-  const b = branches.find(x => x.label === fromLabel);
-  if (!b) return false;
-  const esc = toLabel.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  if (new RegExp('@jump\\s+' + esc + '\\b').test(b.contentLines.join('\n'))) return 'exists';
-  const lines = scriptInput.value.split('\n');
-  let at = b.endLine + 1;
-  if (at < 0) at = 0;
-  if (at > lines.length) at = lines.length;
-  lines.splice(at, 0, '@jump ' + toLabel);
-  commitScriptChange(lines.join('\n'));
-  return true;
-}
+function addJumpLink(fromLabel, toLabel){ return connectBranches(fromLabel, toLabel); }
 function startFlowLink(e, fromLabel, node){
   e.preventDefault(); e.stopPropagation();
   const r = node.getBoundingClientRect();
@@ -8273,6 +8361,7 @@ const CHANGELOG = [
     { tag: 'fix', text: '🎮 对话进行中不再生成热点标记，画面干净、也不会误触；到了 @wait 才出现' },
     { tag: 'fix', text: '🔐 播放器里的 @input 改用自研输入框（浏览器原生 prompt 会被拦或直接跳过），不输入/输错就不放行' },
     { tag: 'add', text: '🧪 重新跑了一遍完整流程：拿钥匙 → 点门 → 输错密码重试 → 输对密码 → 圆满结局，以及无热点的纯对话剧本' },
+    { tag: 'add', text: '🔗 「作为分支并入」进来的剧本，在流程图里会用虚线标出「⚠ 未接入」，点一下就能选择接到哪个分支后面（也可以直接拖 ⇢ 连线）' },
   ]},
   { version: 'v7.0', date: '2026-11-12', title: '互动场景手感大修 + 流程图缩放升级 ✧٩(ˊωˋ*)و✧', items: [
     { tag: 'fix', text: '↪ 流程图里按住节点左侧的 ⇢ 拖到另一个节点又能连线了（手柄被节点边框裁掉了，已修）' },
@@ -9579,7 +9668,7 @@ $('#fileProj').onchange = async e => {
         mergeImportedProject(data);
         const tb0 = document.querySelector('.tabs button[data-tab="script"]');
         if (tb0) tb0.click();
-        showToast('已作为分支并入：剧本接在末尾，重名素材已自动加后缀', 'ok', 4200);
+        showToast('已作为分支并入：剧本接在末尾。新分支在流程图里会标「⚠ 未接入」，点它就能接上', 'ok', 5200);
         return;
       }
     }
