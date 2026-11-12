@@ -1648,7 +1648,7 @@ body.theme-paper .aboutUpdated{color:#8a7c62;border-left-color:#d5c9b0}
       <div class="aboutTitle" id="aboutTitle">✦ 关于作者</div>
       <div class="aboutRow"><span>作者</span><b>@Teasssss</b></div>
       <div class="aboutRow"><span>辅助制作工具</span><b>Deepseek</b></div>
-      <div class="aboutRow"><span>版本</span><b class="aboutVer" id="aboutVer" title="多戳几下看看……">v6.7</b><span class="aboutUpdated" id="aboutUpdated">2026-11-12 更新</span></div>
+      <div class="aboutRow"><span>版本</span><b class="aboutVer" id="aboutVer" title="多戳几下看看……">v6.8</b><span class="aboutUpdated" id="aboutUpdated">2026-11-12 更新</span></div>
       <div class="aboutQuote">“每一个像素，都是你亲手写下的世界。”<br>—— 把故事讲出来的人，永远是作者。</div>
       <div class="aboutBtns">
         <button id="eggCat">🐱 摸一下</button>
@@ -2417,42 +2417,59 @@ const highlightEl = $('#highlight');
 const lineCount = $('#lineCount');
 const partNav = $('#partNav');
 
-const DEMO_VN = `// 视觉小说示例
+const DEMO_VN = `// 视觉小说示例 · 把常用写法都过了一遍
+// 改坏了不要紧：设置 → 📖 示例剧本，随时能拉回来。
 @bg 教室 fade
-@show 小明 左
-小明: 欢迎来到视觉小说示例。
+@show 小明 中 微笑
+小明: 欢迎来到 VNS Studio 的视觉小说示例。
+小明: 我现在是「微笑」表情——差分靠名字切换。
+@show 小明 中 惊讶
+小明: 同一个角色，换个表情只要改一个词。
+@show 小明 中 微笑
 @textcolor #ff9a9a
-小明: 粉红色文字。
+小明: 台词颜色也能单独改。
 @textcolor
-小明: 恢复默认。旁白是灰色。
-这是一行旁白。
-@fx text-shake on 1200
-小明: 文字在抖动……！
+这是一行旁白。没有「角色:」的行都会被当成旁白。
+@fx text-shake on 900
+小明: 这句话在抖。
 @fx text-shake off
-@charlayer off
-这是没有立绘的一段旁白。
-@charlayer on
-小明: 立绘恢复。
+@get 纪念钥匙
+小明: 顺手给了你一把「纪念钥匙」，一会儿用得上。
+
+@timer 8 -> 离开
+- 收下钥匙，继续往前走 -> 走廊
+- 先问清楚为什么 -> 追问
+
+::追问
+小明: 因为门后面有你想看的东西。
+@jump 走廊
+
+::走廊
+@cg 夕阳CG
+放学后的走廊被夕阳染成橘色。
+小明: 这里是 CG——立绘会自动让位给画面。
+@when item:纪念钥匙 -> 开门
+@jump 离开
+
+::开门
+@use 纪念钥匙
+@bg 教室 fade
+钥匙转了一圈，门开了。
+小明: 钥匙用掉了，所以它从背包里消失了。
+@end 圆满结局 你带着好奇心走到了最后
+
+::离开
 @bg 教室 black
-小明: 刚才用了黑屏转场。
-- 选第一个 -> end1
-- 选第二个 -> end2
-
-::end1
-小明: 你选了第一个。
-@end 演示结束
-
-::end2
-小明: 你选了第二个。
-@end 演示结束
+天黑了，你决定明天再来。
+@end 普通结局 明天再说吧
 `;
-
 const DEMO_GAME = `// 互动游戏示例
+// 播放后点画面上闪烁的地方 / 三角形标记，就是热点。
 @bg 教室
 @set 错误次数 0
-@show 小明 左
+@show 小明 左 微笑
 小明: 我好像把钥匙弄丢了。
-小明: 点击场景中闪烁的地方看看。
+小明: 点画面里闪烁的地方找找看。
 @wait
 
 ::check_desk
@@ -2472,20 +2489,22 @@ const DEMO_GAME = `// 互动游戏示例
 
 ::door_open
 @has 钥匙 -> door_password
-小明: 门锁着……先找钥匙。
+小明: 门锁着……得先找到钥匙。
 @wait
 
 ::door_password
-小明: 请输入门上的四位密码（1234）。
-@input 密码 请输入密码
+小明: 门上有个四位密码锁。
+@input 密码 请输入四位密码（提示：1234）
 @check 密码 == 1234 -> door_ok
 小明: 密码不对……再试一次。
 @wait
 
 ::door_ok
+@use 钥匙
 @bg 教室 black
 小红（微笑）：你好厉害！
 @get 通关奖章
+小明: 钥匙用掉了，奖章归你。
 @end 圆满结局 你打开了门
 
 ::bad_end
@@ -3495,6 +3514,7 @@ function execCmd(n){
         }, getAutoDelay());
         return 'stop';
       }
+      if (!getCurrentHotspots().length) break;
       vm.awaitingHotspot = true;
       dialogEl.classList.remove('show');
       nameBox.style.display = 'none';
@@ -3527,7 +3547,7 @@ function next(){
     if (n.type === 'cmd'){
       vm.pc++;
       const stop = execCmd(n);
-      if (stop === 'stop' || n.cmd === 'wait') return;
+      if (stop === 'stop') return;
       if (!vm.running) return;
       continue;
     }
@@ -4271,8 +4291,8 @@ const samplePickerModal = $('#samplePickerModal');
 document.querySelectorAll('#welcomeFontChoice button').forEach(btn => {
   btn.onclick = () => { settings.fontStyle = btn.dataset.font; saveSettings(); applySettings(); };
 });
-$('#pickVN').onclick = () => { commitScriptChange(DEMO_VN); samplePickerModal.hidden = true; markWelcomeSeen('vn'); showToast('已载入视觉小说示例，点「▶ 播放」看看', 'ok'); };
-$('#pickGame').onclick = () => { commitScriptChange(DEMO_GAME); setupDemoScene(); renderAssets(); samplePickerModal.hidden = true; markWelcomeSeen('game'); showToast('已载入互动游戏示例，点「▶ 播放」试试点击画面', 'ok'); };
+$('#pickVN').onclick = () => { loadDemo('vn'); samplePickerModal.hidden = true; showToast('已载入视觉小说示例，点「▶ 播放」看看', 'ok'); };
+$('#pickGame').onclick = () => { loadDemo('game'); samplePickerModal.hidden = true; markWelcomeSeen('game'); showToast('已载入互动游戏示例，点「▶ 播放」试试点击画面', 'ok'); };
 $('#pickEmpty').onclick = () => { commitScriptChange(''); samplePickerModal.hidden = true; markWelcomeSeen('empty'); };
 $('#pickSkip').onclick = () => { samplePickerModal.hidden = true; markWelcomeSeen('skip'); };
 samplePickerModal.addEventListener('click', e => { if (e.target === samplePickerModal) samplePickerModal.hidden = true; });
@@ -6811,7 +6831,8 @@ function openFlowViewer(){
     doc.close();
   } catch(e){ win = null; }
   if (!win || !doc.body){ buildFlowOverlay(snap); return; }
-  doc.title = '🗺 流程图 · VNS Studio';
+  const verTxt = (document.getElementById('aboutVer') || {}).textContent || '';
+  doc.title = '🗺 流程图 · VNS Studio ' + verTxt;
   const st = doc.createElement('style');
   const srcStyle = document.querySelector('style');
   st.textContent = (srcStyle ? srcStyle.textContent : '') + '\n' + flowViewerCss();
@@ -7328,6 +7349,15 @@ function applyFlowZoom(k, fromRender){
   const pct = document.getElementById('flowZoomPct');
   if (pct) pct.textContent = Math.round(k * 100) + '%';
 }
+
+(function attachViewerGuard(){
+  window.addEventListener('beforeunload', () => {
+    try {
+      if (flowViewer && flowViewer.win && !flowViewer.win.closed) flowViewer.win.close();
+      if (document.getElementById('flowOverlay')) closeFlowOverlay();
+    } catch(e){}
+  });
+})();
 
 (function attachFlowPanZoom(){
   const wrapEl = document.getElementById('branchFlowWrap');
@@ -8036,6 +8066,7 @@ const FEATURES = [
   { name:'名字框独立', desc:'与对话框分离' },
   { name:'文字颜色/抖动/摇晃/变大', desc:'均支持时长' },
   { name:'快捷插入', desc:'12 种常用语法' },
+  { name:'示例剧本自带素材', desc:'小明/小红 + 教室 + 夕阳CG，载入即玩' },
   { name:'流程图程序框图', desc:'开始 ↓ 方框 ↓ 菱形判定 / 六边形选项，可标注' },
   { name:'批量导入先确认', desc:'缩略图 + 文件名 + 可改的名字，说话差分自动拼' },
   { name:'插入台词/立绘左预览', desc:'左侧 miniStage + 拖拽' },
@@ -8053,7 +8084,15 @@ safeBind('#featureToggle', () => {
 });
 
 const CHANGELOG = [
-  { version: 'v6.7', date: '2026-11-12', title: '独立窗口里的编辑框也能快捷插入了 ✍(◔◡◔)', current: true, items: [
+  { version: 'v6.8', date: '2026-11-12', title: '示例剧本重做 + 一批小修 (๑•̀ㅂ•́)و✧', current: true, items: [
+    { tag: 'add', text: '📖 示例剧本重写：现在自带示例角色（小明 / 小红，含微筑、惊讶差分）、教室场景和一张「夕阳 CG」，载入就能直接玩' },
+    { tag: 'add', text: '🎯 视觉小说示例把常用写法都过了一遍：表情差分、文字颜色、抖动、@get/@use、@when 条件跳转、@timer 限时选项、@cg、多结局' },
+    { tag: 'add', text: '🎮 互动游戏示例补上 @use 钥匙 和表情写法，台词更通顺；两个示例都会自动补齐缺的素材' },
+    { tag: 'fix', text: '⏸ 修好 @wait 在「没有热点的场景」里会永久卡死的问题（现在没热点就自动跳过）' },
+    { tag: 'fix', text: '🪟 主窗口刷新 / 关页时自动关掉独立窗口，避免留下点不动的旧窗口（这也是标注按钮点了没反应的原因）' },
+    { tag: 'add', text: '🔖 独立窗口标题带上版本号，一眼能看出是不是旧窗口' },
+  ]},
+  { version: 'v6.7', date: '2026-11-12', title: '独立窗口里的编辑框也能快捷插入了 ✍(◔◡◔)', items: [
     { tag: 'add', text: '⚡ 窗口内的分支编辑框新增快捷栏：场景 / 立绘 / 跳转 / 隐藏 四个下拉，选一下就插到光标处' },
     { tag: 'add', text: '🧩 另一排是 12 个常用模板：台词、选项、@check、@when、标签、等待、物品、音效、BGM、特效、颜色、结局' },
     { tag: 'add', text: '📊 编辑框底部实时统计有效行数 / 跳转数 / 选项数，编辑框也加宽了' },
@@ -8914,10 +8953,10 @@ function execCmd(n){switch(n.cmd){case 'bg':setBg(n.args[0]||'',n.args[1]||'fade
   case 'use':if(n.args[0]){var uix=inv.indexOf(n.args[0]);if(uix>=0){inv.splice(uix,1);showItemToast(n.args[0],'lost');}}renderHotspots();break;
   case 'endsay':dlg.classList.remove('show');nameEl.style.display='none';textEl.textContent='';hint.classList.remove('show');vm.sayEnded=true;break;
   case 'timer':{var tsec=parseFloat(n.args[0]);var tix=n.args.indexOf('->');var ttg=tix>0?n.args[tix+1]:null;if(!isNaN(tsec)&&tsec>0)vm.choiceTimer={sec:tsec,target:ttg};break;}
-  case 'when':{var ar=n.args.slice();var ai=ar.indexOf('->');var tgw=null,conds=ar;if(ai>=0){conds=ar.slice(0,ai);tgw=ar[ai+1];}else{for(var z=0;z<ar.length;z++){if(String(ar[z]).slice(-2)==='->'){tgw=String(ar[z]).slice(0,-2);conds=ar.slice(0,z);break;}}}if(tgw&&vm.labels[tgw]!==undefined&&evalExpr(conds))vm.pc=vm.labels[tgw];break;}case 'give':if(n.args[0]){var gi=inv.indexOf(n.args[0]);if(gi>=0)inv.splice(gi,1);}renderHotspots();break;case 'has':{var id=n.args[0];var ix=n.args.indexOf('->');var tgt=ix>0?n.args[ix+1]:null;if(id&&inv.indexOf(id)>=0&&tgt&&vm.labels[tgt]!==undefined)vm.pc=vm.labels[tgt];break;}case 'mark':if(n.args[0])visited[n.args[0]]=true;break;case 'visited':{var tag=n.args[0];var ix2=n.args.indexOf('->');var tgt2=ix2>0?n.args[ix2+1]:null;if(tag&&visited[tag]&&tgt2&&vm.labels[tgt2]!==undefined)vm.pc=vm.labels[tgt2];break;}case 'set':if(n.args[0]){var k=n.args[0],val=n.args[1]!==undefined?n.args[1]:'0';var num=Number(val);vars[k]=(!isNaN(num)&&val!=='')?num:val;}break;case 'add':if(n.args[0]){var k2=n.args[0];vars[k2]=(Number(vars[k2])||0)+(Number(n.args[1])||1);}break;case 'check':{var k3=n.args[0],op=n.args[1],val2=n.args[2];var ix3=n.args.indexOf('->');var tgt3=ix3>0?n.args[ix3+1]:null;if(!k3||!op||val2===undefined||!tgt3)break;var raw=vars[k3];var aN=Number(raw),bN=Number(val2);var isNum=!isNaN(aN)&&!isNaN(bN)&&raw!==''&&raw!==undefined;var pass=false;switch(op){case '>=':pass=isNum?aN>=bN:String(raw)>=String(val2);break;case '>':pass=isNum?aN>bN:String(raw)>String(val2);break;case '<=':pass=isNum?aN<=bN:String(raw)<=String(val2);break;case '<':pass=isNum?aN<bN:String(raw)<String(val2);break;case '==':pass=isNum?aN===bN:String(raw)===String(val2);break;case '!=':pass=isNum?aN!==bN:String(raw)!==String(val2);break;}if(pass&&vm.labels[tgt3]!==undefined)vm.pc=vm.labels[tgt3];break;}case 'input':{var varName=n.args[0];if(!varName)break;var val3=prompt(n.args.slice(1).join(' ')||'请输入');vars[varName]=val3===null?'':val3;break;}case 'wait':vm.awaitingHotspot=true;dlg.classList.remove('show');hint.classList.remove('show');renderHotspots();return 'stop';case 'end':endWithCredits(n.args[0]||'END',n.args.slice(1).join(' '));return 'stop';}return null;}
+  case 'when':{var ar=n.args.slice();var ai=ar.indexOf('->');var tgw=null,conds=ar;if(ai>=0){conds=ar.slice(0,ai);tgw=ar[ai+1];}else{for(var z=0;z<ar.length;z++){if(String(ar[z]).slice(-2)==='->'){tgw=String(ar[z]).slice(0,-2);conds=ar.slice(0,z);break;}}}if(tgw&&vm.labels[tgw]!==undefined&&evalExpr(conds))vm.pc=vm.labels[tgw];break;}case 'give':if(n.args[0]){var gi=inv.indexOf(n.args[0]);if(gi>=0)inv.splice(gi,1);}renderHotspots();break;case 'has':{var id=n.args[0];var ix=n.args.indexOf('->');var tgt=ix>0?n.args[ix+1]:null;if(id&&inv.indexOf(id)>=0&&tgt&&vm.labels[tgt]!==undefined)vm.pc=vm.labels[tgt];break;}case 'mark':if(n.args[0])visited[n.args[0]]=true;break;case 'visited':{var tag=n.args[0];var ix2=n.args.indexOf('->');var tgt2=ix2>0?n.args[ix2+1]:null;if(tag&&visited[tag]&&tgt2&&vm.labels[tgt2]!==undefined)vm.pc=vm.labels[tgt2];break;}case 'set':if(n.args[0]){var k=n.args[0],val=n.args[1]!==undefined?n.args[1]:'0';var num=Number(val);vars[k]=(!isNaN(num)&&val!=='')?num:val;}break;case 'add':if(n.args[0]){var k2=n.args[0];vars[k2]=(Number(vars[k2])||0)+(Number(n.args[1])||1);}break;case 'check':{var k3=n.args[0],op=n.args[1],val2=n.args[2];var ix3=n.args.indexOf('->');var tgt3=ix3>0?n.args[ix3+1]:null;if(!k3||!op||val2===undefined||!tgt3)break;var raw=vars[k3];var aN=Number(raw),bN=Number(val2);var isNum=!isNaN(aN)&&!isNaN(bN)&&raw!==''&&raw!==undefined;var pass=false;switch(op){case '>=':pass=isNum?aN>=bN:String(raw)>=String(val2);break;case '>':pass=isNum?aN>bN:String(raw)>String(val2);break;case '<=':pass=isNum?aN<=bN:String(raw)<=String(val2);break;case '<':pass=isNum?aN<bN:String(raw)<String(val2);break;case '==':pass=isNum?aN===bN:String(raw)===String(val2);break;case '!=':pass=isNum?aN!==bN:String(raw)!==String(val2);break;}if(pass&&vm.labels[tgt3]!==undefined)vm.pc=vm.labels[tgt3];break;}case 'input':{var varName=n.args[0];if(!varName)break;var val3=prompt(n.args.slice(1).join(' ')||'请输入');vars[varName]=val3===null?'':val3;break;}case 'wait':{var _sc0=bgs[currentScene],_pp0=_sc0?sceneParts(_sc0)[currentPart]:null;if(!((_pp0&&_pp0.hotspots)||[]).length)break;vm.awaitingHotspot=true;dlg.classList.remove('show');hint.classList.remove('show');renderHotspots();return 'stop';}case 'end':endWithCredits(n.args[0]||'END',n.args.slice(1).join(' '));return 'stop';}return null;}
 var vm={nodes:[],labels:{},pc:0,running:false,awaitingChoice:false,awaitingHotspot:false};
 var typing={active:false,text:'',i:0,timer:null};
-function next(){if(!vm.running)return;while(vm.running&&vm.pc<vm.nodes.length){var n=vm.nodes[vm.pc];if(n.type==='cmd'){vm.pc++;var stop=execCmd(n);if(stop==='stop'||n.cmd==='wait')return;if(!vm.running)return;continue;}if(n.type==='say'){vm.pc++;vm.lastSayIdx=vm.pc-1;showSay(n);return;}var opts=[];while(vm.pc<vm.nodes.length&&vm.nodes[vm.pc].type==='choice'){opts.push(vm.nodes[vm.pc]);vm.pc++;}showChoices(opts);return;}if(vm.running&&!vm.awaitingHotspot)endWithCredits();}
+function next(){if(!vm.running)return;while(vm.running&&vm.pc<vm.nodes.length){var n=vm.nodes[vm.pc];if(n.type==='cmd'){vm.pc++;var stop=execCmd(n);if(stop==='stop')return;if(!vm.running)return;continue;}if(n.type==='say'){vm.pc++;vm.lastSayIdx=vm.pc-1;showSay(n);return;}var opts=[];while(vm.pc<vm.nodes.length&&vm.nodes[vm.pc].type==='choice'){opts.push(vm.nodes[vm.pc]);vm.pc++;}showChoices(opts);return;}if(vm.running&&!vm.awaitingHotspot)endWithCredits();}
 function advance(){if(coverEl&&coverEl.style.display!=='none')return;if(!vm.running||vm.awaitingChoice)return;if(typing.active){skipTyping();return;}if(vm.awaitingHotspot)return;next();}
 stage.addEventListener('click',advance);
 document.addEventListener('keydown',function(e){if(!vm.running)return;if(e.key===' '||e.key==='Enter'){e.preventDefault();advance();}});
@@ -9659,6 +9698,140 @@ function makeDemoClassroom(){
   g.fillStyle = '#ffd96f'; g.beginPath(); g.arc(1140, 540, 10, 0, Math.PI * 2); g.fill();
   return c.toDataURL('image/png');
 }
+
+/* ===== v6.8 示例素材：立绘 / CG / 角色 ===== */
+function makeDemoSprite(kind){
+  kind = String(kind || 'ming');
+  const who = kind.indexOf('hong') === 0 ? 'hong' : 'ming';
+  const expr = kind.indexOf('surprise') >= 0 ? 'surprise' : (kind.indexOf('smile') >= 0 ? 'smile' : 'normal');
+  const p = who === 'hong'
+    ? { hair:'#8a3a5a', hair2:'#a84a6a', cloth:'#8a4a6a', cloth2:'#6a3550', skin:'#f6d3b4' }
+    : { hair:'#2a2a3a', hair2:'#3a3a52', cloth:'#3a5a8a', cloth2:'#2a4268', skin:'#f0c8a0' };
+  const c = document.createElement('canvas'); c.width = 420; c.height = 660;
+  const g = c.getContext('2d');
+  g.clearRect(0, 0, 420, 660);
+  // 身体
+  g.fillStyle = p.cloth;
+  g.beginPath();
+  g.moveTo(96, 660); g.lineTo(112, 330);
+  g.quadraticCurveTo(210, 282, 308, 330);
+  g.lineTo(324, 660); g.closePath(); g.fill();
+  // 衣领
+  g.fillStyle = p.cloth2;
+  g.beginPath(); g.moveTo(150, 330); g.lineTo(210, 400); g.lineTo(270, 330); g.closePath(); g.fill();
+  // 脖子
+  g.fillStyle = p.skin; g.fillRect(186, 270, 48, 60);
+  // 头
+  g.fillStyle = p.skin;
+  g.beginPath(); g.arc(210, 210, 82, 0, Math.PI * 2); g.fill();
+  // 头发
+  g.fillStyle = p.hair;
+  g.beginPath(); g.arc(210, 196, 86, Math.PI * 1.02, Math.PI * 2.02); g.fill();
+  if (who === 'hong'){
+    g.beginPath(); g.ellipse(132, 232, 26, 62, 0.15, 0, Math.PI * 2); g.fill();
+    g.beginPath(); g.ellipse(288, 232, 26, 62, -0.15, 0, Math.PI * 2); g.fill();
+  }
+  g.fillStyle = p.hair2; g.fillRect(150, 118, 120, 14);
+  // 眼睛
+  g.fillStyle = '#1a1a2a';
+  if (expr === 'smile'){
+    g.lineWidth = 7; g.strokeStyle = '#1a1a2a'; g.lineCap = 'round';
+    g.beginPath(); g.arc(178, 216, 16, Math.PI * 1.15, Math.PI * 1.85); g.stroke();
+    g.beginPath(); g.arc(242, 216, 16, Math.PI * 1.15, Math.PI * 1.85); g.stroke();
+  } else if (expr === 'surprise'){
+    g.beginPath(); g.arc(178, 214, 15, 0, Math.PI * 2); g.fill();
+    g.beginPath(); g.arc(242, 214, 15, 0, Math.PI * 2); g.fill();
+    g.fillStyle = '#fff'; g.beginPath(); g.arc(183, 209, 5, 0, Math.PI * 2); g.fill();
+    g.beginPath(); g.arc(247, 209, 5, 0, Math.PI * 2); g.fill();
+  } else {
+    g.beginPath(); g.ellipse(178, 214, 9, 13, 0, 0, Math.PI * 2); g.fill();
+    g.beginPath(); g.ellipse(242, 214, 9, 13, 0, 0, Math.PI * 2); g.fill();
+  }
+  // 腮红
+  g.fillStyle = 'rgba(240,120,140,.35)';
+  g.beginPath(); g.ellipse(158, 248, 16, 9, 0, 0, Math.PI * 2); g.fill();
+  g.beginPath(); g.ellipse(262, 248, 16, 9, 0, 0, Math.PI * 2); g.fill();
+  // 嘴
+  g.strokeStyle = '#a04a4a'; g.lineWidth = 5; g.lineCap = 'round';
+  if (expr === 'surprise'){ g.beginPath(); g.ellipse(210, 262, 9, 12, 0, 0, Math.PI * 2); g.stroke(); }
+  else if (expr === 'smile'){ g.beginPath(); g.arc(210, 250, 18, Math.PI * 0.2, Math.PI * 0.8); g.stroke(); }
+  else { g.beginPath(); g.moveTo(198, 262); g.lineTo(222, 262); g.stroke(); }
+  return c.toDataURL('image/png');
+}
+
+function makeDemoSunset(){
+  const c = document.createElement('canvas'); c.width = 1280; c.height = 720;
+  const g = c.getContext('2d');
+  const sky = g.createLinearGradient(0, 0, 0, 720);
+  sky.addColorStop(0, '#2a1a3a'); sky.addColorStop(0.45, '#a84a5a');
+  sky.addColorStop(0.72, '#e8915a'); sky.addColorStop(1, '#f0c07a');
+  g.fillStyle = sky; g.fillRect(0, 0, 1280, 720);
+  g.fillStyle = 'rgba(255,220,160,.85)';
+  g.beginPath(); g.arc(940, 330, 90, 0, Math.PI * 2); g.fill();
+  g.fillStyle = 'rgba(255,220,160,.18)';
+  g.beginPath(); g.arc(940, 330, 190, 0, Math.PI * 2); g.fill();
+  g.fillStyle = '#2a2030'; g.fillRect(0, 520, 1280, 200);
+  g.fillStyle = '#3a2a38';
+  for (let i = 0; i < 6; i++) g.fillRect(120 + i * 180, 380, 60, 340);
+  g.fillStyle = '#241a2a'; g.fillRect(0, 350, 1280, 26);
+  g.fillStyle = 'rgba(255,240,210,.9)';
+  g.font = 'bold 34px monospace';
+  g.fillText('SUNSET CG', 60, 660);
+  return c.toDataURL('image/png');
+}
+
+function ensureDemoAssets(){
+  try {
+    if (!characters['小明']){
+      characters['小明'] = {
+        main: makeDemoSprite('ming'),
+        talkMain: null, avatar: null, shadow: false,
+        expressions: {
+          '微笑': { normal: makeDemoSprite('ming_smile'), talk: null },
+          '惊讶': { normal: makeDemoSprite('ming_surprise'), talk: null }
+        },
+        spriteAdjust: { scale:1, x:0, y:0 }, avatarAdjust: { scale:1, x:0, y:0 },
+        spritePresets: {}, defaultAnim: 'fade', defaultExpr: '微笑', useTalkSprite: true
+      };
+    }
+    if (!characters['小红']){
+      characters['小红'] = {
+        main: makeDemoSprite('hong'),
+        talkMain: null, avatar: null, shadow: false,
+        expressions: {
+          '微笑': { normal: makeDemoSprite('hong_smile'), talk: null }
+        },
+        spriteAdjust: { scale:1, x:0, y:0 }, avatarAdjust: { scale:1, x:0, y:0 },
+        spritePresets: {}, defaultAnim: 'fade', defaultExpr: '微笑', useTalkSprite: true
+      };
+    }
+    setupDemoScene();
+    if (!assets.bg['夕阳CG']){
+      assets.bg['夕阳CG'] = { url: makeDemoSunset(), hideChars: true, hotspots: [], parts: [], linkedChar: '小明' };
+    }
+    if (!items['纪念钥匙']) items['纪念钥匙'] = { name: '纪念钥匙', desc: '示例里用来开门的钥匙。' };
+    renderAssets();
+  } catch(e){ console.warn('示例素材生成失败', e); }
+}
+
+function loadDemo(kind){
+  if (kind === 'vn'){
+    commitScriptChange(DEMO_VN);
+    ensureDemoAssets();
+    markWelcomeSeen('vn');
+    showToast('已载入「视觉小说示例」，点「▶ 播放」看看', 'ok', 3200);
+  } else if (kind === 'game'){
+    commitScriptChange(DEMO_GAME);
+    ensureDemoAssets();
+    markWelcomeSeen('game');
+    showToast('已载入「互动游戏示例」，播放时点画面上闪烁的地方', 'ok', 3600);
+  } else {
+    commitScriptChange('');
+    markWelcomeSeen('empty');
+    showToast('剧本已清空（可用 ↶ 撤销）', 'warn');
+  }
+}
+
 function setupDemoScene(){
   if (Object.keys(assets.bg).length) return;
   try {
@@ -9781,20 +9954,7 @@ function markWelcomeSeen(kind){
 function openWelcome(){
   try { samplePickerModal.hidden = false; document.querySelectorAll('#welcomeFontChoice button').forEach(b => b.classList.toggle('active', b.dataset.font === settings.fontStyle)); } catch(e){ console.warn(e); }
 }
-function loadDemoScript(kind){
-  if (kind === 'vn'){
-    commitScriptChange(DEMO_VN);
-    showToast('已载入「视觉小说示例」', 'ok');
-  } else if (kind === 'game'){
-    commitScriptChange(DEMO_GAME);
-    try { setupDemoScene(); renderAssets(); } catch(e){ console.warn(e); }
-    showToast('已载入「互动游戏示例」，播放时点画面上的星星', 'ok', 3400);
-  } else {
-    commitScriptChange('');
-    showToast('剧本已清空（可用 ↶ 撤销）', 'warn');
-  }
-  markWelcomeSeen(kind || '1');
-}
+function loadDemoScript(kind){ loadDemo(kind); }
 safeBind('#setDemoVN', () => { loadDemoScript('vn'); settingsModal.hidden = true; });
 safeBind('#setDemoGame', () => { loadDemoScript('game'); settingsModal.hidden = true; });
 safeBind('#setDemoEmpty', () => {
