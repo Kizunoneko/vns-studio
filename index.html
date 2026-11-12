@@ -703,6 +703,9 @@ body.theme-cyber .footerBar{border-top-color:#3a1060}
 .dialog.hidden-box{opacity:0!important;pointer-events:none}
 /* 动态图片标记 */
 .assetTag.anim{color:#7dfba0;border-color:#2a5a3a}
+.assetSearch{width:100%;font-family:inherit;font-size:12px;color:#fff;background:#0d0d12;border:2px solid #4a4a58;padding:8px 10px;outline:none;margin-bottom:12px}
+.assetSearch:focus{border-color:#5b8cff}
+body.theme-paper .assetSearch{background:#fffefb;border-color:#bfb196;color:#2f2a21}
 /* 流程连线 */
 .flowNode .flowLink{position:absolute;left:-13px;top:50%;transform:translateY(-50%);width:24px;height:24px;border-radius:50%;border:2px solid #7dfba0;background:#0a0a16;color:#7dfba0;font-size:13px;line-height:1;padding:0;cursor:crosshair;opacity:.9;z-index:3;box-shadow:2px 2px 0 0 #1b3a28}
 .flowNode .flowLink:hover{background:#7dfba0;color:#000}
@@ -825,8 +828,12 @@ body.theme-paper .coverRow > label{color:#6b6050}
 body.theme-paper .coverRow input[type=text],body.theme-paper .coverRow input[type=number],body.theme-paper .coverRow select{background:#fffefb;border-color:#bfb196;color:#2f2a21}
 body.theme-paper .coverSec{color:#8a6a1f;border-bottom-color:#d5c9b0}
 
-/* 结局判定行 */
-.endingRow{border:2px solid #2a2a36;padding:8px;margin-bottom:7px;display:flex;flex-direction:column;gap:6px;background:#08080e}
+.itemToast{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:50;background:rgba(0,0,0,.88);border:3px solid #fff;box-shadow:5px 5px 0 0 #2b2b38;padding:.75em 1.2em;display:flex;flex-direction:column;align-items:center;gap:.28em;pointer-events:none;animation:itemIn .22s steps(3) both}
+.itemToast b{font-size:.62em;color:#ffd96f;letter-spacing:.16em;font-weight:400}
+.itemToast span{font-size:1em;color:#fff;letter-spacing:.04em}
+.itemToast.out{opacity:0;transition:opacity .4s}
+@keyframes itemIn{from{opacity:0;transform:translate(-50%,-50%) scale(.9)}to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
+#choiceTimer{position:absolute;top:-2.2em;left:50%;transform:translateX(-50%);font-size:.9em;color:#ffd96f;background:rgba(0,0,0,.8);border:2px solid #ffd96f;padding:.15em .7em;letter-spacing:.08em;pointer-events:none}.endingRow{border:2px solid #2a2a36;padding:8px;margin-bottom:7px;display:flex;flex-direction:column;gap:6px;background:#08080e}
 .endingTop{display:flex;gap:6px;align-items:center}
 .endingTop b{flex:none;width:18px;height:18px;display:flex;align-items:center;justify-content:center;background:#ffb46f;color:#1a1000;font-size:11px}
 .endingCond{display:flex;gap:6px;align-items:center;flex-wrap:wrap;padding-left:24px}
@@ -1309,6 +1316,7 @@ body.theme-paper .aboutUpdated{color:#8a7c62;border-left-color:#d5c9b0}
 
     <div class="panel" id="panel-assets">
       <div class="assetScroll">
+        <input type="text" id="assetSearch" class="assetSearch" placeholder="🔍 搜索场景 / CG / 角色…">
         <div class="secTitle">🖼 背景（保留立绘）</div>
         <button class="fullBtn" id="btnScene" style="border-color:#5a8a6a;color:#cfe8d4">＋ 导入背景图（可多选）</button>
         <div class="hintTip">背景会<b>保留</b>角色立绘。点 <b>🎯</b> 给背景加可点击热点。</div>
@@ -1509,7 +1517,7 @@ body.theme-paper .aboutUpdated{color:#8a7c62;border-left-color:#d5c9b0}
       <div class="aboutTitle" id="aboutTitle">✦ 关于作者</div>
       <div class="aboutRow"><span>作者</span><b>@Teasssss</b></div>
       <div class="aboutRow"><span>辅助制作工具</span><b>Deepseek</b></div>
-      <div class="aboutRow"><span>版本</span><b class="aboutVer" id="aboutVer" title="多戳几下看看……">v6.1.2</b><span class="aboutUpdated" id="aboutUpdated">2026-11-10 更新</span></div>
+      <div class="aboutRow"><span>版本</span><b class="aboutVer" id="aboutVer" title="多戳几下看看……">v6.2</b><span class="aboutUpdated" id="aboutUpdated">2026-11-12 更新</span></div>
       <div class="aboutQuote">“每一个像素，都是你亲手写下的世界。”<br>—— 把故事讲出来的人，永远是作者。</div>
       <div class="aboutBtns">
         <button id="eggCat">🐱 摸一下</button>
@@ -1896,6 +1904,8 @@ button{ background:#0d0d18; border-color:#4a4a80; color:#e8e8f4; }</div>
     <label>最终触发阈值<input type="number" id="hsFinalCount" min="0" value="0"></label>
     <label>最大触发次数（0 = 无限）<input type="number" id="hsMaxTrigger" min="0" value="1"></label>
     <label>需求物品（持有才能点）<input type="text" id="hsNeedItem" list="itemOptions"></label>
+    <label>额外触发条件（可选）<input type="text" id="hsCond" placeholder="item:钥匙 and chose:去图书馆"></label>
+    <div class="adminNote" style="margin:-4px 0 0">写法：<b>item:物品名</b> 持有物品 · <b>chose:选项文字</b> 选过选项 · <b>var:变量>=3</b> 变量比较；用 <b>and</b> / <b>or</b> 连接多个。不填则不限制。</div>
     <label>获得物品（点击后获得）<input type="text" id="hsGiveItem" list="itemOptions"></label>
     <label>提示效果</label>
     <div class="typeChoice" id="hsHintTypeChoice">
@@ -2929,6 +2939,48 @@ function getCurrentHotspots(){
   const part = parts[vm.currentPart];
   return part && part.hotspots ? part.hotspots : [];
 }
+function evalCondEd(c){
+  if (!c) return false;
+  const m = String(c).match(/^(item|var|chose):(.+)$/);
+  if (!m) return false;
+  const v = m[2].trim();
+  if (m[1] === 'item') return vm.inventory.has(v);
+  if (m[1] === 'chose') return (vm.chosen || []).indexOf(v) >= 0;
+  const mm = v.match(/^(.+?)\s*(>=|<=|==|!=|>|<)\s*(.+)$/);
+  if (!mm) return false;
+  const raw = vm.vars[mm[1]], aN = Number(raw), bN = Number(mm[3]);
+  const isNum = !isNaN(aN) && !isNaN(bN) && raw !== '' && raw !== undefined;
+  switch (mm[2]){
+    case '>=': return isNum ? aN >= bN : String(raw) >= String(mm[3]);
+    case '<=': return isNum ? aN <= bN : String(raw) <= String(mm[3]);
+    case '>': return isNum ? aN > bN : String(raw) > String(mm[3]);
+    case '<': return isNum ? aN < bN : String(raw) < String(mm[3]);
+    case '==': return isNum ? aN === bN : String(raw) === String(mm[3]);
+    case '!=': return isNum ? aN !== bN : String(raw) !== String(mm[3]);
+  }
+  return false;
+}
+function evalExprEd(tokens){
+  let result = null, op = 'and';
+  (tokens || []).forEach(tk => {
+    const t = String(tk || '').toLowerCase();
+    if (t === 'and' || t === '&&'){ op = 'and'; return; }
+    if (t === 'or' || t === '||'){ op = 'or'; return; }
+    const v = evalCondEd(tk);
+    if (result === null) result = v;
+    else result = (op === 'and') ? (result && v) : (result || v);
+  });
+  return !!result;
+}
+function showItemToastEd(name, kind){
+  try{
+    const d = document.createElement('div'); d.className = 'itemToast';
+    const lb = document.createElement('b'); lb.textContent = (kind === 'lost') ? '失去物品' : '获得物品';
+    const nm = document.createElement('span'); nm.textContent = name || '';
+    d.appendChild(lb); d.appendChild(nm); stage.appendChild(d);
+    setTimeout(() => { d.classList.add('out'); setTimeout(() => d.remove(), 420); }, 1600);
+  } catch(e){}
+}
 function getHotspotKey(idx){ return vm.currentSceneName + '::' + vm.currentPart + '::' + idx; }
 function renderHotspots(){
   hotspotLayer.innerHTML = '';
@@ -2940,6 +2992,7 @@ function renderHotspots(){
     const maxT = (h.maxTrigger === undefined ? 1 : Number(h.maxTrigger));
     if (maxT > 0 && count >= maxT) return;
     if (h.needItem && !vm.inventory.has(h.needItem)) return;
+    if (h.cond && !evalExprEd(String(h.cond).split(/\s+/))) return;
     const el = document.createElement('div');
     el.className = 'hotspot';
     const hintType = h.hintType || 'flash';
@@ -3216,7 +3269,18 @@ function execCmd(n){
       break;
     }
     case 'jump': { const t = n.args[0]; if (t in vm.labels) vm.pc = vm.labels[t]; break; }
-    case 'get': { const id = n.args[0]; if (id){ vm.inventory.add(id); refreshInventoryPanel(); } renderHotspots(); break; }
+    case 'get': { const id = n.args[0]; if (id){ vm.inventory.add(id); refreshInventoryPanel(); showItemToastEd(id); } renderHotspots(); break; }
+    case 'use': { const id = n.args[0]; if (id && vm.inventory.has(id)){ vm.inventory.delete(id); refreshInventoryPanel(); showItemToastEd(id, 'lost'); } renderHotspots(); break; }
+    case 'endsay': { dialogEl.classList.remove('show'); nameBox.style.display = 'none'; textBox.textContent = ''; hintEl.classList.remove('show'); vm.sayEnded = true; break; }
+    case 'timer': { const sec = parseFloat(n.args[0]); const ix = n.args.indexOf('->'); const tg = ix > 0 ? n.args[ix + 1] : null; if (!isNaN(sec) && sec > 0) vm.choiceTimer = { sec, target: tg }; break; }
+    case 'when': {
+      const ar = n.args.slice(); const ai = ar.indexOf('->');
+      let tg = null, conds = ar;
+      if (ai >= 0){ conds = ar.slice(0, ai); tg = ar[ai + 1]; }
+      else { for (let z = 0; z < ar.length; z++){ if (String(ar[z]).slice(-2) === '->'){ tg = String(ar[z]).slice(0, -2); conds = ar.slice(0, z); break; } } }
+      if (tg && vm.labels[tg] !== undefined && evalExprEd(conds)) vm.pc = vm.labels[tg];
+      break;
+    }
     case 'give': { const id = n.args[0]; if (id){ vm.inventory.delete(id); refreshInventoryPanel(); } renderHotspots(); break; }
     case 'has': {
       const id = n.args[0];
@@ -3388,12 +3452,32 @@ function showChoices(opts){
   dialogEl.classList.remove('show');
   shownChars.forEach(el => el.classList.add('dimmed'));
   choicesEl.innerHTML = '';
+  let tid = null, timerEl = null;
+  const timerInfo = vm.choiceTimer; vm.choiceTimer = null;
+  if (timerInfo && timerInfo.sec > 0){
+    timerEl = document.createElement('div'); timerEl.id = 'choiceTimer'; timerEl.textContent = Math.ceil(timerInfo.sec) + 's';
+    choicesEl.appendChild(timerEl);
+    let left = timerInfo.sec;
+    tid = setInterval(() => {
+      left -= 0.1;
+      if (timerEl) timerEl.textContent = Math.max(0, left).toFixed(1) + 's';
+      if (left <= 0){
+        clearInterval(tid);
+        choicesEl.classList.remove('show'); choicesEl.innerHTML = ''; vm.awaitingChoice = false;
+        if (timerInfo.target && vm.labels[timerInfo.target] !== undefined) vm.pc = vm.labels[timerInfo.target];
+        next();
+      }
+    }, 100);
+  }
   opts.forEach(o => {
     const b = document.createElement('button');
     b.className = 'choice';
     b.textContent = o.text;
     b.addEventListener('click', e => {
       e.stopPropagation();
+      if (tid) clearInterval(tid);
+      if (!vm.chosen) vm.chosen = [];
+      if (vm.chosen.indexOf(o.text) < 0) vm.chosen.push(o.text);
       choicesEl.classList.remove('show');
       choicesEl.innerHTML = '';
       vm.awaitingChoice = false;
@@ -3524,6 +3608,7 @@ function startPlaying(opts){
   vm.fastForwardTo = (typeof opts.fastForwardTo === 'number' && opts.fastForwardTo > 0) ? opts.fastForwardTo : null;
   vm.awaitingChoice = false; vm.awaitingHotspot = false; vm.awaitingInput = false;
   vm.lastSpeakers = []; vm.vars = {}; vm.inventory = new Set();
+  vm.chosen = []; vm.sayEnded = false; vm.choiceTimer = null;
   vm.hotspotCounts = {}; vm.visitedTags = new Set();
   vm.currentSceneName = null; vm.currentPart = 0; vm.textColor = null;
   vm.fxTimers = {}; vm.charLayerVisible = true; vm.currentBgm = null;
@@ -4403,6 +4488,7 @@ function openHotspotEdit(idx){
   $('#hsFinalCount').value = h.finalCount || 0;
   $('#hsMaxTrigger').value = h.maxTrigger === undefined ? 1 : h.maxTrigger;
   $('#hsNeedItem').value = h.needItem || '';
+  $('#hsCond').value = h.cond || '';
   $('#hsGiveItem').value = h.giveItem || '';
   $('#hsHideName').checked = !!h.hideName;
   hsCurrentHintType = h.hintType || 'flash';
@@ -4433,6 +4519,7 @@ $('#hsOk').onclick = () => {
   h.maxTrigger = parseInt($('#hsMaxTrigger').value);
   if (isNaN(h.maxTrigger)) h.maxTrigger = 1;
   h.needItem = $('#hsNeedItem').value.trim();
+  h.cond = ($('#hsCond').value || '').trim();
   h.giveItem = $('#hsGiveItem').value.trim();
   h.hideName = $('#hsHideName').checked;
   h.hintType = hsCurrentHintType;
@@ -4966,9 +5053,12 @@ exprModal.addEventListener('click', e => { if (pickingFile) return; if (e.target
 
 function renderAssets(){
   const bgList = $('#bgList'), cgList = $('#cgList');
+  const kwEl = $('#assetSearch');
+  const kw = kwEl ? (kwEl.value || '').trim().toLowerCase() : '';
+  const match = n => !kw || String(n).toLowerCase().indexOf(kw) >= 0;
   const scenes = Object.keys(assets.bg);
-  const bgs = scenes.filter(n => !assets.bg[n].hideChars);
-  const cgs = scenes.filter(n => assets.bg[n].hideChars);
+  const bgs = scenes.filter(n => !assets.bg[n].hideChars && match(n));
+  const cgs = scenes.filter(n => assets.bg[n].hideChars && match(n));
   bgList.innerHTML = bgs.length ? '' : '<div class="empty">还没有背景</div>';
   bgs.forEach(name => bgList.appendChild(makeBgRow(name)));
   if (cgList){
@@ -4977,11 +5067,13 @@ function renderAssets(){
   }
   const charList = $('#charList');
   charList.innerHTML = '';
-  const names = Object.keys(characters);
+  const names = Object.keys(characters).filter(match);
   if (!names.length) charList.innerHTML = '<div class="empty">还没有角色</div>';
   else names.forEach(name => charList.appendChild(makeCharCard(name)));
   renderBranches();
 }
+const _assetSearchEl = document.getElementById('assetSearch');
+if (_assetSearchEl) _assetSearchEl.addEventListener('input', () => renderAssets());
 const linkCharModal = $('#linkCharModal');
 let linkCharTarget = null;
 function openLinkCharModal(name){
@@ -6326,7 +6418,17 @@ safeBind('#featureToggle', () => {
 });
 
 const CHANGELOG = [
-  { version: 'v6.1.2', date: '2026-11-10', title: '支持者栏拆框 + 自动记录感谢', current: true, items: [
+  { version: 'v6.2', date: '2026-11-12', title: '多条件判定 + 限时选项 + 分支导入 (ﾉ≧∀≦)ﾉ', current: true, items: [
+    { tag: 'add', text: '🏁 结局支持多条件：多个条件可「全部满足(AND)」或「满足任一(OR)」，并支持「选过某个选项」作为条件' },
+    { tag: 'add', text: '🎯 新增指令 @when：item:钥匙 and chose:去图书馆 -> 标签，任意条件组合跳转' },
+    { tag: 'add', text: '👁 热点 / 互动项可加额外条件：拥有道具、选过选项、变量比较都行，不满足就不显示' },
+    { tag: 'add', text: '⏱ 选项限时：@timer 10 -> 超时标签，倒计时结束自动跳转' },
+    { tag: 'add', text: '🌙 新增 @endsay：手动结束当前对话（互动场景里很好用）' },
+    { tag: 'add', text: '🎁 获得 / 失去物品会有居中提示框；@use 物品 可消耗掉（钥匙开门后消失）' },
+    { tag: 'add', text: '🔍 素材面板新增搜索框，场景 / CG / 角色一次筛完' },
+    { tag: 'add', text: '📂 导入工程可选「作为分支并入」：保留现有内容，重名素材自动加后缀' },
+  ]},
+  { version: 'v6.1.2', date: '2026-11-10', title: '支持者栏拆框 + 自动记录感谢', items: [
     { tag: 'opt', text: '🎗 「支持者名单」和「写在最后」的文案拆成两个框，不再混在一起' },
     { tag: 'fix', text: '✏️ 名字订正：有限局域网 → 有线局域网' },
     { tag: 'add', text: '📜 以后在名单里新增名字，更新日志会自动多写一句感谢（只记新增的）' },
@@ -6764,6 +6866,11 @@ html,body{height:100%;overflow:hidden;background:#000;color:#fff;font-family:'Co
 #gameUI button:hover{opacity:1;background:#fff;color:#000}
 #locLabel{position:absolute;left:14px;top:12px;z-index:35;background:rgba(0,0,0,.6);border-left:4px solid #fff;color:#fff;font-size:.82em;padding:.32em .8em;opacity:0;transform:translateX(-8px);transition:opacity .35s,transform .35s;pointer-events:none;letter-spacing:.08em;max-width:60%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #locLabel.show{opacity:1;transform:none}
+.itemToast{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:50;background:rgba(0,0,0,.88);border:3px solid #fff;padding:.7em 1.2em;display:flex;flex-direction:column;align-items:center;gap:.25em;pointer-events:none}
+.itemToast b{font-size:.62em;color:#ffd96f;letter-spacing:.16em;font-weight:400}
+.itemToast span{font-size:1em;color:#fff}
+.itemToast.out{opacity:0;transition:opacity .4s}
+#choiceTimer{position:absolute;top:-2.2em;left:50%;transform:translateX(-50%);font-size:.9em;color:#ffd96f;background:rgba(0,0,0,.8);border:2px solid #ffd96f;padding:.15em .7em;letter-spacing:.08em;pointer-events:none}
 #panelWrap{position:absolute;inset:0;z-index:80;background:rgba(0,0,0,.88);display:flex;align-items:center;justify-content:center;padding:3%}
 #panelCard{width:min(560px,94%);max-height:88%;background:#000;border:3px solid #fff;padding:14px;display:flex;flex-direction:column;gap:8px;overflow:auto}
 #panelTitle{font-size:1em;letter-spacing:.1em;border-bottom:2px solid #33333f;padding-bottom:8px}
@@ -7025,7 +7132,7 @@ function preloadSizes(){
 }
 function applyDim(el,name){if(!lastSpeakers.length)el.classList.add('dim');else el.classList.toggle('dim',lastSpeakers.indexOf(name)<0);}
 function hideChar(name){var el=shown[name];if(!el)return;el.classList.remove('in');delete shown[name];delete curExpr[name];setTimeout(function(){if(el.parentNode)el.parentNode.removeChild(el);},350);}
-function renderHotspots(){hotspotsEl.innerHTML='';var sc=bgs[currentScene];if(!sc)return;var parts=sceneParts(sc);var part=parts[currentPart];if(!part)return;(part.hotspots||[]).forEach(function(h,idx){var key=currentScene+'::'+currentPart+'::'+idx;var count=hotspotCounts[key]||0;var maxT=h.maxTrigger===undefined?1:Number(h.maxTrigger);if(maxT>0&&count>=maxT)return;if(h.needItem&&inv.indexOf(h.needItem)<0)return;var el=document.createElement('div');el.className='hs';el.style.left=(h.x*100)+'%';el.style.top=(h.y*100)+'%';el.style.width=(h.w*100)+'%';el.style.height=(h.h*100)+'%';el.onclick=function(){triggerHotspot(h,idx);};hotspotsEl.appendChild(el);});}
+function renderHotspots(){hotspotsEl.innerHTML='';var sc=bgs[currentScene];if(!sc)return;var parts=sceneParts(sc);var part=parts[currentPart];if(!part)return;(part.hotspots||[]).forEach(function(h,idx){var key=currentScene+'::'+currentPart+'::'+idx;var count=hotspotCounts[key]||0;var maxT=h.maxTrigger===undefined?1:Number(h.maxTrigger);if(maxT>0&&count>=maxT)return;if(h.needItem&&inv.indexOf(h.needItem)<0)return;if(!canShowHotspot(h))return;var el=document.createElement('div');el.className='hs';el.style.left=(h.x*100)+'%';el.style.top=(h.y*100)+'%';el.style.width=(h.w*100)+'%';el.style.height=(h.h*100)+'%';el.onclick=function(){triggerHotspot(h,idx);};hotspotsEl.appendChild(el);});}
 function triggerHotspot(h,idx){var key=currentScene+'::'+currentPart+'::'+idx;var count=hotspotCounts[key]||0;var nc=count+1;var maxT=h.maxTrigger===undefined?1:Number(h.maxTrigger);if(maxT>0&&nc>maxT){renderHotspots();return;}hotspotCounts[key]=nc;if(h.giveItem&&inv.indexOf(h.giveItem)<0)inv.push(h.giveItem);var target;var fc=Number(h.finalCount)||0;if(fc>0&&nc>=fc&&h.labelFinal)target=h.labelFinal;else if(nc===1)target=h.label;else if(h.labelSecond)target=h.labelSecond;else target=h.label;if(target&&vm.labels[target]!==undefined){vm.pc=vm.labels[target];renderHotspots();next();}else renderHotspots();}
 function fitDialogText(){
   try {
@@ -7044,11 +7151,90 @@ function typeText(text){clearInterval(typing.timer);typing.active=true;typing.te
 function renderTyping(){var shown=typing.text.slice(0,typing.i);if(typeEffect&&typing.active){textEl.innerHTML=shown.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')+'<span class="cursor"></span>';}else textEl.textContent=shown;}
 function skipTyping(){clearInterval(typing.timer);typing.active=false;textEl.textContent=typing.text;hint.classList.add('show');}
 function showSay(n){hint.classList.remove('show');dlg.classList.add('show');if(fadeBlack)setFb(fadeBlackLevel+fadeBlackStep);lastSpeakers=(n.speakers||[]).filter(Boolean);if(n.expr){lastSpeakers.forEach(function(sp){if(chs[sp]&&chs[sp].expressions&&chs[sp].expressions[n.expr])curExpr[sp]=n.expr;});}Object.keys(shown).forEach(function(k){applyDim(shown[k],k);showChar(k,null,curExpr[k]);});if(lastSpeakers.length){nameEl.textContent=lastSpeakers.join(' & ');nameEl.style.display='block';}else{nameEl.style.display='none';}textEl.classList.toggle('narr',lastSpeakers.length===0);textEl.style.color=textColor||'#fff';typeText(n.text);pushHistory(lastSpeakers.join(' & '),n.text);}
-function showChoices(opts){vm.awaitingChoice=true;dlg.classList.remove('show');choicesEl.innerHTML='';opts.forEach(function(o){var b=document.createElement('button');b.className='choice';b.textContent=o.text;b.onclick=function(){choicesEl.classList.remove('show');choicesEl.innerHTML='';vm.awaitingChoice=false;if(o.target&&vm.labels[o.target]!==undefined)vm.pc=vm.labels[o.target];next();};choicesEl.appendChild(b);});choicesEl.classList.add('show');}
+var chosenChoices=[],sayEnded=false;
+function evalCond(c){
+  if(!c) return false;
+  var m=String(c).match(/^(item|var|chose):(.+)$/);
+  if(!m) return false;
+  var v=m[2].trim();
+  if(m[1]==='item') return (inv||[]).indexOf(v)>=0;
+  if(m[1]==='chose') return chosenChoices.indexOf(v)>=0;
+  var mm=v.match(/^(.+?)\s*(>=|<=|==|!=|>|<)\s*(.+)$/);
+  if(!mm) return false;
+  var raw=vars[mm[1]], aN=Number(raw), bN=Number(mm[3]);
+  var isNum=!isNaN(aN)&&!isNaN(bN)&&raw!==''&&raw!==undefined;
+  switch(mm[2]){
+    case '>=': return isNum?aN>=bN:String(raw)>=String(mm[3]);
+    case '<=': return isNum?aN<=bN:String(raw)<=String(mm[3]);
+    case '>': return isNum?aN>bN:String(raw)>String(mm[3]);
+    case '<': return isNum?aN<bN:String(raw)<String(mm[3]);
+    case '==': return isNum?aN===bN:String(raw)===String(mm[3]);
+    case '!=': return isNum?aN!==bN:String(raw)!==String(mm[3]);
+  }
+  return false;
+}
+function evalExpr(tokens){
+  var result=null, op='and';
+  (tokens||[]).forEach(function(tk){
+    var t=String(tk||'').toLowerCase();
+    if(t==='and'||t==='&&'){op='and';return;}
+    if(t==='or'||t==='||'){op='or';return;}
+    var v=evalCond(tk);
+    if(result===null) result=v;
+    else result=(op==='and')?(result&&v):(result||v);
+  });
+  return !!result;
+}
+function showItemToast(name,kind){
+  try{
+    var d=document.createElement('div');d.className='itemToast';
+    var lb=document.createElement('b');lb.textContent=(kind==='lost')?'失去物品':'获得物品';
+    var nm=document.createElement('span');nm.textContent=name||'';
+    d.appendChild(lb);d.appendChild(nm);
+    stage.appendChild(d);
+    setTimeout(function(){d.classList.add('out');setTimeout(function(){if(d.parentNode)d.parentNode.removeChild(d);},420);},1600);
+  }catch(e){}
+}
+function canShowHotspot(h){ if(!h) return false; if(h.cond && !evalExpr(String(h.cond).split(/\s+/))) return false; return true; }
+function showChoices(opts){
+  vm.awaitingChoice=true;dlg.classList.remove('show');choicesEl.innerHTML='';
+  var timerInfo=vm.choiceTimer; vm.choiceTimer=null; var tid=null, timerEl=null;
+  if(timerInfo&&timerInfo.sec>0){
+    timerEl=document.createElement('div');timerEl.id='choiceTimer';timerEl.textContent=Math.ceil(timerInfo.sec)+'s';
+    choicesEl.appendChild(timerEl);
+    var left=timerInfo.sec;
+    tid=setInterval(function(){
+      left-=0.1;
+      if(timerEl) timerEl.textContent=Math.max(0,left).toFixed(1)+'s';
+      if(left<=0){
+        clearInterval(tid);
+        choicesEl.classList.remove('show');choicesEl.innerHTML='';vm.awaitingChoice=false;
+        if(timerInfo.target&&vm.labels[timerInfo.target]!==undefined)vm.pc=vm.labels[timerInfo.target];
+        next();
+      }
+    },100);
+  }
+  opts.forEach(function(o){
+    var b=document.createElement('button');b.className='choice';b.textContent=o.text;
+    b.onclick=function(){
+      if(tid)clearInterval(tid);
+      if(chosenChoices.indexOf(o.text)<0)chosenChoices.push(o.text);
+      choicesEl.classList.remove('show');choicesEl.innerHTML='';vm.awaitingChoice=false;
+      if(o.target&&vm.labels[o.target]!==undefined)vm.pc=vm.labels[o.target];
+      next();
+    };
+    choicesEl.appendChild(b);
+  });
+  choicesEl.classList.add('show');
+}
 function endStory(title,sub){vm.running=false;clearInterval(typing.timer);typing.active=false;hint.classList.remove('show');dlg.classList.remove('show');hotspotsEl.innerHTML='';stopAll();setFb(0);fadeBlack=false;document.getElementById('endTitle').textContent=title||'END';document.getElementById('endSub').textContent=sub||'';endEl.classList.remove('show');void endEl.offsetWidth;endEl.classList.add('show');}
 function playCredits(done){var list=(credits.items||[]).filter(function(it){return it.text||it.image;});if(!list.length){if(done)done();return;}creditsScr.innerHTML='';var layout=credits.layout||'text';list.forEach(function(it){var div=document.createElement('div');var cls='ci';if(it.image){if(layout==='leftimg')cls+=' leftimg';else if(layout==='rightimg')cls+=' rightimg';else if(layout==='center')cls+=' centerimg';}div.className=cls;var im=null;if(it.image){im=document.createElement('img');im.src=it.image;}var tx=null;if(it.text){tx=document.createElement('div');tx.className='ct';tx.textContent=it.text;}if(layout==='rightimg'&&im){if(tx)div.appendChild(tx);div.appendChild(im);}else{if(im)div.appendChild(im);if(tx)div.appendChild(tx);}creditsScr.appendChild(div);});var fixedDiv=document.createElement('div');fixedDiv.className='ci';var ft=document.createElement('div');ft.className='ct';ft.textContent=FIXED_CREDIT_TEXT;fixedDiv.appendChild(ft);creditsScr.appendChild(fixedDiv);creditsScr.style.transition='none';creditsScr.style.top='100%';creditsEl.classList.add('show');void creditsScr.offsetHeight;var speed=Math.max(1,credits.speed||40);var totalH=creditsScr.scrollHeight;var duration=Math.max(2000,Math.round((totalH+(creditsEl.clientHeight||720))*1000/speed));creditsScr.style.transition='top '+duration+'ms linear';creditsScr.style.top='-'+totalH+'px';setTimeout(function(){creditsEl.classList.remove('show');if(done)done();},duration+200);}
 function endWithCredits(title,sub){if((credits.items||[]).some(function(it){return it.text||it.image;})&&!creditsShown){creditsShown=true;playCredits(function(){endStory(title,sub);});}else endStory(title,sub);}
-function execCmd(n){switch(n.cmd){case 'bg':setBg(n.args[0]||'',n.args[1]||'fade');break;case 'cg':setBg(n.args[0]||'',n.args[1]||'fade');break;case 'show':{var name=n.args[0]||'';var ce=chs[name]&&chs[name].expressions?Object.keys(chs[name].expressions):[];var pos='中',expr=null,anim=null,posSeen=false;n.args.slice(1).forEach(function(a){if(!posSeen&&(POS_NORMAL[a]||POS_WIDE[a])){pos=a;posSeen=true;}else if(ce.indexOf(a)>=0&&!expr)expr=a;else if(!expr)expr=a;});showChar(name,pos,expr,anim);break;}case 'hide':hideChar(n.args[0]||'');break;case 'hideall':clearChars();break;case 'charlayer':{var st=(n.args[0]||'on').toLowerCase();var off=['off','关','0','hide','hidden'].indexOf(st)>=0;chars.style.display=off?'none':'';charLayerVisible=!off;break;}case 'dialogpos':{var v=(n.args[0]||'bottom').toLowerCase();dlg.classList.remove('top','mid');if(v==='top'||v==='上'||v==='顶')dlg.classList.add('top');else if(v==='middle'||v==='mid'||v==='中'||v==='中间')dlg.classList.add('mid');break;}case 'dialogbox':{var v2=(n.args[0]||'on').toLowerCase();var off2=['off','关','0','hide','hidden'].indexOf(v2)>=0;dlg.classList.toggle('hidebox',off2);break;}case 'fadeblack':{var v3=(n.args[0]||'on').toLowerCase();if(v3==='off'||v3==='关'){fadeBlack=false;setFb(0);}else{fadeBlack=true;var st2=parseFloat(n.args[1]);if(!isNaN(st2)&&st2>0&&st2<=1)fadeBlackStep=st2;}break;}case 'credits':{creditsShown=true;playCredits(function(){if(vm.running)next();});return 'stop';}case 'bgm':{if(!n.args.length)break;var m=matchAudio(n.args);if(!m){notify('未找到音频：'+n.args.join(' '));break;}var rest=n.args.slice(m.consumed);var loop=true,volume,fadeIn;for(var i=0;i<rest.length;i++){var l=rest[i].toLowerCase();if(l==='once'||l==='single')loop=false;else if(l==='fade'){var s=parseFloat(rest[i+1]);if(!isNaN(s)&&s>0){fadeIn=s*1000;i++;}}else{var v4=parseFloat(l);if(!isNaN(v4)&&volume===undefined)volume=v4;}}playBgm(m.name,{once:!loop,volume:volume,fadeIn:fadeIn});break;}case 'sfx':{if(!n.args.length)break;var m2=matchAudio(n.args);if(!m2){notify('未找到音效：'+n.args.join(' '));break;}var rest2=n.args.slice(m2.consumed);var volume2,fadeIn2;for(var j=0;j<rest2.length;j++){var l2=rest2[j].toLowerCase();if(l2==='fade'){var s2=parseFloat(rest2[j+1]);if(!isNaN(s2)&&s2>0){fadeIn2=s2*1000;j++;}}else{var v5=parseFloat(l2);if(!isNaN(v5)&&volume2===undefined)volume2=v5;}}playSfx(m2.name,volume2,fadeIn2);break;}case 'stopbgm':case 'stopaudio':stopAll();break;case 'textcolor':textColor=n.args[0]?n.args[0]:null;break;case 'jump':if(n.args[0] in vm.labels)vm.pc=vm.labels[n.args[0]];break;case 'get':if(n.args[0]&&inv.indexOf(n.args[0])<0)inv.push(n.args[0]);renderHotspots();break;case 'give':if(n.args[0]){var gi=inv.indexOf(n.args[0]);if(gi>=0)inv.splice(gi,1);}renderHotspots();break;case 'has':{var id=n.args[0];var ix=n.args.indexOf('->');var tgt=ix>0?n.args[ix+1]:null;if(id&&inv.indexOf(id)>=0&&tgt&&vm.labels[tgt]!==undefined)vm.pc=vm.labels[tgt];break;}case 'mark':if(n.args[0])visited[n.args[0]]=true;break;case 'visited':{var tag=n.args[0];var ix2=n.args.indexOf('->');var tgt2=ix2>0?n.args[ix2+1]:null;if(tag&&visited[tag]&&tgt2&&vm.labels[tgt2]!==undefined)vm.pc=vm.labels[tgt2];break;}case 'set':if(n.args[0]){var k=n.args[0],val=n.args[1]!==undefined?n.args[1]:'0';var num=Number(val);vars[k]=(!isNaN(num)&&val!=='')?num:val;}break;case 'add':if(n.args[0]){var k2=n.args[0];vars[k2]=(Number(vars[k2])||0)+(Number(n.args[1])||1);}break;case 'check':{var k3=n.args[0],op=n.args[1],val2=n.args[2];var ix3=n.args.indexOf('->');var tgt3=ix3>0?n.args[ix3+1]:null;if(!k3||!op||val2===undefined||!tgt3)break;var raw=vars[k3];var aN=Number(raw),bN=Number(val2);var isNum=!isNaN(aN)&&!isNaN(bN)&&raw!==''&&raw!==undefined;var pass=false;switch(op){case '>=':pass=isNum?aN>=bN:String(raw)>=String(val2);break;case '>':pass=isNum?aN>bN:String(raw)>String(val2);break;case '<=':pass=isNum?aN<=bN:String(raw)<=String(val2);break;case '<':pass=isNum?aN<bN:String(raw)<String(val2);break;case '==':pass=isNum?aN===bN:String(raw)===String(val2);break;case '!=':pass=isNum?aN!==bN:String(raw)!==String(val2);break;}if(pass&&vm.labels[tgt3]!==undefined)vm.pc=vm.labels[tgt3];break;}case 'input':{var varName=n.args[0];if(!varName)break;var val3=prompt(n.args.slice(1).join(' ')||'请输入');vars[varName]=val3===null?'':val3;break;}case 'wait':vm.awaitingHotspot=true;dlg.classList.remove('show');hint.classList.remove('show');renderHotspots();return 'stop';case 'end':endWithCredits(n.args[0]||'END',n.args.slice(1).join(' '));return 'stop';}return null;}
+function execCmd(n){switch(n.cmd){case 'bg':setBg(n.args[0]||'',n.args[1]||'fade');break;case 'cg':setBg(n.args[0]||'',n.args[1]||'fade');break;case 'show':{var name=n.args[0]||'';var ce=chs[name]&&chs[name].expressions?Object.keys(chs[name].expressions):[];var pos='中',expr=null,anim=null,posSeen=false;n.args.slice(1).forEach(function(a){if(!posSeen&&(POS_NORMAL[a]||POS_WIDE[a])){pos=a;posSeen=true;}else if(ce.indexOf(a)>=0&&!expr)expr=a;else if(!expr)expr=a;});showChar(name,pos,expr,anim);break;}case 'hide':hideChar(n.args[0]||'');break;case 'hideall':clearChars();break;case 'charlayer':{var st=(n.args[0]||'on').toLowerCase();var off=['off','关','0','hide','hidden'].indexOf(st)>=0;chars.style.display=off?'none':'';charLayerVisible=!off;break;}case 'dialogpos':{var v=(n.args[0]||'bottom').toLowerCase();dlg.classList.remove('top','mid');if(v==='top'||v==='上'||v==='顶')dlg.classList.add('top');else if(v==='middle'||v==='mid'||v==='中'||v==='中间')dlg.classList.add('mid');break;}case 'dialogbox':{var v2=(n.args[0]||'on').toLowerCase();var off2=['off','关','0','hide','hidden'].indexOf(v2)>=0;dlg.classList.toggle('hidebox',off2);break;}case 'fadeblack':{var v3=(n.args[0]||'on').toLowerCase();if(v3==='off'||v3==='关'){fadeBlack=false;setFb(0);}else{fadeBlack=true;var st2=parseFloat(n.args[1]);if(!isNaN(st2)&&st2>0&&st2<=1)fadeBlackStep=st2;}break;}case 'credits':{creditsShown=true;playCredits(function(){if(vm.running)next();});return 'stop';}case 'bgm':{if(!n.args.length)break;var m=matchAudio(n.args);if(!m){notify('未找到音频：'+n.args.join(' '));break;}var rest=n.args.slice(m.consumed);var loop=true,volume,fadeIn;for(var i=0;i<rest.length;i++){var l=rest[i].toLowerCase();if(l==='once'||l==='single')loop=false;else if(l==='fade'){var s=parseFloat(rest[i+1]);if(!isNaN(s)&&s>0){fadeIn=s*1000;i++;}}else{var v4=parseFloat(l);if(!isNaN(v4)&&volume===undefined)volume=v4;}}playBgm(m.name,{once:!loop,volume:volume,fadeIn:fadeIn});break;}case 'sfx':{if(!n.args.length)break;var m2=matchAudio(n.args);if(!m2){notify('未找到音效：'+n.args.join(' '));break;}var rest2=n.args.slice(m2.consumed);var volume2,fadeIn2;for(var j=0;j<rest2.length;j++){var l2=rest2[j].toLowerCase();if(l2==='fade'){var s2=parseFloat(rest2[j+1]);if(!isNaN(s2)&&s2>0){fadeIn2=s2*1000;j++;}}else{var v5=parseFloat(l2);if(!isNaN(v5)&&volume2===undefined)volume2=v5;}}playSfx(m2.name,volume2,fadeIn2);break;}case 'stopbgm':case 'stopaudio':stopAll();break;case 'textcolor':textColor=n.args[0]?n.args[0]:null;break;case 'jump':if(n.args[0] in vm.labels)vm.pc=vm.labels[n.args[0]];break;case 'get':if(n.args[0]&&inv.indexOf(n.args[0])<0){inv.push(n.args[0]);showItemToast(n.args[0]);}renderHotspots();break;
+  case 'use':if(n.args[0]){var uix=inv.indexOf(n.args[0]);if(uix>=0){inv.splice(uix,1);showItemToast(n.args[0],'lost');}}renderHotspots();break;
+  case 'endsay':dlg.classList.remove('show');nameEl.style.display='none';textEl.textContent='';hint.classList.remove('show');vm.sayEnded=true;break;
+  case 'timer':{var tsec=parseFloat(n.args[0]);var tix=n.args.indexOf('->');var ttg=tix>0?n.args[tix+1]:null;if(!isNaN(tsec)&&tsec>0)vm.choiceTimer={sec:tsec,target:ttg};break;}
+  case 'when':{var ar=n.args.slice();var ai=ar.indexOf('->');var tgw=null,conds=ar;if(ai>=0){conds=ar.slice(0,ai);tgw=ar[ai+1];}else{for(var z=0;z<ar.length;z++){if(String(ar[z]).slice(-2)==='->'){tgw=String(ar[z]).slice(0,-2);conds=ar.slice(0,z);break;}}}if(tgw&&vm.labels[tgw]!==undefined&&evalExpr(conds))vm.pc=vm.labels[tgw];break;}case 'give':if(n.args[0]){var gi=inv.indexOf(n.args[0]);if(gi>=0)inv.splice(gi,1);}renderHotspots();break;case 'has':{var id=n.args[0];var ix=n.args.indexOf('->');var tgt=ix>0?n.args[ix+1]:null;if(id&&inv.indexOf(id)>=0&&tgt&&vm.labels[tgt]!==undefined)vm.pc=vm.labels[tgt];break;}case 'mark':if(n.args[0])visited[n.args[0]]=true;break;case 'visited':{var tag=n.args[0];var ix2=n.args.indexOf('->');var tgt2=ix2>0?n.args[ix2+1]:null;if(tag&&visited[tag]&&tgt2&&vm.labels[tgt2]!==undefined)vm.pc=vm.labels[tgt2];break;}case 'set':if(n.args[0]){var k=n.args[0],val=n.args[1]!==undefined?n.args[1]:'0';var num=Number(val);vars[k]=(!isNaN(num)&&val!=='')?num:val;}break;case 'add':if(n.args[0]){var k2=n.args[0];vars[k2]=(Number(vars[k2])||0)+(Number(n.args[1])||1);}break;case 'check':{var k3=n.args[0],op=n.args[1],val2=n.args[2];var ix3=n.args.indexOf('->');var tgt3=ix3>0?n.args[ix3+1]:null;if(!k3||!op||val2===undefined||!tgt3)break;var raw=vars[k3];var aN=Number(raw),bN=Number(val2);var isNum=!isNaN(aN)&&!isNaN(bN)&&raw!==''&&raw!==undefined;var pass=false;switch(op){case '>=':pass=isNum?aN>=bN:String(raw)>=String(val2);break;case '>':pass=isNum?aN>bN:String(raw)>String(val2);break;case '<=':pass=isNum?aN<=bN:String(raw)<=String(val2);break;case '<':pass=isNum?aN<bN:String(raw)<String(val2);break;case '==':pass=isNum?aN===bN:String(raw)===String(val2);break;case '!=':pass=isNum?aN!==bN:String(raw)!==String(val2);break;}if(pass&&vm.labels[tgt3]!==undefined)vm.pc=vm.labels[tgt3];break;}case 'input':{var varName=n.args[0];if(!varName)break;var val3=prompt(n.args.slice(1).join(' ')||'请输入');vars[varName]=val3===null?'':val3;break;}case 'wait':vm.awaitingHotspot=true;dlg.classList.remove('show');hint.classList.remove('show');renderHotspots();return 'stop';case 'end':endWithCredits(n.args[0]||'END',n.args.slice(1).join(' '));return 'stop';}return null;}
 var vm={nodes:[],labels:{},pc:0,running:false,awaitingChoice:false,awaitingHotspot:false};
 var typing={active:false,text:'',i:0,timer:null};
 function next(){if(!vm.running)return;while(vm.running&&vm.pc<vm.nodes.length){var n=vm.nodes[vm.pc];if(n.type==='cmd'){vm.pc++;var stop=execCmd(n);if(stop==='stop'||n.cmd==='wait')return;if(!vm.running)return;continue;}if(n.type==='say'){vm.pc++;vm.lastSayIdx=vm.pc-1;showSay(n);return;}var opts=[];while(vm.pc<vm.nodes.length&&vm.nodes[vm.pc].type==='choice'){opts.push(vm.nodes[vm.pc]);vm.pc++;}showChoices(opts);return;}if(vm.running&&!vm.awaitingHotspot)endWithCredits();}
@@ -7384,11 +7570,96 @@ $('#expOk').onclick = () => {
 };
 
 safeBind('#btnLoad', () => $('#fileProj').click());
+function askImportMode(){
+  return new Promise(resolve => {
+    const ov = document.createElement('div');
+    ov.style.cssText = 'position:fixed;inset:0;z-index:420;background:rgba(0,0,0,.82);display:flex;align-items:center;justify-content:center;padding:18px';
+    const card = document.createElement('div');
+    card.style.cssText = 'width:min(480px,94vw);background:#000;border:3px solid #fff;box-shadow:8px 8px 0 0 #2b2b38;padding:18px;display:flex;flex-direction:column;gap:12px;font-size:12.5px;line-height:1.95;color:#c8c8d8';
+    card.innerHTML = '<div style="font-size:14px;color:#fff;letter-spacing:.1em;border-bottom:2px solid #33333f;padding-bottom:10px">📂 导入方式</div>' +
+      '<div>当前工程已经有内容了。<br><b style="color:#7dfba0">作为分支并入</b>：保留现有角色 / 场景 / 物品，把导入的剧本接在后面（重名自动加后缀）。<br><b style="color:#ff9a9a">覆盖</b>：清空当前内容，完全用它替换。</div>';
+    const row = document.createElement('div'); row.style.cssText = 'display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap';
+    const mk = (txt, css) => { const b = document.createElement('button'); b.textContent = txt; b.style.cssText = 'font-family:inherit;font-size:12px;padding:7px 14px;border:2px solid #4a4a58;background:#000;color:#c8c8d8;cursor:pointer;box-shadow:2px 2px 0 0 #26262f;' + (css||''); return b; };
+    const cancel = mk('取消');
+    const over = mk('覆盖', 'border-color:#ff8a8a;color:#ff8a8a');
+    const merge = mk('作为分支并入', 'border-color:#7dfba0;color:#cfe8d4;background:#10241a');
+    const done = v => { ov.remove(); resolve(v); };
+    cancel.onclick = () => done('cancel');
+    over.onclick = () => done('overwrite');
+    merge.onclick = () => done('branch');
+    row.append(cancel, over, merge); card.appendChild(row);
+    ov.appendChild(card); document.body.appendChild(ov);
+  });
+}
+function mergeImportedProject(data){
+  const renamer = (obj, target) => {
+    const map = {};
+    Object.keys(obj || {}).forEach(n => {
+      let name = n, i = 1;
+      while (target[name]) name = n + '_' + (++i);
+      target[name] = obj[n];
+      if (name !== n) map[n] = name;
+    });
+    return map;
+  };
+  const bgMap = mergeAs(assets.bg, data.assets && data.assets.bg);
+  const audioMap = mergeAs(assets.audio, data.assets && data.assets.audio);
+  const charMap = mergeAs(characters, data.characters);
+  const itemMap = mergeAs(items, data.items);
+
+  let script = typeof data.script === 'string' ? data.script : '';
+  // 标签加前缀避免撞车
+  const labelMap = {};
+  const existingLabels = new Set(Object.keys(parseScript(scriptInput.value).labels || {}));
+  script.replace(/^::\s*(.+)$/gm, (m, name) => { labelMap[name.trim()] = 'imp_' + name.trim(); return m; });
+  script = script.replace(/^::\s*(.+)$/gm, (m, name) => { const k = name.trim(); return '::' + (labelMap[k] || ('imp_' + k)); });
+  script = script.replace(/(->|→)\s*([^\s]+)/g, (m, a, t) => a + ' ' + (labelMap[t] || ('imp_' + t)));
+  // 素材重名改写
+  const fixRefs = (txt, cmd, map) => {
+    if (!Object.keys(map).length) return txt;
+    const re = new RegExp('^(@' + cmd + '\\s+)(\\S+)', 'gm');
+    return txt.replace(re, (m, pre, name) => pre + (map[name] || name));
+  };
+  ['bg','cg'].forEach(c => { script = fixRefs(script, c, bgMap); });
+  ['show','hide'].forEach(c => { script = fixRefs(script, c, charMap); });
+  ['bgm','sfx'].forEach(c => { script = fixRefs(script, c, audioMap); });
+  ['get','use','give','has'].forEach(c => { script = fixRefs(script, c, itemMap); });
+
+  const base = scriptInput.value.replace(/\s*$/, '');
+  commitScriptChange(base + (base ? '\n\n' : '') + '// ===== 导入的分支 =====\n' + script.replace(/\s*$/, ''));
+  Object.keys(characters).forEach(n => migrateCharacter(characters[n]));
+  migrateSceneData(); migrateAudioData(); audioPlayers.clear();
+  renderAssets(); renderItems(); renderAudio(); renderBranches(); updateHighlight(); updateLineCount();
+}
+function mergeAs(target, src){
+  const map = {};
+  if (!src || typeof src !== 'object') return map;
+  Object.keys(src).forEach(n => {
+    let name = n, i = 1;
+    while (target[name]) name = n + '_' + (++i);
+    target[name] = src[n];
+    if (name !== n) map[n] = name;
+  });
+  return map;
+}
+
 $('#fileProj').onchange = async e => {
   const f = e.target.files[0]; e.target.value = '';
   if (!f) return;
   try {
     const data = JSON.parse(await f.text());
+    const hasExisting = !!scriptInput.value.trim() || Object.keys(characters).length > 0 || Object.keys(assets.bg).length > 0;
+    if (hasExisting){
+      const mode = await askImportMode();
+      if (mode === 'cancel') return;
+      if (mode === 'branch'){
+        mergeImportedProject(data);
+        const tb0 = document.querySelector('.tabs button[data-tab="script"]');
+        if (tb0) tb0.click();
+        showToast('已作为分支并入：剧本接在末尾，重名素材已自动加后缀', 'ok', 4200);
+        return;
+      }
+    }
     if (typeof data.script === 'string'){ scriptInput.value = data.script; lastScriptValue = data.script; }
     if (data.projectName) setProjectName(data.projectName);
     let bgData = null, audioData = null;
@@ -8439,19 +8710,45 @@ async function loadCustomFont(){
   applyFontCss();
 }
 
-/* ===== v6.1.1 结局判定 ===== */
+/* ===== v6.2 结局判定（多条件） ===== */
 let endings = [];
-function defaultEnding(){ return { title:'好结局', sub:'你达成了条件。', type:'none', item:'', varName:'', op:'>=', value:'1' }; }
+function defaultCond(){ return { type:'item', a:'', op:'>=', b:'1' }; }
+function defaultEnding(){ return { title:'好结局', sub:'你达成了条件。', conds:[], logic:'and' }; }
+function normEnding(e){
+  if (!e) return defaultEnding();
+  if (Array.isArray(e.conds)) return { title:e.title||'', sub:e.sub||'', conds:e.conds, logic:(e.logic==='or'?'or':'and') };
+  const conds = [];
+  if (e.type === 'item' && e.item) conds.push({ type:'item', a:e.item, op:'>=', b:'1' });
+  else if (e.type === 'var' && e.varName) conds.push({ type:'var', a:e.varName, op:e.op||'>=', b:e.value||'1' });
+  return { title:e.title||'', sub:e.sub||'', conds:conds, logic:'and' };
+}
 let endingDraft = [];
 function openEndingModal(){
-  endingDraft = JSON.parse(JSON.stringify(endings || []));
-  if (!endingDraft.length) endingDraft = [ JSON.parse(JSON.stringify(defaultEnding())) ];
+  endingDraft = (endings || []).map(normEnding);
+  if (!endingDraft.length){ const d = defaultEnding(); d.conds.push(defaultCond()); endingDraft = [d]; }
   renderEndingEditor();
   $('#endingModal').hidden = false;
 }
+function condRowHtml(c, ei, ci){
+  const typeSel = '<select class="condType adminTxt" style="flex:0 0 96px;padding:5px 4px">' +
+    '<option value="item"' + (c.type==='item'?' selected':'') + '>持有物品</option>' +
+    '<option value="chose"' + (c.type==='chose'?' selected':'') + '>选过选项</option>' +
+    '<option value="var"' + (c.type==='var'?' selected':'') + '>变量</option></select>';
+  let rest = '';
+  if (c.type === 'var'){
+    rest = '<input class="condA adminTxt" style="flex:1;min-width:70px;padding:5px 8px" value="' + escapeHtml(c.a||'') + '" placeholder="变量名">' +
+      '<select class="condOp adminTxt" style="flex:0 0 66px;padding:5px 4px">' + ['>=','==','<=','>','<','!='].map(o=>'<option value="'+o+'"'+(c.op===o?' selected':'')+'>'+o+'</option>').join('') + '</select>' +
+      '<input class="condB adminTxt" style="flex:0 0 58px;padding:5px 8px" value="' + escapeHtml(c.b||'') + '" placeholder="值">';
+  } else {
+    rest = '<input class="condA adminTxt" style="flex:1;min-width:110px;padding:5px 8px" list="itemOptions" value="' + escapeHtml(c.a||'') + '" placeholder="' + (c.type==='item'?'物品名（如：钥匙）':'选项文字（与剧本一致）') + '">';
+  }
+  return '<div class="endingCond" style="padding-left:22px;margin-top:4px">' +
+    '<span style="font-size:10px;color:#7a7a8c;flex:none">#' + (ci+1) + '</span>' + typeSel + rest +
+    '<button class="iconBtn condDel" title="删除这个条件">✕</button></div>';
+}
 function renderEndingEditor(){
   const box = $('#endingBody'); if (!box) return;
-  let h = '<div class="hintTip" style="margin:0">从上到下依次判定，<b>第一个满足条件的结局生效</b>；类型选「无」就是兵底。生成后记得在主剧情末尾写 <code>@jump ending_check</code>。</div>';
+  let h = '<div class="hintTip" style="margin:0">从上到下依次判定，<b>第一个满足条件的结局生效</b>。条件可为「持有物品 / 选过某个选项 / 变量比较」，多个条件可选「全部满足」或「满足任一」。生成后记得在主剧情末尾写 <code>@jump ending_check</code>。</div>';
   h += '<div id="endingRows"></div>';
   h += '<div class="adminBtns" style="margin-top:6px"><button id="endingAdd">＋ 新增结局</button></div>';
   box.innerHTML = h;
@@ -8459,54 +8756,59 @@ function renderEndingEditor(){
   endingDraft.forEach((e, i) => {
     const row = document.createElement('div');
     row.className = 'endingRow';
-    let cond = '';
-    if (e.type === 'item'){
-      cond = '<input class="condItem adminTxt" style="flex:1;min-width:120px;padding:5px 8px" list="itemOptions" value="' + escapeHtml(e.item || '') + '" placeholder="物品名（如：钥匙）">';
-    } else if (e.type === 'var'){
-      cond = '<input class="condVar adminTxt" style="flex:1;min-width:90px;padding:5px 8px" value="' + escapeHtml(e.varName || '') + '" placeholder="变量名">' +
-        '<select class="condOp adminTxt" style="flex:0 0 74px;padding:5px 4px">' + ['>=','==','<=','>','<','!='].map(o=>'<option value="'+o+'"'+(e.op===o?' selected':'')+'>'+o+'</option>').join('') + '</select>' +
-        '<input class="condVal adminTxt" style="flex:0 0 70px;padding:5px 8px" value="' + escapeHtml(e.value || '') + '" placeholder="值">';
-    } else {
-      cond = '<span style="font-size:11px;color:#7a7a8c">不判定，直接进入这个结局</span>';
-    }
+    const condsHtml = (e.conds||[]).map((c,ci)=>condRowHtml(c,i,ci)).join('');
     row.innerHTML = '<div class="endingTop"><b>' + (i+1) + '</b>' +
-      '<input class="endingTitle adminTxt" style="flex:1;min-width:100px;padding:5px 8px" value="' + escapeHtml(e.title || '') + '" placeholder="结局标题">' +
-      '<input class="endingSub adminTxt" style="flex:1;min-width:100px;padding:5px 8px" value="' + escapeHtml(e.sub || '') + '" placeholder="副标题（可空）">' +
-      '<button class="iconBtn up" title="上移">↑</button><button class="iconBtn down" title="下移">↓</button><button class="iconBtn del" title="删除">✕</button></div>' +
-      '<div class="endingCond"><span style="font-size:11px;color:#9a9aae;flex:none">条件</span>' +
-      '<select class="condType adminTxt" style="flex:0 0 120px;padding:5px 6px">' +
-      '<option value="none"' + (e.type==='none'?' selected':'') + '>无（兵底）</option>' +
-      '<option value="item"' + (e.type==='item'?' selected':'') + '>持有物品</option>' +
-      '<option value="var"' + (e.type==='var'?' selected':'') + '>变量比较</option></select>' + cond + '</div>';
+      '<input class="endingTitle adminTxt" style="flex:1;min-width:90px;padding:5px 8px" value="' + escapeHtml(e.title||'') + '" placeholder="结局标题">' +
+      '<input class="endingSub adminTxt" style="flex:1;min-width:90px;padding:5px 8px" value="' + escapeHtml(e.sub||'') + '" placeholder="副标题（可空）">' +
+      '<button class="iconBtn up">↑</button><button class="iconBtn down">↓</button><button class="iconBtn del">✕</button></div>' +
+      '<div class="endingCond" style="padding-left:24px"><span style="font-size:11px;color:#9a9aae">条件</span>' +
+      '<select class="logicSel adminTxt" style="flex:0 0 116px;padding:5px 6px">' +
+      '<option value="and"' + (e.logic!=='or'?' selected':'') + '>全部满足(AND)</option>' +
+      '<option value="or"' + (e.logic==='or'?' selected':'') + '>满足任一(OR)</option></select>' +
+      '<button class="iconBtn addCond" title="再加一个条件">＋ 条件</button></div>' + condsHtml;
     wrap.appendChild(row);
-    const q = sel => row.querySelector(sel);
+    const q = s => row.querySelector(s);
     q('.endingTitle').oninput = ev => { endingDraft[i].title = ev.target.value; };
     q('.endingSub').oninput = ev => { endingDraft[i].sub = ev.target.value; };
-    q('.condType').onchange = ev => { endingDraft[i].type = ev.target.value; renderEndingEditor(); };
-    if (q('.condItem')) q('.condItem').oninput = ev => { endingDraft[i].item = ev.target.value; };
-    if (q('.condVar')) q('.condVar').oninput = ev => { endingDraft[i].varName = ev.target.value; };
-    if (q('.condOp')) q('.condOp').onchange = ev => { endingDraft[i].op = ev.target.value; };
-    if (q('.condVal')) q('.condVal').oninput = ev => { endingDraft[i].value = ev.target.value; };
-    q('.up').onclick = () => { if (i > 0){ const t = endingDraft.splice(i,1)[0]; endingDraft.splice(i-1,0,t); renderEndingEditor(); } };
-    q('.down').onclick = () => { if (i < endingDraft.length-1){ const t = endingDraft.splice(i,1)[0]; endingDraft.splice(i+1,0,t); renderEndingEditor(); } };
+    q('.logicSel').onchange = ev => { endingDraft[i].logic = ev.target.value; };
+    q('.addCond').onclick = () => { (endingDraft[i].conds = endingDraft[i].conds || []).push(defaultCond()); renderEndingEditor(); };
+    q('.up').onclick = () => { if (i > 0){ const x = endingDraft.splice(i,1)[0]; endingDraft.splice(i-1,0,x); renderEndingEditor(); } };
+    q('.down').onclick = () => { if (i < endingDraft.length-1){ const x = endingDraft.splice(i,1)[0]; endingDraft.splice(i+1,0,x); renderEndingEditor(); } };
     q('.del').onclick = () => { endingDraft.splice(i,1); renderEndingEditor(); };
+    const condRows = Array.from(row.querySelectorAll('.endingCond')).filter(cr => cr.querySelector('.condType'));
+    condRows.forEach((cr, ci) => {
+      const ct = cr.querySelector('.condType'); if (!ct) return;
+      const ca = cr.querySelector('.condA'), cb = cr.querySelector('.condB'), cop = cr.querySelector('.condOp'), cdel = cr.querySelector('.condDel');
+      ct.onchange = () => { endingDraft[i].conds[ci].type = ct.value; renderEndingEditor(); };
+      if (ca) ca.oninput = () => { endingDraft[i].conds[ci].a = ca.value; };
+      if (cb) cb.oninput = () => { endingDraft[i].conds[ci].b = cb.value; };
+      if (cop) cop.onchange = () => { endingDraft[i].conds[ci].op = cop.value; };
+      if (cdel) cdel.onclick = () => { endingDraft[i].conds.splice(ci,1); renderEndingEditor(); };
+    });
   });
   const add = $('#endingAdd');
-  if (add) add.onclick = () => { endingDraft.push(JSON.parse(JSON.stringify(defaultEnding()))); renderEndingEditor(); };
+  if (add) add.onclick = () => { endingDraft.push(defaultEnding()); renderEndingEditor(); };
 }
 function buildEndingScript(){
-  const valid = endingDraft.filter(e => e.title || e.type !== 'none');
   const L = [];
   L.push('', '// ===== 结局判定（自动生成） =====');
   L.push('::ending_check');
-  valid.forEach((e) => {
+  endingDraft.forEach((e) => {
     const idx = endingDraft.indexOf(e) + 1;
-    if (e.type === 'item' && (e.item||'').trim()) L.push('@has ' + e.item.trim() + ' -> end_' + idx);
-    else if (e.type === 'var' && (e.varName||'').trim()) L.push('@check ' + e.varName.trim() + ' ' + (e.op||'>=') + ' ' + (e.value||'0') + ' -> end_' + idx);
+    const conds = (e.conds || []).filter(c => (c.a||'').trim());
+    if (!conds.length) return;
+    const parts = [];
+    conds.forEach((c, ci_) => {
+      if (ci_ > 0) parts.push(e.logic === 'or' ? 'or' : 'and');
+      if (c.type === 'item') parts.push('item:' + c.a.trim());
+      else if (c.type === 'chose') parts.push('chose:' + c.a.trim());
+      else parts.push('var:' + c.a.trim() + (c.op||'>=') + (c.b||'0'));
+    });
+    L.push('@when ' + parts.join(' ') + ' -> end_' + idx);
   });
   L.push('@jump end_default');
   L.push('', '::end_default', '@end 普通结局 你没有达成任何结局条件');
-  valid.forEach((e) => {
+  endingDraft.forEach((e) => {
     const idx = endingDraft.indexOf(e) + 1;
     L.push('', '::end_' + idx);
     L.push('// 在这里写「' + (e.title || ('结局' + idx)) + '」之前的剧情');
