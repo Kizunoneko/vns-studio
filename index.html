@@ -711,6 +711,69 @@ body.theme-paper .assetSearch{background:#fffefb;border-color:#bfb196;color:#2f2
 .flowNode .flowLink:hover{background:#7dfba0;color:#000}
 .flowNode.link-target{border-style:dashed!important;border-color:#7dfba0!important}
 
+/* ===== v6.3 流程图：程序框图（菱形判定 / 六边形选项 / 可标注） ===== */
+.flowBlock{position:absolute;width:172px;touch-action:none}
+.flowNode.proc{position:relative;box-sizing:border-box;display:flex;flex-direction:column;justify-content:center;background:#000;border:2px solid #6a6a90;padding:6px 30px 6px 10px;overflow:hidden;cursor:pointer;user-select:none}
+.flowNode.proc.entry{border-color:#7dfba0;background:#07130c;border-radius:14px}
+.flowTitle{font-size:12px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.flowNode.proc.entry .flowTitle{color:#aef5c4}
+.flowBrief{font-size:10px;color:#8b8ba2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+.flowMeta{font-size:9.5px;color:#5f5f75;margin-top:2px}
+.flowDia{position:relative;margin:0 auto;background:#1a1408;border:2px solid #ffd96f;clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);display:flex;align-items:center;justify-content:center;cursor:pointer;user-select:none}
+.flowDia i{font-style:normal;font-size:10.5px;color:#ffd96f;letter-spacing:1px;pointer-events:none}
+.flowChoice{position:relative;margin:0 auto;background:#150a20;border:2px solid #c58bff;clip-path:polygon(10% 0,90% 0,100% 50%,90% 100%,10% 100%,0 50%);display:flex;align-items:center;justify-content:center;cursor:pointer;user-select:none}
+.flowChoice i{font-style:normal;font-size:10.5px;color:#dfc0ff;letter-spacing:.5px;pointer-events:none}
+.flowEndPill{margin:0 auto;background:#101a12;border:2px dashed #3f7a55;color:#7dfba0;font-size:10px;text-align:center;line-height:19px;height:22px;border-radius:11px;cursor:pointer}
+.flowGhost{position:absolute;border:2px dashed #ff6b6b;color:#ff8a8a;background:#140a0a;font-size:10px;padding:4px 8px;max-width:150px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.flowNote{position:absolute;left:0;font-size:10px;color:#ffe9a8;background:#2a2410;border-left:2px solid #ffd96f;padding:2px 6px;max-width:172px;white-space:pre-wrap;word-break:break-word;cursor:pointer;line-height:1.45}
+.flowLegend{display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:10px;color:#6f6f85}
+.flowLegend span{display:flex;align-items:center;gap:4px}
+.lgShape{width:12px;height:9px;display:inline-block;border:2px solid #6a6a90}
+.lgShape.round{border-radius:6px;border-color:#7dfba0}
+.lgShape.dia{border:none;background:#ffd96f;clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%)}
+.lgShape.hex{border:none;background:#c58bff;clip-path:polygon(10% 0,90% 0,100% 50%,90% 100%,10% 100%,0 50%)}
+body.theme-paper .flowDia{background:#fff6e0;border-color:#b08a2a}
+body.theme-paper .flowDia i{color:#8a6a10}
+body.theme-paper .flowChoice{background:#f7ecff;border-color:#8a5ac0}
+body.theme-paper .flowChoice i{color:#6a3a9a}
+body.theme-paper .flowNote{background:#fff6d8;color:#6a5510;border-left-color:#b08a2a}
+body.theme-paper .flowGhost{background:#fff2f2;color:#a83232}
+body.theme-paper .flowEndPill{background:#f2fbef;border-color:#8ac09a;color:#3f7a55}
+body.theme-paper .flowBrief{color:#7a6f5e}
+body.theme-paper .flowMeta{color:#9a8f7a}
+body.theme-paper .flowTitle{color:#2f2a21}
+body.theme-paper .flowNode.proc.entry .flowTitle{color:#2f7a4a}
+
+/* ===== v6.3 批量导入确认面板 ===== */
+.batchToolRow{display:flex;flex-wrap:wrap;gap:12px;margin:0 0 10px}
+.batchChk{display:flex!important;flex-direction:row!important;align-items:center;gap:6px;font-size:11px;color:#c8c8da;margin:0!important;cursor:pointer}
+.batchChk input{width:15px;height:15px;accent-color:#5b8cff;cursor:pointer}
+.batchList{max-height:44vh;overflow:auto;border:2px solid #33333f;background:#07070b;padding:4px}
+.batchRow{display:flex;align-items:center;gap:8px;padding:5px 6px;border-bottom:1px dashed #23232e}
+.batchRow:last-child{border-bottom:none}
+.batchRow.talk{background:#0b1410}
+.batchRow.skip{opacity:.45}
+.batchThumb{width:44px;height:44px;flex:none;background:#101018 center/contain no-repeat;border:2px solid #3a3a48}
+.batchMain{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.batchFile{font-size:10px;color:#6f6f85;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.batchRow input.batchName{width:100%;box-sizing:border-box;font-family:inherit;font-size:12px;color:#fff;background:#0d0d14;border:2px solid #3a3a48;padding:4px 6px;outline:none}
+.batchRow input.batchName:focus{border-color:#5b8cff}
+.batchRow input.batchName:disabled{color:#7dfba0;background:#0a1410;border-color:#2a5a3a}
+.batchTag{font-size:9.5px;padding:1px 5px;border:1px solid #35405a;color:#7fb0d8;flex:none;white-space:nowrap}
+.batchTag.warn{color:#ffcf6f;border-color:#5a4a20}
+.batchTag.talk{color:#7dfba0;border-color:#2a5a3a}
+body.theme-paper .batchList{background:#fffdf7;border-color:#bfb196}
+body.theme-paper .batchRow{border-bottom-color:#e2d8c2}
+body.theme-paper .batchRow.talk{background:#f2fbf2}
+body.theme-paper .batchFile{color:#8a8070}
+body.theme-paper .batchRow input.batchName{background:#fffefb;border-color:#bfb196;color:#2f2a21}
+body.theme-paper .batchChk{color:#4a4236}
+body.theme-paper .batchTag{color:#3f6f9a;border-color:#9ab6cc}
+body.theme-paper .batchTag.talk{color:#2f7a4a;border-color:#8ac09a}
+body.theme-paper .batchTag.warn{color:#8a6a10;border-color:#c9a227}
+body.theme-paper .batchRow input.batchName:disabled{color:#2f7a4a;background:#eef8ef;border-color:#8ac09a}
+body.theme-paper .batchThumb{border-color:#bfb196;background-color:#f1e9da}
+
 /* ===== v5.6 移动端全面重构（放在最后以覆盖旧规则） ===== */
 .help{flex:1 1 auto;min-height:0}
 .mobileTabs{display:none}
@@ -1365,11 +1428,15 @@ body.theme-paper .aboutUpdated{color:#8a7c62;border-left-color:#d5c9b0}
       </div>
       <div class="flowToolbar" id="flowToolbar" style="display:none">
         <button id="btnNewFlowBranch">➕ 新建分支</button>
-        <span class="flowTip">点击节点右下角 <b style="color:#8fb0ff">+</b> 创建跳转</span>
+        <button id="btnFlowFit">⤢ 适应宽度</button>
+        <button id="btnFlowFull">1:1</button>
+        <button id="btnResetFlowPos">↺ 重置布局</button>
+        <span class="flowTip">拖节点摆位置 · 右下角 <b style="color:#8fb0ff">+</b> 加跳转 · 左侧 <b style="color:#7dfba0">⇢</b> 拖线连接</span>
+        <div class="flowLegend"><span><i class="lgShape round"></i>开始</span><span><i class="lgShape"></i>剧情</span><span><i class="lgShape dia"></i>条件判定</span><span><i class="lgShape hex"></i>选项分支</span></div>
       </div>
       <div class="branchScroll" id="branchScroll"></div>
       <div class="branchFlowWrap" id="branchFlowWrap" style="display:none"><div class="branchFlow" id="branchFlow"></div></div>
-      <div class="footerBar"><span>点击卡片或节点编辑该分支</span></div>
+      <div class="footerBar"><span>点卡片 / 节点编辑分支 · 拖动节点摆位置 · 右上角 ✎ 写标注</span></div>
     </div>
 
     <div class="panel" id="panel-help">
@@ -1417,7 +1484,14 @@ body.theme-paper .aboutUpdated{color:#8a7c62;border-left-color:#d5c9b0}
 你发现一把钥匙。
 @get 钥匙
 @jump start</pre>
-        <h3>📱 手机上怎么用</h3>
+        <h3>🗺 流程视图（程序框图）</h3>
+<p>「分支」面板切到 <b>「🗺 流程视图」</b>：从 <b>▶ 开始</b> 一路往下，剧情是方框、条件判定是菱形（左右分叉，边上写着条件）、选项是六边形，没出口的分支会亮黄提醒。</p>
+<p>拖动节点摆位置（会记住）；节点右上角 <b>✎</b> 写标注；右下角 <b>＋</b> 新建跳转；左侧 <b>⇢</b> 拖到另一个节点就直接连线。</p>
+<h3>⚡ 批量导入立绘</h3>
+<p>「＋ 角色」→ <b>⚡ 批量</b> 或表情弹窗里的 <b>⚡ 批量</b>：选完图会先列出<b>缩略图 + 文件名 + 要用的名字</b>，可以逐张改。</p>
+<p>带 <b>_talk</b> / <b>_说话</b> 的会自动拼成上一个表情的说话差分；公共前缀（sakura_微笑 → 微笑）自动去掉；重名会提前标出来。</p>
+
+<h3>📱 手机上怎么用</h3>
         <p>手机底部有导航栏切面板，每个面板内部都能上下滑动，弹窗全屏可滚。修改剧本时建议横屏。</p>
       </div>
     </div>
@@ -1517,7 +1591,7 @@ body.theme-paper .aboutUpdated{color:#8a7c62;border-left-color:#d5c9b0}
       <div class="aboutTitle" id="aboutTitle">✦ 关于作者</div>
       <div class="aboutRow"><span>作者</span><b>@Teasssss</b></div>
       <div class="aboutRow"><span>辅助制作工具</span><b>Deepseek</b></div>
-      <div class="aboutRow"><span>版本</span><b class="aboutVer" id="aboutVer" title="多戳几下看看……">v6.2</b><span class="aboutUpdated" id="aboutUpdated">2026-11-12 更新</span></div>
+      <div class="aboutRow"><span>版本</span><b class="aboutVer" id="aboutVer" title="多戳几下看看……">v6.3</b><span class="aboutUpdated" id="aboutUpdated">2026-11-12 更新</span></div>
       <div class="aboutQuote">“每一个像素，都是你亲手写下的世界。”<br>—— 把故事讲出来的人，永远是作者。</div>
       <div class="aboutBtns">
         <button id="eggCat">🐱 摸一下</button>
@@ -1865,6 +1939,19 @@ button{ background:#0d0d18; border-color:#4a4a80; color:#e8e8f4; }</div>
     <label>说话立绘（可选）<div class="fileRow"><button id="exTalkBtn">选择图片</button><span id="exTalkStatus" class="fileStatus">未选择</span></div></label>
   </div>
   <div class="sheetFoot"><button id="exBatch" style="border-color:#5b8cff;color:#cfe0ff">⚡ 批量</button><span style="flex:1"></span><button id="exCancel">取消</button><button class="primary" id="exOk">添加</button></div>
+</div></div>
+
+<div class="sheet" id="batchModal" hidden><div class="sheetCard">
+  <div class="sheetTitle" id="batchTitle">⚡ 批量导入</div>
+  <div class="sheetBody">
+    <div class="hintTip" id="batchHint" style="margin:0 0 10px">下面是识别到的图片与将要使用的名字，<b>可以直接改</b>。</div>
+    <div class="batchToolRow">
+      <label class="batchChk"><input type="checkbox" id="batchStripPrefix" checked><span>去掉公共前缀</span></label>
+      <label class="batchChk"><input type="checkbox" id="batchDetectTalk" checked><span>识别说话差分（_talk / _说话）</span></label>
+    </div>
+    <div class="batchList" id="batchList"></div>
+  </div>
+  <div class="sheetFoot"><button id="batchCancel">取消</button><button class="primary" id="batchOk">导入</button></div>
 </div></div>
 
 <div class="sheet" id="adjustModal" hidden><div class="sheetCard" style="width:min(880px,96vw)">
@@ -4946,29 +5033,7 @@ $('#ncMainBtn').onclick = () => {
 };
 $('#ncTalkBtn').onclick = () => { pickImage(res => { ncTalkUrl = res.url; $('#ncTalkStatus').textContent = res.name || '已选择'; }); };
 $('#ncCancel').onclick = () => { newCharModal.hidden = true; };
-$('#ncBatch').onclick = () => {
-  pickImage(results => {
-    if (!Array.isArray(results)) results = results ? [results] : [];
-    if (!results.length){ alert('未选择任何图片'); return; }
-    const newNames = [];
-    for (const r of results){
-      if (!r || !r.url) continue;
-      let base = r.name || '角色', name = base, i = 1;
-      while (characters[name]){ name = base + '_' + (++i); }
-      characters[name] = { main: r.url, talkMain: null, avatar: null, shadow: false, expressions: {}, spriteAdjust: { scale:1, x:0, y:0 }, avatarAdjust: { scale:1, x:0, y:0 }, spritePresets: {}, defaultAnim: 'none', defaultExpr: null, useTalkSprite: true };
-      newNames.push(name);
-    }
-    newCharModal.hidden = true; renderAssets();
-    if (newNames.length > 0){
-      setTimeout(() => {
-        showConfirm('批量导入完成', `已创建 ${newNames.length} 个角色。是否进入连续调校？`, () => {
-          adjustQueue = newNames.slice(1);
-          openAdjustModal(newNames[0], true);
-        });
-      }, 200);
-    }
-  }, true);
-};
+$('#ncBatch').onclick = () => pickImage(results => openBatchImport('char', results), true);
 $('#ncOk').onclick = () => {
   if (!ncMainUrl){ alert('请先上传主立绘'); return; }
   let name = $('#ncName').value.trim() || '角色';
@@ -5017,20 +5082,7 @@ $('#exCancel').onclick = closeExprModal;
 $('#exBatch').onclick = () => {
   if (!exTargetChar || !characters[exTargetChar]) return;
   const target = exTargetChar;
-  pickImage(results => {
-    if (!Array.isArray(results)) results = results ? [results] : [];
-    if (!results.length){ alert('未选择任何图片'); return; }
-    let created = 0;
-    for (const r of results){
-      if (!r || !r.url) continue;
-      let base = r.name || '表情', name = base, i = 1;
-      while (characters[target].expressions[name]){ name = base + '_' + (++i); }
-      characters[target].expressions[name] = { normal: r.url, talk: null };
-      created++;
-    }
-    closeExprModal(); renderAssets();
-    if (created > 0) alert(`已为「${target}」添加 ${created} 个表情`);
-  }, true);
+  pickImage(results => { closeExprModal(); openBatchImport('expr', results, target); }, true);
 };
 $('#exOk').onclick = () => {
   if (!exTargetChar || !characters[exTargetChar]) return;
@@ -5050,6 +5102,199 @@ $('#exOk').onclick = () => {
   closeExprModal(); renderAssets();
 };
 exprModal.addEventListener('click', e => { if (pickingFile) return; if (e.target === exprModal) closeExprModal(); });
+
+/* ===== v6.3 批量导入确认面板：先看清名字再入库 ===== */
+const batchModal = $('#batchModal');
+const batchListEl = $('#batchList');
+let batchState = null;
+const BATCH_TALK_RE = /(\s*[_\-\uFF3F\s（(\[]+)(talk\d*|say|talking|mouth|说话|讲话|口型)\s*[)）\]]?$/i;
+function batchAutoName(items){
+  items.forEach(it => { if (!it.dirty) it.name = it.file || ''; it.talkTo = -1; });
+  if ($('#batchStripPrefix').checked && items.length > 1){
+    const files = items.map(it => it.file || '');
+    let pre = files[0] || '';
+    for (const f of files.slice(1)){
+      let i = 0;
+      while (i < pre.length && i < f.length && pre[i].toLowerCase() === f[i].toLowerCase()) i++;
+      pre = pre.slice(0, i);
+      if (!pre) break;
+    }
+    pre = pre.replace(/[\s_\-\uFF3F（(\[]+$/, '');
+    if (pre.length >= 2 && files.every(f => f.length > pre.length)){
+      items.forEach(it => {
+        if (it.dirty) return;
+        it.name = (it.file || '').slice(pre.length).replace(/^[\s_\-\uFF3F（(\[]+/, '');
+      });
+    }
+  }
+  if ($('#batchDetectTalk').checked){
+    const byName = {};
+    items.forEach((it, i) => {
+      const key = String(it.name || '').trim().toLowerCase();
+      if (key && !BATCH_TALK_RE.test(it.name || '')) byName[key] = i;
+    });
+    items.forEach((it, i) => {
+      const m = String(it.name || '').match(BATCH_TALK_RE);
+      if (!m) return;
+      const base = it.name.slice(0, it.name.length - m[0].length).trim();
+      const hit = byName[base.toLowerCase()];
+      if (hit !== undefined && hit !== i) it.talkTo = hit;
+    });
+  }
+  items.forEach(it => { if (!it.name) it.name = it.file || '未命名'; });
+  // 有说话后缀但没有对应的常态图：把后缀去掉，当普通表情导入
+  items.forEach(it => {
+    if (it.talkTo >= 0 || it.dirty) return;
+    const m = String(it.name || '').match(BATCH_TALK_RE);
+    if (!m) return;
+    const base = it.name.slice(0, it.name.length - m[0].length).trim();
+    if (base) it.name = base;
+  });
+}
+function batchTaken(n){
+  if (!batchState) return false;
+  if (batchState.mode === 'expr'){
+    const c = characters[batchState.target];
+    return !!(c && c.expressions && c.expressions[n]);
+  }
+  return !!characters[n];
+}
+function batchFinalNames(){
+  const items = batchState.items, used = {};
+  items.forEach(it => {
+    if (it.skip || it.talkTo >= 0){ it.final = null; return; }
+    const base = String(it.name || '').trim() || '未命名';
+    let name = base, i = 1;
+    while (batchTaken(name) || used[name]) { name = base + '_' + (++i); }
+    used[name] = true;
+    it.final = name;
+  });
+  return items;
+}
+function openBatchImport(mode, results, targetChar){
+  let list = Array.isArray(results) ? results : (results ? [results] : []);
+  list = list.filter(r => r && r.url);
+  if (!list.length){ showToast('没有识别到图片', 'warn'); return; }
+  batchState = {
+    mode, target: targetChar || null,
+    items: list.map(r => ({ url: r.url, file: r.name || '', name: r.name || '', dirty: false, talkTo: -1, skip: false, final: null }))
+  };
+  batchAutoName(batchState.items);
+  const isChar = mode === 'char';
+  $('#batchTitle').textContent = isChar ? '⚡ 批量导入角色' : ('⚡ 批量导入表情 · ' + (targetChar || ''));
+  $('#batchHint').innerHTML = isChar
+    ? '已选 <b>' + list.length + '</b> 张图。每个文件会变成一个角色；名字可以逐个改，重名会自动加后缀。'
+    : '已选 <b>' + list.length + '</b> 张图。带 <b>_talk / _说话</b> 的会自动拼成上一个表情的说话差分。';
+  $('#batchOk').textContent = '导入 ' + list.length + ' 张';
+  renderBatchList();
+  batchModal.hidden = false;
+}
+function renderBatchList(){
+  if (!batchState) return;
+  const sc = batchListEl.scrollTop;
+  batchListEl.innerHTML = '';
+  const items = batchFinalNames();
+  let count = 0;
+  items.forEach((it, idx) => {
+    if (!it.skip) count++;
+    const row = document.createElement('div');
+    row.className = 'batchRow' + (it.talkTo >= 0 ? ' talk' : '') + (it.skip ? ' skip' : '');
+    const thumb = document.createElement('div');
+    thumb.className = 'batchThumb';
+    thumb.style.backgroundImage = 'url("' + it.url + '")';
+    const main = document.createElement('div');
+    main.className = 'batchMain';
+    const fileEl = document.createElement('div');
+    fileEl.className = 'batchFile';
+    fileEl.textContent = '📄 ' + (it.file || '未命名文件');
+    const line = document.createElement('div');
+    line.style.cssText = 'display:flex;gap:6px;align-items:center';
+    const inp = document.createElement('input');
+    inp.className = 'batchName';
+    inp.type = 'text';
+    if (it.talkTo >= 0){
+      const base = items[it.talkTo];
+      inp.value = (base.name || '') + ' · 说话差分';
+      inp.disabled = true;
+    } else {
+      inp.value = it.name || '';
+      inp.oninput = () => { it.name = inp.value; it.dirty = true; };
+      inp.onchange = () => { it.name = inp.value; it.dirty = true; renderBatchList(); };
+    }
+    const tag = document.createElement('span');
+    tag.className = 'batchTag';
+    if (it.talkTo >= 0){ tag.classList.add('talk'); tag.textContent = '💬 差分'; }
+    else if (it.skip){ tag.textContent = '不导入'; }
+    else if (it.final && it.final !== String(it.name || '').trim()){ tag.classList.add('warn'); tag.textContent = '重名 → ' + it.final; }
+    else tag.textContent = '✓ 新名称';
+    line.append(inp, tag);
+    main.append(fileEl, line);
+    const tog = document.createElement('button');
+    tog.style.cssText = 'flex:none;padding:3px 7px;font-size:10px;box-shadow:none;border-color:' + (it.skip ? '#5b8cff' : '#ff6b6b') + ';color:' + (it.skip ? '#8fb0ff' : '#ff8a8a');
+    tog.textContent = it.skip ? '↺' : '✕';
+    tog.title = it.skip ? '恢复导入' : '本次不导入这张';
+    tog.onclick = () => { it.skip = !it.skip; renderBatchList(); };
+    row.append(thumb, main, tog);
+    batchListEl.appendChild(row);
+  });
+  $('#batchOk').textContent = '导入 ' + count + ' 张';
+  batchListEl.scrollTop = sc;
+}
+function closeBatchModal(){ batchModal.hidden = true; batchState = null; }
+$('#batchCancel').onclick = closeBatchModal;
+$('#batchStripPrefix').onchange = () => { if (batchState){ batchAutoName(batchState.items); renderBatchList(); } };
+$('#batchDetectTalk').onchange = () => { if (batchState){ batchAutoName(batchState.items); renderBatchList(); } };
+$('#batchOk').onclick = () => {
+  if (!batchState) return;
+  const mode = batchState.mode, items = batchFinalNames();
+  const makeChar = r => ({ main: r.url, talkMain: null, avatar: null, shadow: false, expressions: {}, spriteAdjust: { scale:1, x:0, y:0 }, avatarAdjust: { scale:1, x:0, y:0 }, spritePresets: {}, defaultAnim: 'none', defaultExpr: null, useTalkSprite: true });
+  const created = [];
+  const madeByIndex = {};
+  if (mode === 'char'){
+    items.forEach((it, idx) => {
+      if (it.skip || it.talkTo >= 0) return;
+      const name = it.final || it.name || '角色';
+      const c = makeChar(it);
+      characters[name] = c;
+      madeByIndex[idx] = name;
+      created.push(name);
+    });
+    items.forEach((it, idx) => {
+      if (it.skip || it.talkTo < 0) return;
+      const baseName = madeByIndex[it.talkTo];
+      if (baseName && characters[baseName]){ characters[baseName].talkMain = it.url; characters[baseName].useTalkSprite = true; }
+    });
+  } else {
+    const target = batchState.target;
+    if (!characters[target]){ closeBatchModal(); return; }
+    const exps = characters[target].expressions || (characters[target].expressions = {});
+    items.forEach((it, idx) => {
+      if (it.skip || it.talkTo >= 0) return;
+      exps[it.final || it.name || '表情'] = { normal: it.url, talk: null };
+      madeByIndex[idx] = it.final || it.name || '表情';
+    });
+    items.forEach(it => {
+      if (it.skip || it.talkTo < 0) return;
+      const en = madeByIndex[it.talkTo];
+      if (en && exps[en]) exps[en].talk = it.url;
+    });
+  }
+  const n = created.length || Object.keys(madeByIndex).length;
+  const wantAdjust = mode === 'char' && created.length > 0;
+  const createdCopy = created.slice();
+  closeBatchModal();
+  renderAssets();
+  showToast(mode === 'char' ? ('已导入 ' + n + ' 个角色') : ('已导入 ' + n + ' 个表情'), 'ok');
+  if (wantAdjust){
+    setTimeout(() => {
+      showConfirm('批量导入完成', `已创建 ${createdCopy.length} 个角色。是否进入连续调校？`, () => {
+        adjustQueue = createdCopy.slice(1);
+        openAdjustModal(createdCopy[0], true);
+      });
+    }, 220);
+  }
+};
+batchModal.addEventListener('click', e => { if (pickingFile) return; if (e.target === batchModal) closeBatchModal(); });
 
 function renderAssets(){
   const bgList = $('#bgList'), cgList = $('#cgList');
@@ -6006,7 +6251,7 @@ function getBranchLinks(contentLines){
       const m = t.match(/->\s*(\S+)/);
       if (m) jumps.push(m[1]);
       else { const jm = t.match(/^@jump\s+(\S+)/i); if (jm) jumps.push(jm[1]); }
-    } else if (/^@(has|check|visited)\b/i.test(t)){
+    } else if (/^@(has|check|visited|when)\b/i.test(t)){
       const m = t.match(/->\s*(\S+)/);
       if (m) jumps.push(m[1]);
     }
@@ -6086,6 +6331,15 @@ safeBind('#btnNewFlowBranch', () => {
     appendNewBranch(label); renderBranches();
   });
 });
+safeBind('#btnFlowFit', () => { flowZoomMode = 'fit'; renderBranchFlow(); });
+safeBind('#btnFlowFull', () => { flowZoomMode = 'full'; renderBranchFlow(); });
+safeBind('#btnResetFlowPos', () => {
+  branchFlowPos = {};
+  settings.flowPos = {};
+  saveSettings();
+  renderBranchFlow();
+  showToast('布局已重置', 'ok');
+});
 function renderBranchList(){
   const wrap = $('#branchScroll'); if (!wrap) return;
   const branches = splitBranches(scriptInput.value);
@@ -6118,87 +6372,466 @@ function renderBranchList(){
     wrap.appendChild(card);
   });
 }
+/* ===== v6.3 流程图：程序框图式（开始 → 剧情块 → 菱形判定 / 六边形选项） ===== */
+const FLOW_G = { NW:172, PH:66, DW:128, DH:62, HW:156, HH:46, STEP:18, GX:74, GY:86, PAD:40 };
+let flowCtx = null;
+let flowZoomMode = 'fit';
+
+function getBranchExits(lines){
+  const exits = [];
+  for (const line of lines){
+    const t = line.trim();
+    if (!t || t.startsWith('//') || t.startsWith('#')) continue;
+    const arrow = t.match(/->\s*(\S+)\s*$/);
+    if (/^@jump\b/i.test(t)){
+      const target = arrow ? arrow[1] : ((t.match(/^@jump\s+(\S+)/i) || [])[1]);
+      if (target) exits.push({ kind:'jump', to: target, label:'' });
+      continue;
+    }
+    if (!arrow) continue;
+    if (/^@(check|when|has|visited)\b/i.test(t)){
+      const dir = ((t.match(/^@(\w+)/i) || [])[1] || '').toLowerCase();
+      let cond = t.replace(/^@\w+\s*/i, '').replace(/\s*->\s*\S+\s*$/, '').trim();
+      if (dir === 'has') cond = '拥有 ' + cond;
+      else if (dir === 'visited') cond = '到过 ' + cond;
+      exits.push({ kind:'cond', to: arrow[1], label: cond || '条件' });
+    } else if (/^[-*]\s/.test(t)){
+      const txt = t.replace(/^[-*]\s*/, '').replace(/\s*->\s*\S+\s*$/, '').trim();
+      exits.push({ kind:'choice', to: arrow[1], label: txt || '选项' });
+    }
+  }
+  return exits;
+}
+
+function flowBlockRects(blocks, terminal){
+  const G = FLOW_G, rects = [];
+  let y = 0;
+  blocks.forEach((bl, i) => {
+    if (i === 0){ rects.push({ x:0, y:0, w:G.NW, h:G.PH, kind:'process' }); y = G.PH; return; }
+    const isDia = bl.kind === 'decision';
+    const w = isDia ? G.DW : G.HW, h = isDia ? G.DH : G.HH;
+    rects.push({ x:(G.NW - w) / 2, y:y + G.STEP, w, h, kind:bl.kind });
+    y = y + G.STEP + h;
+  });
+  if (terminal){
+    rects.push({ x:18, y:y + G.STEP, w:G.NW - 36, h:22, kind:'end' });
+    y = y + G.STEP + 22;
+  }
+  return { rects, height:y };
+}
+
+function flowEdgeColor(kind){
+  const paper = document.body.classList.contains('theme-paper');
+  if (kind === 'cond') return paper ? '#a5822a' : '#ffd96f';
+  if (kind === 'choice') return paper ? '#8a5ac0' : '#c58bff';
+  return paper ? '#4a7fa8' : '#7fb0d8';
+}
+
+function flowRoundPath(pts, r){
+  if (pts.length < 2) return '';
+  let d = 'M ' + pts[0][0] + ' ' + pts[0][1];
+  for (let i = 1; i < pts.length - 1; i++){
+    const p0 = pts[i - 1], p1 = pts[i], p2 = pts[i + 1];
+    const v1x = p1[0] - p0[0], v1y = p1[1] - p0[1];
+    const v2x = p2[0] - p1[0], v2y = p2[1] - p1[1];
+    const l1 = Math.hypot(v1x, v1y) || 1, l2 = Math.hypot(v2x, v2y) || 1;
+    const rr = Math.min(r, l1 / 2, l2 / 2);
+    const ax = p1[0] - v1x / l1 * rr, ay = p1[1] - v1y / l1 * rr;
+    const bx = p1[0] + v2x / l2 * rr, by = p1[1] + v2y / l2 * rr;
+    d += ' L ' + ax + ' ' + ay + ' Q ' + p1[0] + ' ' + p1[1] + ' ' + bx + ' ' + by;
+  }
+  const last = pts[pts.length - 1];
+  d += ' L ' + last[0] + ' ' + last[1];
+  return d;
+}
+
+function flowRoute(p1, p2, railX){
+  if (p2.y > p1.y + 18){
+    if (Math.abs(p2.x - p1.x) < 2) return [[p1.x, p1.y], [p2.x, p2.y]];
+    const midY = p1.y + (p2.y - p1.y) * 0.5;
+    return [[p1.x, p1.y], [p1.x, midY], [p2.x, midY], [p2.x, p2.y]];
+  }
+  return [[p1.x, p1.y], [p1.x, p1.y + 28], [railX, p1.y + 28], [railX, p2.y - 28], [p2.x, p2.y - 28], [p2.x, p2.y]];
+}
+
+function flowTextWidth(t){
+  let w = 0;
+  for (const ch of String(t)) w += ch.charCodeAt(0) > 255 ? 7.2 : 5.2;
+  return w;
+}
+
+function drawFlowLabel(svg, x, y, text, color, align){
+  const txt = String(text || '');
+  if (!txt) return;
+  const short = txt.length > 20 ? txt.slice(0, 20) + '…' : txt;
+  const w = flowTextWidth(short) + 8;
+  const lx = align === 'right' ? x - w : x;
+  const NS = 'http://www.w3.org/2000/svg';
+  const paper = document.body.classList.contains('theme-paper');
+  const rect = document.createElementNS(NS, 'rect');
+  rect.setAttribute('x', lx); rect.setAttribute('y', y - 7);
+  rect.setAttribute('width', w); rect.setAttribute('height', 14);
+  rect.setAttribute('rx', 2);
+  rect.setAttribute('fill', paper ? '#fffaf0' : '#08080c');
+  rect.setAttribute('stroke', color);
+  rect.setAttribute('stroke-width', '1');
+  rect.setAttribute('opacity', '.92');
+  svg.appendChild(rect);
+  const t = document.createElementNS(NS, 'text');
+  t.setAttribute('x', lx + 4); t.setAttribute('y', y + 3);
+  t.setAttribute('fill', color);
+  t.setAttribute('font-size', '9');
+  t.setAttribute('font-family', 'inherit');
+  t.textContent = short;
+  svg.appendChild(t);
+}
+
+function drawFlowEdges(){
+  if (!flowCtx) return;
+  const { svg, els, entries, ghosts, railX } = flowCtx;
+  const NS = 'http://www.w3.org/2000/svg';
+  while (svg.firstChild) svg.removeChild(svg.firstChild);
+  const defs = document.createElementNS(NS, 'defs');
+  ['cond', 'choice', 'jump'].forEach(k => {
+    const m = document.createElementNS(NS, 'marker');
+    m.setAttribute('id', 'fa-' + k);
+    m.setAttribute('markerWidth', '9'); m.setAttribute('markerHeight', '9');
+    m.setAttribute('refX', '8'); m.setAttribute('refY', '3'); m.setAttribute('orient', 'auto');
+    const path = document.createElementNS(NS, 'path');
+    path.setAttribute('d', 'M0,0 L0,6 L8,3 z');
+    path.setAttribute('fill', flowEdgeColor(k));
+    m.appendChild(path); defs.appendChild(m);
+  });
+  svg.appendChild(defs);
+  entries.forEach(e => {
+    const el = els[e.label]; if (!el || !e.edges.length) return;
+    const ox = el.offsetLeft, oy = el.offsetTop;
+    const bySrc = {};
+    e.edges.forEach(ed => { (bySrc[ed.from] = bySrc[ed.from] || []).push(ed); });
+    Object.keys(bySrc).forEach(kind => {
+      const list = bySrc[kind];
+      const rect = e.rects.find(r => r.kind === kind);
+      if (!rect) return;
+      list.forEach((ed, idx) => {
+        const cx = ox + rect.x + rect.w / 2, cy = oy + rect.y + rect.h / 2;
+        const bottomY = oy + rect.y + rect.h;
+        let p1;
+        let side = 'bottom';
+        if (kind === 'decision'){
+          if (list.length === 1) p1 = { x:cx, y:bottomY };
+          else if (idx === 0){ p1 = { x:ox + rect.x, y:cy }; side = 'left'; }
+          else if (idx === 1){ p1 = { x:ox + rect.x + rect.w, y:cy }; side = 'right'; }
+          else p1 = { x:cx + (idx - 1) * 16, y:bottomY };
+        } else if (kind === 'choice'){
+          const t = list.length === 1 ? 0.5 : 0.18 + 0.64 * idx / (list.length - 1);
+          p1 = { x:ox + rect.x + rect.w * t, y:bottomY };
+        } else {
+          p1 = { x:cx, y:bottomY };
+        }
+        let p2 = null, ghost = null;
+        const tEl = els[ed.to];
+        if (tEl){
+          const tr = flowCtx.entries.find(x => x.label === ed.to);
+          const r0 = tr ? tr.rects[0] : { x:0, w:FLOW_G.NW };
+          p2 = { x:tEl.offsetLeft + r0.x + r0.w / 2, y:tEl.offsetTop + r0.y };
+        } else {
+          ghost = ghosts[e.label + '|' + ed.to];
+          if (!ghost) return;
+          p2 = { x:ghost.offsetLeft, y:ghost.offsetTop + 12 };
+        }
+        const color = flowEdgeColor(ed.kind);
+        const pts = flowRoute(p1, p2, railX);
+        const path = document.createElementNS(NS, 'path');
+        path.setAttribute('d', flowRoundPath(pts, 7));
+        path.setAttribute('stroke', color);
+        path.setAttribute('stroke-width', '1.8');
+        path.setAttribute('fill', 'none');
+        if (ghost) path.setAttribute('stroke-dasharray', '5 4');
+        path.setAttribute('marker-end', 'url(#fa-' + ed.kind + ')');
+        svg.appendChild(path);
+        if (ed.label){
+          if (ed.kind === 'choice'){
+            drawFlowLabel(svg, Math.min(p2.x + 8, railX - 40), p2.y + 15, ed.label, color);
+          } else if (side === 'left') drawFlowLabel(svg, p1.x - 8, p1.y - 12, ed.label, color, 'right');
+          else if (side === 'right') drawFlowLabel(svg, p1.x + 8, p1.y - 12, ed.label, color);
+          else drawFlowLabel(svg, p1.x + 6, p1.y + 11, ed.label, color);
+        }
+      });
+    });
+  });
+}
+
 function renderBranchFlow(){
   const wrap = $('#branchFlow'); if (!wrap) return;
   wrap.innerHTML = '';
+  flowCtx = null;
   const branches = splitBranches(scriptInput.value);
   if (!branches.length){ wrap.innerHTML = '<div class="empty">还没有分支</div>'; return; }
-  const byLabel = {}; branches.forEach(b => { byLabel[b.label] = b; });
-  const links = [], adj = {}; branches.forEach(b => { adj[b.label] = []; });
-  branches.forEach(b => {
-    const l = getBranchLinks(b.contentLines);
-    l.jumps.forEach(t => { if (byLabel[t] && t !== b.label){ links.push({ from: b.label, to: t, kind: 'jump' }); adj[b.label].push(t); } });
-    l.choices.forEach(t => { if (byLabel[t] && t !== b.label){ links.push({ from: b.label, to: t, kind: 'choice' }); adj[b.label].push(t); } });
+  if (!Object.keys(branchFlowPos).length && settings.flowPos) branchFlowPos = Object.assign({}, settings.flowPos);
+  const G = FLOW_G;
+
+  const entries = branches.map(b => {
+    const exits = getBranchExits(b.contentLines);
+    const e = {
+      label: b.label, isEntry: b.isEntry,
+      brief: branchBrief(b.contentLines),
+      lines: b.contentLines.filter(l => l.trim()).length,
+      blocks: [{ kind:'process' }], edges: [], branch: b
+    };
+    const conds = exits.filter(x => x.kind === 'cond');
+    const choices = exits.filter(x => x.kind === 'choice');
+    const jumps = exits.filter(x => x.kind === 'jump');
+    if (conds.length){
+      e.blocks.push({ kind:'decision' });
+      conds.forEach(c => e.edges.push({ from:'decision', to:c.to, label:c.label, kind:'cond' }));
+    }
+    if (choices.length){
+      e.blocks.push({ kind:'choice' });
+      choices.forEach(c => e.edges.push({ from:'choice', to:c.to, label:c.label, kind:'choice' }));
+    }
+    if (jumps.length){
+      const fromKind = e.blocks[e.blocks.length - 1].kind;
+      jumps.forEach((j, i) => e.edges.push({ from:fromKind, to:j.to, label: fromKind === 'process' ? '' : (i === 0 ? '否则' : '否则' + (i + 1)), kind:'jump' }));
+    }
+    e.terminal = e.edges.length === 0;
+    e.hasEnd = /^\s*@end\b/im.test(b.contentLines.join('\n'));
+    const geo = flowBlockRects(e.blocks, e.terminal);
+    e.rects = geo.rects; e.colH = geo.height;
+    return e;
   });
-  const rootLabel = branches[0].isEntry ? '（开头）' : branches[0].label;
-  const depths = { [rootLabel]: 0 };
-  const queue = [rootLabel];
+
+  const known = {}; entries.forEach(e => known[e.label] = true);
+  const adj = {}; entries.forEach(e => { adj[e.label] = []; });
+  entries.forEach(e => e.edges.forEach(ed => { if (known[ed.to] && ed.to !== e.label) adj[e.label].push(ed.to); }));
+
+  // 多源分层：没有入边的分支都算起点（热点 / 选项标签常常是独立入口）
+  const inDeg = {};
+  entries.forEach(e => { inDeg[e.label] = 0; });
+  entries.forEach(e => e.edges.forEach(ed => { if (inDeg[ed.to] !== undefined && ed.to !== e.label) inDeg[ed.to]++; }));
+  const roots = entries.filter((e, i) => i === 0 || inDeg[e.label] === 0).map(e => e.label);
+  const depths = {};
+  roots.forEach(r => { depths[r] = 0; });
+  const queue = roots.slice();
   while (queue.length){
     const cur = queue.shift();
-    (adj[cur] || []).forEach(nxt => { if (depths[nxt] === undefined){ depths[nxt] = depths[cur] + 1; queue.push(nxt); } });
+    (adj[cur] || []).forEach(nx => { if (depths[nx] === undefined){ depths[nx] = depths[cur] + 1; queue.push(nx); } });
   }
   let maxDepth = 0;
   Object.values(depths).forEach(d => { if (d > maxDepth) maxDepth = d; });
-  branches.forEach(b => { if (depths[b.label] === undefined) depths[b.label] = ++maxDepth; });
-  const byDepth = {};
-  branches.forEach(b => { if (!byDepth[depths[b.label]]) byDepth[depths[b.label]] = []; byDepth[depths[b.label]].push(b.label); });
-  const NW = 155, NH = 64, GX = 28, GY = 58;
-  const positions = {};
-  for (let d = 0; d <= maxDepth; d++){
-    const row = byDepth[d] || []; if (!row.length) continue;
-    const rowW = row.length * NW + (row.length - 1) * GX;
-    const startX = -rowW / 2;
-    row.forEach((lbl, i) => {
-      const x = startX + i * (NW + GX), y = d * (NH + GY);
-      positions[lbl] = { x, y };
+  // 断开的标签：能接到已排好位置的节点就接在后面，否则另起一层
+  let pending = entries.filter(e => depths[e.label] === undefined);
+  let guard = 0;
+  while (pending.length && guard++ < 200){
+    let progressed = false;
+    pending = pending.filter(e => {
+      let best = -1;
+      entries.forEach(other => {
+        if (depths[other.label] === undefined) return;
+        if (other.edges.some(ed => ed.to === e.label)) {
+          const d = depths[other.label] + 1;
+          if (best < 0 || d < best) best = d;
+        }
+      });
+      if (best >= 0){ depths[e.label] = best; maxDepth = Math.max(maxDepth, best); progressed = true; return false; }
+      return true;
     });
+    if (!progressed && pending.length){
+      depths[pending[0].label] = ++maxDepth;
+      pending = pending.slice(1);
+      progressed = true;
+    }
+    if (!progressed) break;
   }
-  branches.forEach(b => { if (branchFlowPos[b.label]) positions[b.label] = { x: branchFlowPos[b.label].x, y: branchFlowPos[b.label].y }; });
+
+  const byDepth = {};
+  entries.forEach(e => { (byDepth[depths[e.label]] = byDepth[depths[e.label]] || []).push(e); });
+  const PER_ROW = 4;
+  const layerY = {}, layerH = {};
+  let yCursor = 0;
+  Object.keys(byDepth).map(Number).sort((a, b) => a - b).forEach(d => {
+    const row = byDepth[d];
+    const nRows = Math.ceil(row.length / PER_ROW);
+    const colH = Math.max.apply(null, row.map(e => e.colH));
+    layerY[d] = yCursor;
+    layerH[d] = nRows * (colH + G.GY) - G.GY;
+    yCursor += layerH[d] + G.GY;
+  });
+
+  const pos = {};
+  Object.keys(byDepth).map(Number).sort((a, b) => a - b).forEach(d => {
+    const row = byDepth[d];
+    const colH = Math.max.apply(null, row.map(e => e.colH));
+    for (let s = 0; s < row.length; s += PER_ROW){
+      const chunk = row.slice(s, s + PER_ROW);
+      const rowW = chunk.length * G.NW + (chunk.length - 1) * G.GX;
+      chunk.forEach((e, i) => {
+        pos[e.label] = { x:-rowW / 2 + i * (G.NW + G.GX), y: layerY[d] + (s / PER_ROW) * (colH + G.GY) };
+      });
+    }
+  });
+
   let minX = 0, maxX = 0, maxY = 0;
-  Object.values(positions).forEach(p => { if (p.x < minX) minX = p.x; if (p.x + NW > maxX) maxX = p.x + NW; if (p.y + NH > maxY) maxY = p.y + NH; });
-  const pad = 30, shift = pad - minX;
-  const totalW = maxX - minX + pad * 2, totalH = maxY + pad * 2;
-  wrap.style.width = Math.max(totalW, 200) + 'px'; wrap.style.height = Math.max(totalH, 200) + 'px';
-  const svgNS = 'http://www.w3.org/2000/svg';
-  const svg = document.createElementNS(svgNS, 'svg');
-  svg.setAttribute('width', Math.max(totalW, 200)); svg.setAttribute('height', Math.max(totalH, 200));
-  svg.style.cssText = 'position:absolute;left:0;top:0;pointer-events:none';
-  svg.innerHTML = `<defs><marker id="fa-jump" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#7fb0d8"/></marker><marker id="fa-choice" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#ffd96f"/></marker></defs>`;
-  links.forEach(lk => {
-    const from = positions[lk.from], to = positions[lk.to];
-    if (!from || !to) return;
-    const x1 = from.x + shift + NW / 2, y1 = from.y + NH + pad;
-    const x2 = to.x + shift + NW / 2, y2 = to.y + pad;
-    const path = Math.abs(x1 - x2) < 5 ? `M ${x1} ${y1} L ${x2} ${y2}` : `M ${x1} ${y1} C ${x1} ${y1 + (y2-y1)*0.4}, ${x2} ${y2 - (y2-y1)*0.4}, ${x2} ${y2}`;
-    const p = document.createElementNS(svgNS, 'path');
-    p.setAttribute('d', path);
-    p.setAttribute('stroke', lk.kind === 'choice' ? '#ffd96f' : '#7fb0d8');
-    p.setAttribute('stroke-width', '2'); p.setAttribute('fill', 'none');
-    p.setAttribute('marker-end', `url(#${lk.kind === 'choice' ? 'fa-choice' : 'fa-jump'})`);
-    svg.appendChild(p);
+  entries.forEach(e => {
+    const p = pos[e.label], off = branchFlowPos[e.label] || { dx:0, dy:0 };
+    if (p.x + off.dx < minX) minX = p.x + off.dx;
+    if (p.x + off.dx + G.NW > maxX) maxX = p.x + off.dx + G.NW;
+    if (p.y + off.dy + e.colH > maxY) maxY = p.y + off.dy + e.colH;
   });
-  wrap.appendChild(svg);
-  branches.forEach(b => {
-    const p = positions[b.label]; if (!p) return;
-    const node = document.createElement('div');
-    node.className = 'flowNode' + (b.isEntry ? ' entry' : '');
-    node.style.left = (p.x + shift) + 'px'; node.style.top = (p.y + pad) + 'px';
-    node.style.width = NW + 'px'; node.style.height = NH + 'px';
-    node.style.background = '#000'; node.style.border = '2px solid ' + (b.isEntry ? '#7dfba0' : '#6a6a90');
-    node.style.position = 'absolute'; node.style.padding = '8px 28px 8px 10px'; node.style.cursor = 'pointer';
-    node.style.overflow = 'visible'; node.style.display = 'flex'; node.style.flexDirection = 'column'; node.style.justifyContent = 'center';
-    const delHtml2 = b.isEntry ? '' : `<button class="flowNodeDel" style="position:absolute;right:3px;top:3px;width:20px;height:20px;border:2px solid #ff6b6b;background:#0a0a16;color:#ff8a8a;font-size:12px;padding:0;cursor:pointer;line-height:1;">✕</button>`;
-    node.innerHTML = `<div style="font-size:11.5px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:2px">${b.isEntry ? '（开头）' : escapeHtml(b.label)}</div><div style="font-size:10px;color:#7a7a8c">${b.contentLines.filter(l => l.trim()).length} 行</div><button class="flowNodeAdd" style="position:absolute;right:3px;bottom:3px;width:20px;height:20px;border:2px solid #5b8cff;background:#0a0a16;color:#8fb0ff;font-size:13px;padding:0;cursor:pointer;line-height:1;">＋</button><button class="flowLink" title="按住拖到另一个节点 → 建立跳转">⇢</button>${delHtml2}`;
-    node.dataset.label = b.label;
-    const linkHandle = node.querySelector('.flowLink');
-    if (linkHandle) linkHandle.addEventListener('pointerdown', e => startFlowLink(e, b.label, node));
-    node.addEventListener('pointerdown', e => { if (e.target.closest('.flowNodeAdd') || e.target.closest('.flowNodeDel')) return; startFlowNodeDrag(e, b.label, node, shift, pad, () => openBranchEditor(b)); });
-    node.querySelector('.flowNodeAdd').onclick = e => { e.stopPropagation(); createJumpBranchFrom(b); };
-    const flowDel = node.querySelector('.flowNodeDel');
-    if (flowDel) flowDel.onclick = e => { e.stopPropagation(); confirmDeleteBranch(b.label); };
-    wrap.appendChild(node);
+  const missingList = [];
+  entries.forEach(e => e.edges.forEach(ed => { if (!known[ed.to]) missingList.push({ from:e.label, to:ed.to }); }));
+  const shift = G.PAD - minX, pad = G.PAD;
+  const extraW = missingList.length ? 170 : 0;
+  const totalW = Math.max(maxX - minX + G.PAD * 2 + extraW, 260);
+  const totalH = Math.max(maxY + G.PAD * 2, 260);
+  const inner = document.createElement('div');
+  inner.style.cssText = 'position:absolute;left:0;top:0;transform-origin:0 0';
+
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('width', totalW); svg.setAttribute('height', totalH);
+  svg.style.cssText = 'position:absolute;left:0;top:0;pointer-events:none;z-index:0';
+  inner.appendChild(svg);
+
+  const els = {}, ghosts = {};
+  const ctx = flowCtx = { svg, els, ghosts, entries, railX: maxX + shift + 26 };
+
+  entries.forEach(e => {
+    const p = pos[e.label], off = branchFlowPos[e.label] || { dx:0, dy:0 };
+    const block = document.createElement('div');
+    block.className = 'flowBlock';
+    block.style.left = (p.x + shift + (off.dx || 0)) + 'px';
+    block.style.top = (p.y + pad + (off.dy || 0)) + 'px';
+    block.style.height = e.colH + 'px';
+    block.dataset.label = e.label;
+    block.dataset.baseLeft = (p.x + shift);
+    block.dataset.baseTop = (p.y + pad);
+
+    const proc = document.createElement('div');
+    proc.className = 'flowNode proc' + (e.isEntry ? ' entry' : '');
+    proc.style.cssText = 'position:absolute;left:0;top:0;width:' + G.NW + 'px;height:' + G.PH + 'px';
+    proc.innerHTML =
+      '<div class="flowTitle">' + escapeHtml(e.isEntry ? '▶ 开始' : e.label) + '</div>' +
+      '<div class="flowBrief">' + escapeHtml(e.brief) + '</div>' +
+      '<div class="flowMeta">' + e.lines + ' 行' + (e.isEntry ? '' : '') + '</div>';
+    const mkBtn = (txt, title, css, handler) => {
+      const b = document.createElement('button');
+      b.textContent = txt; b.title = title;
+      b.style.cssText = 'position:absolute;padding:0;cursor:pointer;line-height:1;font-size:11px;background:#0a0a16;border:2px solid #5b8cff;color:#8fb0ff;' + css;
+      b.addEventListener('pointerdown', ev => ev.stopPropagation());
+      b.onclick = ev => { ev.stopPropagation(); handler(ev); };
+      proc.appendChild(b);
+      return b;
+    };
+    mkBtn('＋', '在这个分支后新建一个跳转分支', 'right:3px;bottom:3px;width:20px;height:20px;font-size:13px;', () => createJumpBranchFrom(e.branch));
+    mkBtn('✎', '给这个节点写标注', 'right:3px;top:26px;width:20px;height:18px;border-color:#ffd96f;color:#ffd96f;font-size:10px;', () => {
+      askText('标注「' + (e.isEntry ? '开始' : e.label) + '」', (settings.flowNotes || {})[e.label] || '', v => {
+        settings.flowNotes = settings.flowNotes || {};
+        const val = (v || '').trim();
+        if (val) settings.flowNotes[e.label] = val; else delete settings.flowNotes[e.label];
+        saveSettings(); renderBranchFlow();
+      });
+    });
+    if (!e.isEntry){
+      mkBtn('✕', '删除这个分支', 'right:3px;top:3px;width:20px;height:20px;border-color:#ff6b6b;color:#ff8a8a;font-size:12px;', () => confirmDeleteBranch(e.label));
+    }
+    const linkHandle = document.createElement('button');
+    linkHandle.className = 'flowLink';
+    linkHandle.textContent = '⇢';
+    linkHandle.title = '按住拖到另一个节点 → 建立跳转';
+    linkHandle.addEventListener('pointerdown', ev => startFlowLink(ev, e.label, proc));
+    proc.appendChild(linkHandle);
+    block.appendChild(proc);
+
+    e.rects.forEach(r => {
+      if (r.kind === 'decision'){
+        const dia = document.createElement('div');
+        dia.className = 'flowDia';
+        dia.style.cssText = 'position:absolute;left:' + r.x + 'px;top:' + r.y + 'px;width:' + r.w + 'px;height:' + r.h + 'px';
+        dia.innerHTML = '<i>IF 判定</i>';
+        dia.title = e.edges.filter(x => x.kind === 'cond').length + ' 条条件分支';
+        dia.onclick = ev => { ev.stopPropagation(); openBranchEditor(e.branch); };
+        block.appendChild(dia);
+      } else if (r.kind === 'choice'){
+        const hex = document.createElement('div');
+        hex.className = 'flowChoice';
+        hex.style.cssText = 'position:absolute;left:' + r.x + 'px;top:' + r.y + 'px;width:' + r.w + 'px;height:' + r.h + 'px';
+        hex.innerHTML = '<i>选项 ×' + e.edges.filter(x => x.kind === 'choice').length + '</i>';
+        hex.onclick = ev => { ev.stopPropagation(); openBranchEditor(e.branch); };
+        block.appendChild(hex);
+      } else if (r.kind === 'end'){
+        const pill = document.createElement('div');
+        pill.className = 'flowEndPill';
+        pill.style.cssText = 'position:absolute;left:' + r.x + 'px;top:' + r.y + 'px;width:' + r.w + 'px;height:' + r.h + 'px;line-height:19px';
+        if (e.hasEnd){ pill.textContent = '结束（@end）'; }
+        else {
+          pill.textContent = '⚠ 没有出口';
+          const paper = document.body.classList.contains('theme-paper');
+          pill.style.borderColor = '#c9a227';
+          pill.style.background = paper ? '#fdf6e0' : '#1a1608';
+          pill.style.color = paper ? '#8a6a10' : '#ffcf6f';
+          pill.title = '这个分支没有 @jump / 选项 / @end，剧本跑到这里会停住';
+        }
+        block.appendChild(pill);
+      }
+    });
+
+    const noteTxt = (settings.flowNotes || {})[e.label];
+    if (noteTxt){
+      const note = document.createElement('div');
+      note.className = 'flowNote';
+      note.style.top = (e.colH + 6) + 'px';
+      note.textContent = '📌 ' + noteTxt;
+      note.title = '点击修改标注';
+      note.onclick = ev => {
+        ev.stopPropagation();
+        askText('标注「' + (e.isEntry ? '开始' : e.label) + '」', noteTxt, v => {
+          settings.flowNotes = settings.flowNotes || {};
+          const val = (v || '').trim();
+          if (val) settings.flowNotes[e.label] = val; else delete settings.flowNotes[e.label];
+          saveSettings(); renderBranchFlow();
+        });
+      };
+      block.appendChild(note);
+    }
+
+    block.addEventListener('pointerdown', ev => {
+      if (ev.target.closest('button')) return;
+      startFlowNodeDrag(ev, e.label, block, () => openBranchEditor(e.branch));
+    });
+
+    inner.appendChild(block);
+    els[e.label] = block;
   });
+
+  let ghostIdx = 0;
+  entries.forEach(e => e.edges.forEach(ed => {
+    if (known[ed.to]) return;
+    const key = e.label + '|' + ed.to;
+    if (ghosts[key]) return;
+    const ghost = document.createElement('div');
+    ghost.className = 'flowGhost';
+    ghost.textContent = '⚠ ' + ed.to + '（不存在）';
+    ghost.style.left = (totalW - 108) + 'px';
+    ghost.style.top = (22 + ghostIdx * 32) + 'px';
+    ghost.title = '剧本里没有 ::' + ed.to + ' 这个标签，点上方节点可以补上';
+    inner.appendChild(ghost);
+    ghosts[key] = ghost;
+    ghostIdx++;
+  }));
+
+  const avail = (wrap.parentElement ? wrap.parentElement.clientWidth : totalW) - 6;
+  let k = 1;
+  if (flowZoomMode === 'fit' && avail > 120) k = Math.min(1, avail / totalW);
+  if (k < 0.6) k = 0.6;
+  inner.style.width = totalW + 'px';
+  inner.style.height = totalH + 'px';
+  inner.style.transform = 'scale(' + k + ')';
+  wrap.style.width = Math.round(totalW * k) + 'px';
+  wrap.style.height = Math.round(totalH * k) + 'px';
+  wrap.appendChild(inner);
+  ctx.scale = k;
+  drawFlowEdges();
 }
+
 /* v5.8 拖拽连线：按住节点左侧⇢拖到另一个节点即建立 @jump */
 let linkDrag = null;
 function addJumpLink(fromLabel, toLabel){
@@ -6266,38 +6899,46 @@ function onFlowLinkEnd(e){
 }
 
 let flowDrag = null;
-function startFlowNodeDrag(e, label, node, shift, pad, openFn){
+function startFlowNodeDrag(e, label, el, openFn){
   if (e.button !== 0) return;
   e.preventDefault(); e.stopPropagation();
-  const startX = e.clientX, startY = e.clientY;
-  const origLeft = parseFloat(node.style.left) || 0, origTop = parseFloat(node.style.top) || 0;
-  flowDrag = { label, node, startX, startY, origLeft, origTop, shift, pad, moved: false, openFn };
+  flowDrag = {
+    label, el,
+    startX: e.clientX, startY: e.clientY,
+    origLeft: parseFloat(el.style.left) || 0,
+    origTop: parseFloat(el.style.top) || 0,
+    moved: false, openFn
+  };
   document.addEventListener('pointermove', onFlowNodeDrag);
   document.addEventListener('pointerup', onFlowNodeDragEnd);
   document.addEventListener('pointercancel', onFlowNodeDragCancel);
 }
 function onFlowNodeDrag(e){
   if (!flowDrag) return;
-  const dx = e.clientX - flowDrag.startX, dy = e.clientY - flowDrag.startY;
+  const k = (flowCtx && flowCtx.scale) ? flowCtx.scale : 1;
+  const dx = (e.clientX - flowDrag.startX) / k, dy = (e.clientY - flowDrag.startY) / k;
   if (!flowDrag.moved && (Math.abs(dx) + Math.abs(dy)) < 4) return;
   flowDrag.moved = true;
-  flowDrag.node.style.left = (flowDrag.origLeft + dx) + 'px';
-  flowDrag.node.style.top = (flowDrag.origTop + dy) + 'px';
+  flowDrag.el.style.left = (flowDrag.origLeft + dx) + 'px';
+  flowDrag.el.style.top = (flowDrag.origTop + dy) + 'px';
+  drawFlowEdges();
 }
-function onFlowNodeDragEnd(e){
+function onFlowNodeDragEnd(){
   if (!flowDrag) return;
-  const wasMoved = flowDrag.moved;
-  const openFn = flowDrag.openFn;
-  const dx = e.clientX - flowDrag.startX, dy = e.clientY - flowDrag.startY;
-  if (wasMoved){
-    branchFlowPos[flowDrag.label] = { x: (flowDrag.origLeft + dx) - flowDrag.shift, y: (flowDrag.origTop + dy) - flowDrag.pad };
-  }
+  const d = flowDrag;
   flowDrag = null;
   document.removeEventListener('pointermove', onFlowNodeDrag);
   document.removeEventListener('pointerup', onFlowNodeDragEnd);
   document.removeEventListener('pointercancel', onFlowNodeDragCancel);
-  if (wasMoved) renderBranchFlow();
-  else if (openFn) openFn();
+  if (d.moved){
+    branchFlowPos[d.label] = {
+      dx: (parseFloat(d.el.style.left) || 0) - (parseFloat(d.el.dataset.baseLeft) || 0),
+      dy: (parseFloat(d.el.style.top) || 0) - (parseFloat(d.el.dataset.baseTop) || 0)
+    };
+    settings.flowPos = Object.assign({}, branchFlowPos);
+    saveSettings();
+    renderBranchFlow();
+  } else if (d.openFn) d.openFn();
 }
 function onFlowNodeDragCancel(){
   if (!flowDrag) return;
@@ -6403,6 +7044,8 @@ const FEATURES = [
   { name:'名字框独立', desc:'与对话框分离' },
   { name:'文字颜色/抖动/摇晃/变大', desc:'均支持时长' },
   { name:'快捷插入', desc:'12 种常用语法' },
+  { name:'流程图程序框图', desc:'开始 ↓ 方框 ↓ 菱形判定 / 六边形选项，可标注' },
+  { name:'批量导入先确认', desc:'缩略图 + 文件名 + 可改的名字，说话差分自动拼' },
   { name:'插入台词/立绘左预览', desc:'左侧 miniStage + 拖拽' },
   { name:'一键清除全选', desc:'勾选全选 + 直接确认键' },
   { name:'导出选择', desc:'剧本 / 角色 / 场景 / 物品 / 音频 / 设置' },
@@ -6418,7 +7061,16 @@ safeBind('#featureToggle', () => {
 });
 
 const CHANGELOG = [
-  { version: 'v6.2', date: '2026-11-12', title: '多条件判定 + 限时选项 + 分支导入 (ﾉ≧∀≦)ﾉ', current: true, items: [
+  { version: 'v6.3', date: '2026-11-12', title: '流程图改成程序框图 + 批量导入先看清楚 ᕕ( ᐛ )ᕗ', current: true, items: [
+    { tag: 'add', text: '🗂 流程图重做：从「开始」一路向下，剧情是方框、条件判定是菱形、选项是六边形，跟画程序框图一样' },
+    { tag: 'add', text: '🔀 判定菱形从左右两边分叉，边上直接写着条件（@check / @when / @has / @visited 都会显示）' },
+    { tag: 'add', text: '📌 每个节点都能写标注（节点右上角 ✎），标注会跟着工程一起存下来' },
+    { tag: 'add', text: '⚠ 没有出口的分支会亮黄提醒；剧本里指向不存在的标签会单独列在画布右侧，一眼看出漏写了什么' },
+    { tag: 'add', text: '⤢ 流程图新增「适应宽度 / 1:1」，窄侧栏也能看全；拖过的节点位置会自动记住' },
+    { tag: 'add', text: '⚡ 角色 / 表情批量导入改成先确认：每张图带缩略图 + 文件名 + 可改的名字，看清楚了再导' },
+    { tag: 'add', text: '🧹 批量导入自动去掉公共前缀（sakura_微笑 → 微笑）；带 _talk / _说话 的自动拼成上一个表情的说话差分，重名会提前标出来' },
+  ]},
+  { version: 'v6.2', date: '2026-11-12', title: '多条件判定 + 限时选项 + 分支导入 (ﾉ≧∀≦)ﾉ', items: [
     { tag: 'add', text: '🏁 结局支持多条件：多个条件可「全部满足(AND)」或「满足任一(OR)」，并支持「选过某个选项」作为条件' },
     { tag: 'add', text: '🎯 新增指令 @when：item:钥匙 and chose:去图书馆 -> 标签，任意条件组合跳转' },
     { tag: 'add', text: '👁 热点 / 互动项可加额外条件：拥有道具、选过选项、变量比较都行，不满足就不显示' },
