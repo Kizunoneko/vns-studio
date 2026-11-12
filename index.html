@@ -726,6 +726,10 @@ body.theme-paper .assetSearch{background:#fffefb;border-color:#bfb196;color:#2f2
 .flowEndPill{margin:0 auto;background:#101a12;border:2px dashed #3f7a55;color:#7dfba0;font-size:10px;text-align:center;line-height:19px;height:22px;border-radius:11px;cursor:pointer}
 .flowGhost{position:absolute;border:2px dashed #ff6b6b;color:#ff8a8a;background:#140a0a;font-size:10px;padding:4px 8px;max-width:150px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .flowNote{position:absolute;left:0;font-size:10px;color:#ffe9a8;background:#2a2410;border-left:2px solid #ffd96f;padding:2px 6px;max-width:172px;white-space:pre-wrap;word-break:break-word;cursor:pointer;line-height:1.45}
+.flowZoomPct{font-size:11px;color:#7dfba0;min-width:40px;text-align:center;flex:none}
+body.theme-paper .flowZoomPct{color:#2f7a4a}
+.branchFlowWrap.flow-panning{cursor:grabbing}
+.branchFlowWrap.flow-panning .flowBlock{cursor:grabbing}
 .flowLegend{display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:10px;color:#6f6f85}
 .flowLegend span{display:flex;align-items:center;gap:4px}
 .lgShape{width:12px;height:9px;display:inline-block;border:2px solid #6a6a90}
@@ -1428,6 +1432,8 @@ body.theme-paper .aboutUpdated{color:#8a7c62;border-left-color:#d5c9b0}
       </div>
       <div class="flowToolbar" id="flowToolbar" style="display:none">
         <button id="btnNewFlowBranch">➕ 新建分支</button>
+        <button id="btnFlowWindow" style="border-color:#7dfba0;color:#aef5c4">⛶ 独立窗口</button>
+        <span class="flowZoomPct" id="flowZoomPct" title="Ctrl + 滚轮 可直接缩放">100%</span>
         <button id="btnFlowFit">⤢ 适应宽度</button>
         <button id="btnFlowFull">1:1</button>
         <button id="btnResetFlowPos">↺ 重置布局</button>
@@ -1487,6 +1493,7 @@ body.theme-paper .aboutUpdated{color:#8a7c62;border-left-color:#d5c9b0}
         <h3>🗺 流程视图（程序框图）</h3>
 <p>「分支」面板切到 <b>「🗺 流程视图」</b>：从 <b>▶ 开始</b> 一路往下，剧情是方框、条件判定是菱形（左右分叉，边上写着条件）、选项是六边形，没出口的分支会亮黄提醒。</p>
 <p>拖动节点摆位置（会记住）；节点右上角 <b>✎</b> 写标注；右下角 <b>＋</b> 新建跳转；左侧 <b>⇢</b> 拖到另一个节点就直接连线。</p>
+<p>想看得更大：点 <b>⛶ 独立窗口</b> 单独开一个窗口放流程图，里面按住拖动平移、滚轮/双指缩放。主窗口里也可以用 <b>Ctrl + 滚轮</b> 缩放。</p>
 <h3>⚡ 批量导入立绘</h3>
 <p>「＋ 角色」→ <b>⚡ 批量</b> 或表情弹窗里的 <b>⚡ 批量</b>：选完图会先列出<b>缩略图 + 文件名 + 要用的名字</b>，可以逐张改。</p>
 <p>带 <b>_talk</b> / <b>_说话</b> 的会自动拼成上一个表情的说话差分；公共前缀（sakura_微笑 → 微笑）自动去掉；重名会提前标出来。</p>
@@ -1591,7 +1598,7 @@ body.theme-paper .aboutUpdated{color:#8a7c62;border-left-color:#d5c9b0}
       <div class="aboutTitle" id="aboutTitle">✦ 关于作者</div>
       <div class="aboutRow"><span>作者</span><b>@Teasssss</b></div>
       <div class="aboutRow"><span>辅助制作工具</span><b>Deepseek</b></div>
-      <div class="aboutRow"><span>版本</span><b class="aboutVer" id="aboutVer" title="多戳几下看看……">v6.3</b><span class="aboutUpdated" id="aboutUpdated">2026-11-12 更新</span></div>
+      <div class="aboutRow"><span>版本</span><b class="aboutVer" id="aboutVer" title="多戳几下看看……">v6.4</b><span class="aboutUpdated" id="aboutUpdated">2026-11-12 更新</span></div>
       <div class="aboutQuote">“每一个像素，都是你亲手写下的世界。”<br>—— 把故事讲出来的人，永远是作者。</div>
       <div class="aboutBtns">
         <button id="eggCat">🐱 摸一下</button>
@@ -6331,6 +6338,7 @@ safeBind('#btnNewFlowBranch', () => {
     appendNewBranch(label); renderBranches();
   });
 });
+safeBind('#btnFlowWindow', openFlowViewer);
 safeBind('#btnFlowFit', () => { flowZoomMode = 'fit'; renderBranchFlow(); });
 safeBind('#btnFlowFull', () => { flowZoomMode = 'full'; renderBranchFlow(); });
 safeBind('#btnResetFlowPos', () => {
@@ -6372,6 +6380,316 @@ function renderBranchList(){
     wrap.appendChild(card);
   });
 }
+/* ===== v6.4 流程图浏览：独立窗口 + 拖动平移 + 滚轮/双指缩放 ===== */
+let flowViewer = null;
+let flowZoomVal = 1;
+
+function flowViewerCss(){
+  return [
+    'html,body{margin:0;padding:0;height:100%;overflow:hidden}',
+    'body{display:flex;flex-direction:column}',
+    '.vnsVBar{flex:none;display:flex;align-items:center;gap:8px;padding:8px 12px;background:#0a0a12;border-bottom:2px solid #33333f;font-size:12px;color:#c8c8da;flex-wrap:wrap}',
+    'body.theme-paper .vnsVBar{background:#e8dfcc;border-bottom-color:#d5c9b0;color:#4a4236}',
+    '.vnsVTitle{font-size:13px;color:#fff;flex:none;white-space:nowrap}',
+    'body.theme-paper .vnsVTitle{color:#2f2a21}',
+    '.vnsVTips{font-size:11px;color:#7a7a8c;flex:1;min-width:120px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
+    'body.theme-paper .vnsVTips{color:#8a8070}',
+    '.vnsVBtn{font-family:inherit;font-size:11.5px;padding:4px 10px;border:2px solid #5b8cff;background:#101a2a;color:#cfe0ff;cursor:pointer}',
+    '.vnsVBtn:hover{background:#1a2a44}',
+    'body.theme-paper .vnsVBtn{background:#f7f1e3;border-color:#9a8a6a;color:#4a4236}',
+    '.vnsVBtn.close{border-color:#ff6b6b;color:#ff8a8a;margin-left:auto}',
+    '.vnsVPct{font-size:11.5px;color:#7dfba0;min-width:44px;text-align:center}',
+    'body.theme-paper .vnsVPct{color:#2f7a4a}',
+    '.vnsVP{position:relative;flex:1;overflow:hidden;touch-action:none;cursor:grab;background-color:#08080c;background-image:linear-gradient(#12121a 1px,transparent 1px),linear-gradient(90deg,#12121a 1px,transparent 1px);background-size:20px 20px}',
+    'body.theme-paper .vnsVP{background-color:#f1e9da;background-image:linear-gradient(#e0d5bf 1px,transparent 1px),linear-gradient(90deg,#e0d5bf 1px,transparent 1px)}',
+    '.vnsVP.grabbing{cursor:grabbing}',
+    '.vnsVC{position:absolute;left:0;top:0;transform-origin:0 0;will-change:transform}',
+    '.vnsVC button{display:none!important}',
+    '.vnsVOverlay{position:fixed;inset:0;z-index:9999;display:flex;flex-direction:column;background:#08080c}'
+  ].join('\n');
+}
+
+function makeViewerControls(vp, cv, onChange){
+  let k = 1, tx = 0, ty = 0;
+  const pts = new Map();
+  let panning = null, pinch = null;
+  const cvW = () => parseFloat(cv.style.width) || cv.offsetWidth || 600;
+  const cvH = () => parseFloat(cv.style.height) || cv.offsetHeight || 600;
+  function paint(){
+    cv.style.transform = 'translate(' + tx + 'px,' + ty + 'px) scale(' + k + ')';
+    if (onChange) onChange(k);
+  }
+  function fit(){
+    const vw = vp.clientWidth || 800, vh = vp.clientHeight || 600;
+    const w = cvW(), h = cvH();
+    k = Math.min(vw / w, vh / h);
+    k = Math.max(0.08, Math.min(1.6, k));
+    tx = (vw - w * k) / 2; ty = (vh - h * k) / 2;
+    paint();
+  }
+  function zoomAt(cx, cy, factor){
+    const r = vp.getBoundingClientRect();
+    const px = cx - r.left, py = cy - r.top;
+    const k2 = Math.max(0.1, Math.min(4, k * factor));
+    if (k2 === k) return;
+    tx = px - (px - tx) * (k2 / k);
+    ty = py - (py - ty) * (k2 / k);
+    k = k2; paint();
+  }
+  function zoomBy(factor){
+    const r = vp.getBoundingClientRect();
+    zoomAt(r.left + r.width / 2, r.top + r.height / 2, factor);
+  }
+  function setZoom(nk){
+    const r = vp.getBoundingClientRect();
+    zoomAt(r.left + r.width / 2, r.top + r.height / 2, nk / k);
+  }
+  function onWheel(e){
+    e.preventDefault();
+    zoomAt(e.clientX, e.clientY, Math.exp(-e.deltaY * 0.0016));
+  }
+  vp.addEventListener('wheel', onWheel, { passive:false });
+  vp.addEventListener('pointerdown', e => {
+    if (e.button !== 0 && e.pointerType === 'mouse') return;
+    try { vp.setPointerCapture(e.pointerId); } catch(err){}
+    pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    vp.classList.add('grabbing');
+    if (pts.size === 1){
+      panning = { x: e.clientX, y: e.clientY, tx, ty };
+      pinch = null;
+    } else if (pts.size === 2){
+      panning = null;
+      const a = [...pts.values()];
+      pinch = { dist: Math.hypot(a[0].x - a[1].x, a[0].y - a[1].y) || 1, k, tx, ty };
+    }
+  });
+  vp.addEventListener('pointermove', e => {
+    if (!pts.has(e.pointerId)) return;
+    pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (pinch && pts.size >= 2){
+      const a = [...pts.values()];
+      const dist = Math.hypot(a[0].x - a[1].x, a[0].y - a[1].y) || 1;
+      const r = vp.getBoundingClientRect();
+      const mx = (a[0].x + a[1].x) / 2 - r.left;
+      const my = (a[0].y + a[1].y) / 2 - r.top;
+      const k2 = Math.max(0.1, Math.min(4, pinch.k * dist / pinch.dist));
+      tx = mx - (mx - pinch.tx) * (k2 / pinch.k);
+      ty = my - (my - pinch.ty) * (k2 / pinch.k);
+      k = k2; paint();
+      return;
+    }
+    if (panning){
+      tx = panning.tx + (e.clientX - panning.x);
+      ty = panning.ty + (e.clientY - panning.y);
+      paint();
+    }
+  });
+  function up(e){
+    pts.delete(e.pointerId);
+    if (pts.size < 2) pinch = null;
+    if (!pts.size){ panning = null; vp.classList.remove('grabbing'); }
+  }
+  vp.addEventListener('pointerup', up);
+  vp.addEventListener('pointercancel', up);
+  vp.addEventListener('pointerleave', e => { if (e.pointerType === 'mouse' && !panning) vp.classList.remove('grabbing'); });
+  vp.addEventListener('dblclick', () => fit());
+  return { fit, zoomBy, setZoom, paint, get k(){ return k; } };
+}
+
+function buildFlowSnapshot(){
+  const wrap = $('#branchFlow');
+  if (!wrap) return null;
+  const inner = wrap.firstElementChild;
+  if (!inner) return null;
+  const w = (flowCtx && flowCtx.baseW) || parseFloat(inner.style.width) || inner.offsetWidth;
+  const h = (flowCtx && flowCtx.baseH) || parseFloat(inner.style.height) || inner.offsetHeight;
+  if (!w || !h) return null;
+  return { html: inner.innerHTML, w: Math.ceil(w), h: Math.ceil(h) };
+}
+
+function flowViewerApply(snap){
+  if (!flowViewer || !snap) return;
+  const cv = flowViewer.cv;
+  if (!cv) return;
+  cv.innerHTML = snap.html;
+  cv.style.width = snap.w + 'px';
+  cv.style.height = snap.h + 'px';
+}
+
+function flowSyncViewer(){
+  if (!flowViewer) return;
+  if (flowViewer.win && flowViewer.win.closed){ flowViewer = null; return; }
+  const snap = buildFlowSnapshot();
+  if (snap) flowViewerApply(snap);
+}
+
+function openFlowViewer(){
+  const wrap = $('#branchFlow');
+  if (!wrap){ showToast('先切到分支面板', 'warn'); return; }
+  if (branchViewMode !== 'flow'){ showToast('先切到「🗺 流程视图」', 'warn'); return; }
+  renderBranchFlow();
+  const snap = buildFlowSnapshot();
+  if (!snap){ showToast('还没有分支，先写点剧本吧', 'warn'); return; }
+  if (flowViewer){
+    if (flowViewer.win && flowViewer.win.closed){ flowViewer = null; }
+    else {
+      flowViewerApply(snap);
+      if (flowViewer.win) { try { flowViewer.win.focus(); } catch(e){} }
+      return;
+    }
+  }
+  let win = null;
+  try { win = window.open('', 'vns_flow_viewer', 'width=1200,height=840,menubar=no,toolbar=no,location=no,status=no'); } catch(e){ win = null; }
+  if (!win){ buildFlowOverlay(snap); showToast('浏览器拦住了弹窗，已用全屏浮层打开', 'warn', 2600); return; }
+  const doc = win.document;
+  try {
+    doc.open();
+    doc.write('<!DOCTYPE html><ht' + 'ml><he' + 'ad><meta charset="utf-8"></he' + 'ad><bo' + 'dy></bo' + 'dy></ht' + 'ml>');
+    doc.close();
+  } catch(e){ win = null; }
+  if (!win || !doc.body){ buildFlowOverlay(snap); return; }
+  doc.title = '🗺 流程图 · VNS Studio';
+  const st = doc.createElement('style');
+  const srcStyle = document.querySelector('style');
+  st.textContent = (srcStyle ? srcStyle.textContent : '') + '\n' + flowViewerCss();
+  doc.head.appendChild(st);
+  doc.body.className = document.body.className;
+  const parts = buildViewerDom(doc, snap, false);
+  doc.body.appendChild(parts.bar);
+  doc.body.appendChild(parts.vp);
+  flowViewer = { win, cv: parts.cv, ctl: parts.ctl };
+  try { win.focus(); } catch(e){}
+}
+
+function buildFlowOverlay(snap){
+  closeFlowOverlay();
+  const box = document.createElement('div');
+  box.className = 'vnsVOverlay';
+  box.id = 'flowOverlay';
+  const st = document.createElement('style');
+  st.textContent = flowViewerCss();
+  box.appendChild(st);
+  const parts = buildViewerDom(document, snap, true);
+  box.appendChild(parts.bar);
+  box.appendChild(parts.vp);
+  document.body.appendChild(box);
+  flowViewer = { win: null, cv: parts.cv, ctl: parts.ctl, overlay: box };
+}
+
+function closeFlowOverlay(){
+  const old = document.getElementById('flowOverlay');
+  if (old) old.remove();
+  if (flowViewer && flowViewer.overlay === old) flowViewer = null;
+}
+
+function buildViewerDom(doc, snap, showClose){
+  const bar = doc.createElement('div');
+  bar.className = 'vnsVBar';
+  const ttl = doc.createElement('div');
+  ttl.className = 'vnsVTitle';
+  ttl.textContent = '🗺 流程图';
+  const tips = doc.createElement('div');
+  tips.className = 'vnsVTips';
+  tips.textContent = '滚轮 / 双指缩放 · 按住拖动平移 · 双击适应窗口';
+  const pct = doc.createElement('span');
+  pct.className = 'vnsVPct';
+  pct.textContent = '100%';
+  const mk = (txt, title) => {
+    const b = doc.createElement('button');
+    b.className = 'vnsVBtn';
+    b.textContent = txt;
+    if (title) b.title = title;
+    return b;
+  };
+  const bOut = mk('－', '缩小');
+  const bIn = mk('＋', '放大');
+  const bFit = mk('适应窗口');
+  const bOne = mk('1:1');
+  bar.appendChild(ttl);
+  bar.appendChild(tips);
+  bar.appendChild(bOut);
+  bar.appendChild(pct);
+  bar.appendChild(bIn);
+  bar.appendChild(bFit);
+  bar.appendChild(bOne);
+  if (showClose){
+    const bClose = mk('✕ 关闭', '关闭浏览窗口');
+    bClose.classList.add('close');
+    bClose.onclick = () => closeFlowOverlay();
+    bar.appendChild(bClose);
+  }
+  const vp = doc.createElement('div');
+  vp.className = 'vnsVP';
+  const cv = doc.createElement('div');
+  cv.className = 'vnsVC';
+  cv.style.width = snap.w + 'px';
+  cv.style.height = snap.h + 'px';
+  cv.innerHTML = snap.html;
+  vp.appendChild(cv);
+  const ctl = makeViewerControls(vp, cv, k => { pct.textContent = Math.round(k * 100) + '%'; });
+  bIn.onclick = () => ctl.zoomBy(1.25);
+  bOut.onclick = () => ctl.zoomBy(0.8);
+  bFit.onclick = () => ctl.fit();
+  bOne.onclick = () => ctl.setZoom(1);
+  let touched = false;
+  vp.addEventListener('pointerdown', () => { touched = true; }, true);
+  vp.addEventListener('wheel', () => { touched = true; }, { passive:true });
+  const tryFit = () => { if (!touched){ try { ctl.fit(); } catch(e){} } };
+  requestAnimationFrame(tryFit);
+  setTimeout(tryFit, 120);
+  setTimeout(tryFit, 520);
+  return { bar, vp, cv, ctl };
+}
+
+/* 主窗口缩放（Ctrl/⌘ + 滚轮 或 触控板双指） */
+function applyFlowZoom(k, fromRender){
+  if (!flowCtx) return;
+  const wrap = $('#branchFlow');
+  const inner = wrap ? wrap.firstElementChild : null;
+  if (!inner) return;
+  const W = flowCtx.baseW || parseFloat(inner.style.width) || 600;
+  const H = flowCtx.baseH || parseFloat(inner.style.height) || 600;
+  k = Math.max(0.2, Math.min(3, k));
+  inner.style.transform = 'scale(' + k + ')';
+  wrap.style.width = Math.round(W * k) + 'px';
+  wrap.style.height = Math.round(H * k) + 'px';
+  flowCtx.scale = k;
+  flowZoomVal = k;
+  if (!fromRender) flowZoomMode = 'manual';
+  const pct = document.getElementById('flowZoomPct');
+  if (pct) pct.textContent = Math.round(k * 100) + '%';
+}
+
+(function attachFlowPanZoom(){
+  const wrapEl = document.getElementById('branchFlowWrap');
+  if (!wrapEl) return;
+  wrapEl.addEventListener('wheel', e => {
+    if (!(e.ctrlKey || e.metaKey)) return;
+    if (branchViewMode !== 'flow' || !flowCtx) return;
+    e.preventDefault();
+    applyFlowZoom(flowCtx.scale * Math.exp(-e.deltaY * 0.0018));
+  }, { passive:false });
+  let pan = null;
+  wrapEl.addEventListener('pointerdown', e => {
+    if (branchViewMode !== 'flow') return;
+    if (e.button !== 0 && e.pointerType === 'mouse') return;
+    if (e.target.closest('.flowBlock') || e.target.closest('.flowGhost')) return;
+    pan = { x: e.clientX, y: e.clientY, sl: wrapEl.scrollLeft, st: wrapEl.scrollTop };
+    wrapEl.classList.add('flow-panning');
+  });
+  window.addEventListener('pointermove', e => {
+    if (!pan) return;
+    wrapEl.scrollLeft = pan.sl - (e.clientX - pan.x);
+    wrapEl.scrollTop = pan.st - (e.clientY - pan.y);
+  });
+  window.addEventListener('pointerup', () => {
+    if (!pan) return;
+    pan = null;
+    wrapEl.classList.remove('flow-panning');
+  });
+})();
+
+
 /* ===== v6.3 流程图：程序框图式（开始 → 剧情块 → 菱形判定 / 六边形选项） ===== */
 const FLOW_G = { NW:172, PH:66, DW:128, DH:62, HW:156, HH:46, STEP:18, GX:74, GY:86, PAD:40 };
 let flowCtx = null;
@@ -6554,7 +6872,7 @@ function drawFlowEdges(){
             drawFlowLabel(svg, Math.min(p2.x + 8, railX - 40), p2.y + 15, ed.label, color);
           } else if (side === 'left') drawFlowLabel(svg, p1.x - 8, p1.y - 12, ed.label, color, 'right');
           else if (side === 'right') drawFlowLabel(svg, p1.x + 8, p1.y - 12, ed.label, color);
-          else drawFlowLabel(svg, p1.x + 6, p1.y + 11, ed.label, color);
+          else drawFlowLabel(svg, p1.x + 6, p1.y + 16, ed.label, color);
         }
       });
     });
@@ -6821,15 +7139,17 @@ function renderBranchFlow(){
   const avail = (wrap.parentElement ? wrap.parentElement.clientWidth : totalW) - 6;
   let k = 1;
   if (flowZoomMode === 'fit' && avail > 120) k = Math.min(1, avail / totalW);
+  if (flowZoomMode === 'manual' && flowZoomVal) k = flowZoomVal;
   if (k < 0.6) k = 0.6;
   inner.style.width = totalW + 'px';
   inner.style.height = totalH + 'px';
-  inner.style.transform = 'scale(' + k + ')';
-  wrap.style.width = Math.round(totalW * k) + 'px';
-  wrap.style.height = Math.round(totalH * k) + 'px';
   wrap.appendChild(inner);
+  ctx.baseW = totalW;
+  ctx.baseH = totalH;
   ctx.scale = k;
+  applyFlowZoom(k, true);
   drawFlowEdges();
+  flowSyncViewer();
 }
 
 /* v5.8 拖拽连线：按住节点左侧⇢拖到另一个节点即建立 @jump */
@@ -7061,7 +7381,15 @@ safeBind('#featureToggle', () => {
 });
 
 const CHANGELOG = [
-  { version: 'v6.3', date: '2026-11-12', title: '流程图改成程序框图 + 批量导入先看清楚 ᕕ( ᐛ )ᕗ', current: true, items: [
+  { version: 'v6.4', date: '2026-11-12', title: '流程图可以单独开个窗口看啦，拖动 + 缩放超顺手 ✧٩(ˊωˋ*)و✧', current: true, items: [
+    { tag: 'add', text: '🪟 流程视图新增「⛶ 独立窗口」：新开一个窗口放流程图，拖到副屏边玩边看' },
+    { tag: 'add', text: '🖐 独立窗口里按住拖动就是平移；滚轮 / 双指随时缩放，以鼠标或双指位置为中心' },
+    { tag: 'add', text: '🔍 顶部工具条有 － / ＋ / 适应窗口 / 1:1 和实时百分比，双击画面也能一键适应' },
+    { tag: 'add', text: '⌨ 主窗口里 Ctrl（⌘）+ 滚轮 或 触控板双指也能缩放，空白处按住可直接拖动浏览' },
+    { tag: 'add', text: '🔄 剧本一改，独立窗口里的流程图会自动刷新，缩放和位置不会被重置' },
+    { tag: 'fix', text: '🛟 浏览器把弹窗拦住时，会自动改成全屏浮层，功能一模一样' },
+  ]},
+  { version: 'v6.3', date: '2026-11-12', title: '流程图改成程序框图 + 批量导入先看清楚 ᕕ( ᐛ )ᕗ', items: [
     { tag: 'add', text: '🗂 流程图重做：从「开始」一路向下，剧情是方框、条件判定是菱形、选项是六边形，跟画程序框图一样' },
     { tag: 'add', text: '🔀 判定菱形从左右两边分叉，边上直接写着条件（@check / @when / @has / @visited 都会显示）' },
     { tag: 'add', text: '📌 每个节点都能写标注（节点右上角 ✎），标注会跟着工程一起存下来' },
