@@ -59,7 +59,8 @@ button:disabled{opacity:.4;cursor:not-allowed}
 @keyframes eyeTop{0%,100%{transform:translateY(-100%)}45%,55%{transform:translateY(0)}}
 @keyframes eyeBottom{0%,100%{transform:translateY(100%)}45%,55%{transform:translateY(0)}}
 
-.charLayer{position:absolute;inset:0}
+.charLayer{position:absolute;inset:0;transition:opacity .22s}
+body.awaiting-hotspot .charLayer{opacity:0;pointer-events:none}
 body.mode-avatar .charLayer{display:none}
 .sprite{position:absolute;bottom:0;left:50%;transform:translateX(-50%);transition:opacity .35s steps(5),filter .2s steps(3),transform .4s steps(6);pointer-events:none;display:flex;align-items:flex-end;justify-content:center;opacity:0;overflow:visible}
 .sprite.in{opacity:1}
@@ -248,7 +249,7 @@ body.playing .editOnly{display:none}
 .flowToolbar button{padding:6px 11px;font-size:11.5px;border:2px solid #5b8cff;color:#cfe0ff;background:#101a2a;box-shadow:2px 2px 0 0 #26262f}
 .flowToolbar .flowTip{font-size:10.5px;color:#7a7a8c;flex:1}
 .branchScroll{flex:1;overflow-y:auto;padding:10px 12px}
-.branchFlowWrap{flex:1;overflow:auto;background:#08080c;background-image:linear-gradient(#12121a 1px,transparent 1px),linear-gradient(90deg,#12121a 1px,transparent 1px);background-size:20px 20px}
+.branchFlowWrap{flex:1;overflow:auto;touch-action:none;background:#08080c;background-image:linear-gradient(#12121a 1px,transparent 1px),linear-gradient(90deg,#12121a 1px,transparent 1px);background-size:20px 20px}
 .branchFlow{position:relative;min-width:100%;min-height:100%}
 .branchFlow,.branchFlow *{user-select:none;-webkit-user-select:none}
 .branchSummary{font-size:11px;color:#7a7a8c;padding:2px 2px 10px;display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #26262f;margin-bottom:10px}
@@ -746,7 +747,7 @@ body.theme-paper .miniBtn{background:#fffefb;border-color:#9a8a6a;color:#4a4236}
 
 /* ===== v6.3 流程图：程序框图（菱形判定 / 六边形选项 / 可标注） ===== */
 .flowBlock{position:absolute;width:172px;touch-action:none}
-.flowNode.proc{position:relative;box-sizing:border-box;display:flex;flex-direction:column;justify-content:center;background:#000;border:2px solid #6a6a90;padding:6px 48px 6px 10px;overflow:hidden;cursor:pointer;user-select:none}
+.flowNode.proc{position:relative;box-sizing:border-box;display:flex;flex-direction:column;justify-content:center;background:#000;border:2px solid #6a6a90;padding:6px 48px 6px 10px;overflow:visible;cursor:pointer;user-select:none}
 .flowNode.proc.entry{border-color:#7dfba0;background:#07130c;border-radius:14px}
 .flowTitle{font-size:12px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .flowNode.proc.entry .flowTitle{color:#aef5c4}
@@ -1648,7 +1649,7 @@ body.theme-paper .aboutUpdated{color:#8a7c62;border-left-color:#d5c9b0}
       <div class="aboutTitle" id="aboutTitle">✦ 关于作者</div>
       <div class="aboutRow"><span>作者</span><b>@Teasssss</b></div>
       <div class="aboutRow"><span>辅助制作工具</span><b>Deepseek</b></div>
-      <div class="aboutRow"><span>版本</span><b class="aboutVer" id="aboutVer" title="多戳几下看看……">v6.9</b><span class="aboutUpdated" id="aboutUpdated">2026-11-12 更新</span></div>
+      <div class="aboutRow"><span>版本</span><b class="aboutVer" id="aboutVer" title="多戳几下看看……">v7.0</b><span class="aboutUpdated" id="aboutUpdated">2026-11-12 更新</span></div>
       <div class="aboutQuote">“每一个像素，都是你亲手写下的世界。”<br>—— 把故事讲出来的人，永远是作者。</div>
       <div class="aboutBtns">
         <button id="eggCat">🐱 摸一下</button>
@@ -3148,6 +3149,7 @@ function getHotspotKey(idx){ return vm.currentSceneName + '::' + vm.currentPart 
 function renderHotspots(){
   hotspotLayer.innerHTML = '';
   if (!vm.running) return;
+  hotspotLayer.classList.toggle('active', !!vm.awaitingHotspot);
   const hotspots = getCurrentHotspots();
   hotspots.forEach((h, idx) => {
     const key = getHotspotKey(idx);
@@ -3174,6 +3176,7 @@ function renderHotspots(){
 }
 function triggerHotspot(h, idx){
   if (!vm.running) return;
+  if (!vm.awaitingHotspot) return;
   if (h.needItem && !vm.inventory.has(h.needItem)) return;
   const key = getHotspotKey(idx);
   const count = vm.hotspotCounts[key] || 0;
@@ -3190,6 +3193,7 @@ function triggerHotspot(h, idx){
   else target = h.label;
   if (target && vm.labels[target] !== undefined){
     vm.awaitingHotspot = false;
+    document.body.classList.remove('awaiting-hotspot');
     vm.pc = vm.labels[target];
     hintEl.classList.remove('show');
     renderHotspots(); next();
@@ -3516,6 +3520,7 @@ function execCmd(n){
       }
       if (!getCurrentHotspots().length) break;
       vm.awaitingHotspot = true;
+      document.body.classList.add('awaiting-hotspot');
       dialogEl.classList.remove('show');
       nameBox.style.display = 'none';
       avatarBox.classList.remove('show');
@@ -3793,7 +3798,8 @@ function startPlaying(opts){
   bgEls.forEach(e => { e.style.opacity = '0'; e.style.backgroundImage = 'none'; e.classList.remove('missing'); e.style.transition = ''; });
   bgFront = 0;
   hotspotLayer.innerHTML = '';
-  hotspotLayer.classList.add('active');
+  hotspotLayer.classList.remove('active');
+  document.body.classList.remove('awaiting-hotspot');
   partNav.classList.remove('show');
   $('#inventoryBtn').classList.remove('show');
   $('#inventoryPanel').classList.remove('show');
@@ -3833,6 +3839,7 @@ function stopPlaying(){
   $('#hideDlgBtn').classList.remove('show');
   setDialogHidden(false);
   hotspotLayer.innerHTML = ''; hotspotLayer.classList.remove('active');
+  document.body.classList.remove('awaiting-hotspot');
   partNav.classList.remove('show');
   $('#inventoryBtn').classList.remove('show');
   $('#inventoryPanel').classList.remove('show');
@@ -6892,12 +6899,26 @@ function buildViewerDom(doc, snap, showClose){
     if (title) b.title = title;
     return b;
   };
+  const bNewB = mk('➕ 新建分支', '新建一个空分支');
+  bNewB.onclick = () => {
+    openViewerPrompt(flowViewer, '新建分支 · 标签名', '', v => {
+      const name = String(v || '').trim();
+      if (!name || /\s/.test(name)){ viewerToast(flowViewer, '标签名不能为空或带空格', 'warn'); return; }
+      if (splitBranches(scriptInput.value).some(b => !b.isEntry && b.label === name)){
+        viewerToast(flowViewer, '已经有同名分支了', 'warn'); return;
+      }
+      appendNewBranch(name);
+      renderBranches();
+      viewerToast(flowViewer, '已新建分支「' + name + '」', 'ok');
+    });
+  };
   const bOut = mk('－', '缩小');
   const bIn = mk('＋', '放大');
   const bFit = mk('适应窗口');
   const bOne = mk('1:1');
   bar.appendChild(ttl);
   bar.appendChild(tips);
+  bar.appendChild(bNewB);
   bar.appendChild(bOut);
   bar.appendChild(pct);
   bar.appendChild(bIn);
@@ -7498,11 +7519,34 @@ function applyFlowZoom(k, fromRender){
   const wrapEl = document.getElementById('branchFlowWrap');
   if (!wrapEl) return;
   wrapEl.addEventListener('wheel', e => {
-    if (!(e.ctrlKey || e.metaKey)) return;
     if (branchViewMode !== 'flow' || !flowCtx) return;
+    if (e.shiftKey) return;
     e.preventDefault();
     applyFlowZoom(flowCtx.scale * Math.exp(-e.deltaY * 0.0018));
   }, { passive:false });
+  // 触屏双指捏合缩放
+  let _pinch = null;
+  const _tpts = new Map();
+  wrapEl.addEventListener('pointerdown', e => {
+    if (e.pointerType !== 'touch' || branchViewMode !== 'flow') return;
+    _tpts.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (_tpts.size === 2){
+      const a = [..._tpts.values()];
+      _pinch = { dist: Math.hypot(a[0].x - a[1].x, a[0].y - a[1].y) || 1, k: flowCtx ? flowCtx.scale : 1 };
+    }
+  });
+  wrapEl.addEventListener('pointermove', e => {
+    if (e.pointerType !== 'touch' || !_tpts.has(e.pointerId)) return;
+    _tpts.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (_pinch && _tpts.size >= 2 && flowCtx){
+      const a = [..._tpts.values()];
+      const d = Math.hypot(a[0].x - a[1].x, a[0].y - a[1].y) || 1;
+      applyFlowZoom(_pinch.k * d / _pinch.dist);
+    }
+  });
+  const _endPt = e => { if (e.pointerType !== 'touch') return; _tpts.delete(e.pointerId); if (_tpts.size < 2) _pinch = null; };
+  wrapEl.addEventListener('pointerup', _endPt);
+  wrapEl.addEventListener('pointercancel', _endPt);
   let pan = null;
   wrapEl.addEventListener('pointerdown', e => {
     if (branchViewMode !== 'flow') return;
@@ -8223,7 +8267,14 @@ safeBind('#featureToggle', () => {
 });
 
 const CHANGELOG = [
-  { version: 'v6.9', date: '2026-11-12', title: '选项可单独编辑 + 窗口点击修复 (•̀ᴗ•́)و', current: true, items: [
+  { version: 'v7.0', date: '2026-11-12', title: '互动场景手感大修 + 流程图缩放升级 ✧٩(ˊωˋ*)و✧', current: true, items: [
+    { tag: 'fix', text: '↪ 流程图里按住节点左侧的 ⇢ 拖到另一个节点又能连线了（手柄被节点边框裁掉了，已修）' },
+    { tag: 'add', text: '🎮 互动场景：对话进行中点击画面不会误触热点；到 @wait 时会自动隐藏对话框和立绘，点中热点后再回来' },
+    { tag: 'fix', text: '🎮 示例里反复点门反复提示输密码的问题：门 / 书架热点加了次数上限，触发几次后就不再出现' },
+    { tag: 'add', text: '🖱 流程图面板里直接滚轮就能缩放（Shift + 滚轮仍可滚动），触屏双指捧合也能缩放' },
+    { tag: 'add', text: '🪟 独立窗口工具條新增「➕ 新建分支」，和主窗口一样能建空分支' },
+  ]},
+  { version: 'v6.9', date: '2026-11-12', title: '选项可单独编辑 + 窗口点击修复 (•̀ᴗ•́)و', items: [
     { tag: 'add', text: '🔀 点流程图的「选项」六边形，现在只列出选项：一行一个「选项文字 → 目标标签」，可增删改，其它台词 / 指令原封不动' },
     { tag: 'fix', text: '🖱 修好独立窗口里点不动按钮的根因：平移画布时对指钁按下调了 preventDefault，把 click 一起吞了' },
     { tag: 'fix', text: '📌 节点右侧的 📌 / ✕ / ＋ 按钮缩得更紧凑并留出文字区，不会再压在标题和台词上' },
@@ -8649,7 +8700,7 @@ html,body{height:100%;overflow:hidden;background:#000;color:#fff;font-family:'Co
 #stage{position:relative;overflow:hidden;background:#000;touch-action:manipulation}
 .bg{position:absolute;inset:0;background-size:cover;background-position:center;opacity:0;transition:opacity .4s;background-color:#000}
 .bg.on{opacity:1}
-#chars{position:absolute;inset:0}
+#chars{position:absolute;inset:0;transition:opacity .22s}body.awaiting-hotspot #chars{opacity:0;pointer-events:none}
 .sprite{position:absolute;bottom:0;left:50%;transform:translateX(-50%);display:flex;align-items:flex-end;justify-content:center;opacity:0;transition:opacity .3s}
 .sprite.in{opacity:1}
 .sprite img{max-height:100%;max-width:100%;object-fit:contain;object-position:bottom center;display:block;transform-origin:bottom center!important}
@@ -8693,7 +8744,7 @@ html,body{height:100%;overflow:hidden;background:#000;color:#fff;font-family:'Co
 .ct{flex:1;min-width:0}
 .ci.centerimg .ct{flex:none}
 #again{position:absolute;bottom:20px;left:0;right:0;text-align:center;font-size:.8em;color:#888;cursor:pointer}
-#hotspots{position:absolute;inset:0}
+#hotspots{position:absolute;inset:0;pointer-events:none}#hotspots.on{pointer-events:auto}
 .hs{position:absolute;cursor:pointer}
 .hs::before{content:"";position:absolute;left:50%;top:50%;width:16px;height:16px;margin:-8px 0 0 -8px;background:#fff;clip-path:polygon(50% 0%,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%);animation:tw 1.6s infinite;filter:drop-shadow(0 0 6px #fff)}
 @keyframes tw{0%,100%{opacity:.5;transform:scale(.85)}50%{opacity:1;transform:scale(1.1)}}@media (max-width:600px){.choice{min-height:44px;padding:.9em 1.4em;font-size:1.1em}}
@@ -8996,8 +9047,8 @@ function preloadSizes(){
 }
 function applyDim(el,name){if(!lastSpeakers.length)el.classList.add('dim');else el.classList.toggle('dim',lastSpeakers.indexOf(name)<0);}
 function hideChar(name){var el=shown[name];if(!el)return;el.classList.remove('in');delete shown[name];delete curExpr[name];setTimeout(function(){if(el.parentNode)el.parentNode.removeChild(el);},350);}
-function renderHotspots(){hotspotsEl.innerHTML='';var sc=bgs[currentScene];if(!sc)return;var parts=sceneParts(sc);var part=parts[currentPart];if(!part)return;(part.hotspots||[]).forEach(function(h,idx){var key=currentScene+'::'+currentPart+'::'+idx;var count=hotspotCounts[key]||0;var maxT=h.maxTrigger===undefined?1:Number(h.maxTrigger);if(maxT>0&&count>=maxT)return;if(h.needItem&&inv.indexOf(h.needItem)<0)return;if(!canShowHotspot(h))return;var el=document.createElement('div');el.className='hs';el.style.left=(h.x*100)+'%';el.style.top=(h.y*100)+'%';el.style.width=(h.w*100)+'%';el.style.height=(h.h*100)+'%';el.onclick=function(){triggerHotspot(h,idx);};hotspotsEl.appendChild(el);});}
-function triggerHotspot(h,idx){var key=currentScene+'::'+currentPart+'::'+idx;var count=hotspotCounts[key]||0;var nc=count+1;var maxT=h.maxTrigger===undefined?1:Number(h.maxTrigger);if(maxT>0&&nc>maxT){renderHotspots();return;}hotspotCounts[key]=nc;if(h.giveItem&&inv.indexOf(h.giveItem)<0)inv.push(h.giveItem);var target;var fc=Number(h.finalCount)||0;if(fc>0&&nc>=fc&&h.labelFinal)target=h.labelFinal;else if(nc===1)target=h.label;else if(h.labelSecond)target=h.labelSecond;else target=h.label;if(target&&vm.labels[target]!==undefined){vm.pc=vm.labels[target];renderHotspots();next();}else renderHotspots();}
+function renderHotspots(){hotspotsEl.innerHTML='';hotspotsEl.classList.toggle('on',!!vm.awaitingHotspot);var sc=bgs[currentScene];if(!sc)return;var parts=sceneParts(sc);var part=parts[currentPart];if(!part)return;(part.hotspots||[]).forEach(function(h,idx){var key=currentScene+'::'+currentPart+'::'+idx;var count=hotspotCounts[key]||0;var maxT=h.maxTrigger===undefined?1:Number(h.maxTrigger);if(maxT>0&&count>=maxT)return;if(h.needItem&&inv.indexOf(h.needItem)<0)return;if(!canShowHotspot(h))return;var el=document.createElement('div');el.className='hs';el.style.left=(h.x*100)+'%';el.style.top=(h.y*100)+'%';el.style.width=(h.w*100)+'%';el.style.height=(h.h*100)+'%';el.onclick=function(){triggerHotspot(h,idx);};hotspotsEl.appendChild(el);});}
+function triggerHotspot(h,idx){if(!vm.awaitingHotspot)return;var key=currentScene+'::'+currentPart+'::'+idx;var count=hotspotCounts[key]||0;var nc=count+1;var maxT=h.maxTrigger===undefined?1:Number(h.maxTrigger);if(maxT>0&&nc>maxT){renderHotspots();return;}hotspotCounts[key]=nc;if(h.giveItem&&inv.indexOf(h.giveItem)<0)inv.push(h.giveItem);var target;var fc=Number(h.finalCount)||0;if(fc>0&&nc>=fc&&h.labelFinal)target=h.labelFinal;else if(nc===1)target=h.label;else if(h.labelSecond)target=h.labelSecond;else target=h.label;if(target&&vm.labels[target]!==undefined){vm.awaitingHotspot=false;document.body.classList.remove('awaiting-hotspot');vm.pc=vm.labels[target];renderHotspots();next();}else renderHotspots();}
 function fitDialogText(){
   try {
     dlg.style.fontSize='';
@@ -9098,7 +9149,7 @@ function execCmd(n){switch(n.cmd){case 'bg':setBg(n.args[0]||'',n.args[1]||'fade
   case 'use':if(n.args[0]){var uix=inv.indexOf(n.args[0]);if(uix>=0){inv.splice(uix,1);showItemToast(n.args[0],'lost');}}renderHotspots();break;
   case 'endsay':dlg.classList.remove('show');nameEl.style.display='none';textEl.textContent='';hint.classList.remove('show');vm.sayEnded=true;break;
   case 'timer':{var tsec=parseFloat(n.args[0]);var tix=n.args.indexOf('->');var ttg=tix>0?n.args[tix+1]:null;if(!isNaN(tsec)&&tsec>0)vm.choiceTimer={sec:tsec,target:ttg};break;}
-  case 'when':{var ar=n.args.slice();var ai=ar.indexOf('->');var tgw=null,conds=ar;if(ai>=0){conds=ar.slice(0,ai);tgw=ar[ai+1];}else{for(var z=0;z<ar.length;z++){if(String(ar[z]).slice(-2)==='->'){tgw=String(ar[z]).slice(0,-2);conds=ar.slice(0,z);break;}}}if(tgw&&vm.labels[tgw]!==undefined&&evalExpr(conds))vm.pc=vm.labels[tgw];break;}case 'give':if(n.args[0]){var gi=inv.indexOf(n.args[0]);if(gi>=0)inv.splice(gi,1);}renderHotspots();break;case 'has':{var id=n.args[0];var ix=n.args.indexOf('->');var tgt=ix>0?n.args[ix+1]:null;if(id&&inv.indexOf(id)>=0&&tgt&&vm.labels[tgt]!==undefined)vm.pc=vm.labels[tgt];break;}case 'mark':if(n.args[0])visited[n.args[0]]=true;break;case 'visited':{var tag=n.args[0];var ix2=n.args.indexOf('->');var tgt2=ix2>0?n.args[ix2+1]:null;if(tag&&visited[tag]&&tgt2&&vm.labels[tgt2]!==undefined)vm.pc=vm.labels[tgt2];break;}case 'set':if(n.args[0]){var k=n.args[0],val=n.args[1]!==undefined?n.args[1]:'0';var num=Number(val);vars[k]=(!isNaN(num)&&val!=='')?num:val;}break;case 'add':if(n.args[0]){var k2=n.args[0];vars[k2]=(Number(vars[k2])||0)+(Number(n.args[1])||1);}break;case 'check':{var k3=n.args[0],op=n.args[1],val2=n.args[2];var ix3=n.args.indexOf('->');var tgt3=ix3>0?n.args[ix3+1]:null;if(!k3||!op||val2===undefined||!tgt3)break;var raw=vars[k3];var aN=Number(raw),bN=Number(val2);var isNum=!isNaN(aN)&&!isNaN(bN)&&raw!==''&&raw!==undefined;var pass=false;switch(op){case '>=':pass=isNum?aN>=bN:String(raw)>=String(val2);break;case '>':pass=isNum?aN>bN:String(raw)>String(val2);break;case '<=':pass=isNum?aN<=bN:String(raw)<=String(val2);break;case '<':pass=isNum?aN<bN:String(raw)<String(val2);break;case '==':pass=isNum?aN===bN:String(raw)===String(val2);break;case '!=':pass=isNum?aN!==bN:String(raw)!==String(val2);break;}if(pass&&vm.labels[tgt3]!==undefined)vm.pc=vm.labels[tgt3];break;}case 'input':{var varName=n.args[0];if(!varName)break;var val3=prompt(n.args.slice(1).join(' ')||'请输入');vars[varName]=val3===null?'':val3;break;}case 'wait':{var _sc0=bgs[currentScene],_pp0=_sc0?sceneParts(_sc0)[currentPart]:null;if(!((_pp0&&_pp0.hotspots)||[]).length)break;vm.awaitingHotspot=true;dlg.classList.remove('show');hint.classList.remove('show');renderHotspots();return 'stop';}case 'end':endWithCredits(n.args[0]||'END',n.args.slice(1).join(' '));return 'stop';}return null;}
+  case 'when':{var ar=n.args.slice();var ai=ar.indexOf('->');var tgw=null,conds=ar;if(ai>=0){conds=ar.slice(0,ai);tgw=ar[ai+1];}else{for(var z=0;z<ar.length;z++){if(String(ar[z]).slice(-2)==='->'){tgw=String(ar[z]).slice(0,-2);conds=ar.slice(0,z);break;}}}if(tgw&&vm.labels[tgw]!==undefined&&evalExpr(conds))vm.pc=vm.labels[tgw];break;}case 'give':if(n.args[0]){var gi=inv.indexOf(n.args[0]);if(gi>=0)inv.splice(gi,1);}renderHotspots();break;case 'has':{var id=n.args[0];var ix=n.args.indexOf('->');var tgt=ix>0?n.args[ix+1]:null;if(id&&inv.indexOf(id)>=0&&tgt&&vm.labels[tgt]!==undefined)vm.pc=vm.labels[tgt];break;}case 'mark':if(n.args[0])visited[n.args[0]]=true;break;case 'visited':{var tag=n.args[0];var ix2=n.args.indexOf('->');var tgt2=ix2>0?n.args[ix2+1]:null;if(tag&&visited[tag]&&tgt2&&vm.labels[tgt2]!==undefined)vm.pc=vm.labels[tgt2];break;}case 'set':if(n.args[0]){var k=n.args[0],val=n.args[1]!==undefined?n.args[1]:'0';var num=Number(val);vars[k]=(!isNaN(num)&&val!=='')?num:val;}break;case 'add':if(n.args[0]){var k2=n.args[0];vars[k2]=(Number(vars[k2])||0)+(Number(n.args[1])||1);}break;case 'check':{var k3=n.args[0],op=n.args[1],val2=n.args[2];var ix3=n.args.indexOf('->');var tgt3=ix3>0?n.args[ix3+1]:null;if(!k3||!op||val2===undefined||!tgt3)break;var raw=vars[k3];var aN=Number(raw),bN=Number(val2);var isNum=!isNaN(aN)&&!isNaN(bN)&&raw!==''&&raw!==undefined;var pass=false;switch(op){case '>=':pass=isNum?aN>=bN:String(raw)>=String(val2);break;case '>':pass=isNum?aN>bN:String(raw)>String(val2);break;case '<=':pass=isNum?aN<=bN:String(raw)<=String(val2);break;case '<':pass=isNum?aN<bN:String(raw)<String(val2);break;case '==':pass=isNum?aN===bN:String(raw)===String(val2);break;case '!=':pass=isNum?aN!==bN:String(raw)!==String(val2);break;}if(pass&&vm.labels[tgt3]!==undefined)vm.pc=vm.labels[tgt3];break;}case 'input':{var varName=n.args[0];if(!varName)break;var val3=prompt(n.args.slice(1).join(' ')||'请输入');vars[varName]=val3===null?'':val3;break;}case 'wait':{var _sc0=bgs[currentScene],_pp0=_sc0?sceneParts(_sc0)[currentPart]:null;if(!((_pp0&&_pp0.hotspots)||[]).length)break;vm.awaitingHotspot=true;document.body.classList.add('awaiting-hotspot');dlg.classList.remove('show');hint.classList.remove('show');renderHotspots();return 'stop';}case 'end':endWithCredits(n.args[0]||'END',n.args.slice(1).join(' '));return 'stop';}return null;}
 var vm={nodes:[],labels:{},pc:0,running:false,awaitingChoice:false,awaitingHotspot:false};
 var typing={active:false,text:'',i:0,timer:null};
 function next(){if(!vm.running)return;while(vm.running&&vm.pc<vm.nodes.length){var n=vm.nodes[vm.pc];if(n.type==='cmd'){vm.pc++;var stop=execCmd(n);if(stop==='stop')return;if(!vm.running)return;continue;}if(n.type==='say'){vm.pc++;vm.lastSayIdx=vm.pc-1;showSay(n);return;}var opts=[];while(vm.pc<vm.nodes.length&&vm.nodes[vm.pc].type==='choice'){opts.push(vm.nodes[vm.pc]);vm.pc++;}showChoices(opts);return;}if(vm.running&&!vm.awaitingHotspot)endWithCredits();}
@@ -9347,7 +9398,7 @@ function openHistory(){
   });
 }
 function prepareVM(){var parsed=parseScript(DATA.script||'');if(!parsed.nodes.length)return false;dlg.style.fontSize='';vm.nodes=parsed.nodes;vm.labels=parsed.labels;vm.pc=0;vm.running=true;vm.awaitingChoice=false;vm.awaitingHotspot=false;vm.lastSayIdx=0;lastSpeakers=[];vars={};inv=[];hotspotCounts={};visited={};currentScene=null;currentPart=0;textColor=null;fadeBlack=false;fadeBlackStep=.2;fadeBlackLevel=0;creditsShown=false;historyLog=[];chars.style.display='';clearChars();choicesEl.classList.remove('show');choicesEl.innerHTML='';endEl.classList.remove('show');dlg.classList.remove('show');dlg.classList.remove('top','mid','hidebox');hint.classList.remove('show');nameEl.style.display='none';textEl.textContent='';bgA.classList.remove('on');bgB.classList.remove('on');bgA.style.backgroundImage='none';bgB.style.backgroundImage='none';bgFront=0;hotspotsEl.innerHTML='';stopAll();setFb(0);return true;}
-function start(){if(!prepareVM())return;fit();next();if(uiBar)uiBar.classList.add('show');}
+function start(){if(!prepareVM())return;document.body.classList.remove('awaiting-hotspot');fit();next();if(uiBar)uiBar.classList.add('show');}
 fit();
 preloadSizes();
 var unlock=function(){try{var ctx=ensureCtx();if(ctx&&ctx.state==='suspended')ctx.resume();}catch(e){}flushAudio();};
@@ -9984,8 +10035,8 @@ function setupDemoScene(){
       url: makeDemoClassroom(), hideChars: false,
       hotspots: [
         { x: 0.14, y: 0.69, w: 0.24, h: 0.19, name: '闪光桌子', label: 'check_desk', labelSecond: 'desk_again', labelFinal: '', finalCount: 0, maxTrigger: 2, needItem: '', giveItem: '钥匙', hintType: 'flash', hideName: false, triSize: 10 },
-        { x: 0.56, y: 0.56, w: 0.11, h: 0.44, name: '书架', label: 'check_shelf', labelSecond: 'check_shelf', labelFinal: '', finalCount: 0, maxTrigger: 0, needItem: '', giveItem: '', hintType: 'triangle', hideName: false, triSize: 12 },
-        { x: 0.82, y: 0.53, w: 0.14, h: 0.47, name: '门', label: 'door_open', labelSecond: 'door_open', labelFinal: '', finalCount: 0, maxTrigger: 0, needItem: '钥匙', giveItem: '', hintType: 'flash', hideName: false, triSize: 10 },
+        { x: 0.56, y: 0.56, w: 0.11, h: 0.44, name: '书架', label: 'check_shelf', labelSecond: 'check_shelf', labelFinal: '', finalCount: 0, maxTrigger: 2, needItem: '', giveItem: '', hintType: 'triangle', hideName: false, triSize: 12 },
+        { x: 0.82, y: 0.53, w: 0.14, h: 0.47, name: '门', label: 'door_open', labelSecond: 'door_open', labelFinal: '', finalCount: 0, maxTrigger: 4, needItem: '钥匙', giveItem: '', hintType: 'flash', hideName: false, triSize: 10 },
       ],
       parts: [],
     };
