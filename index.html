@@ -1542,7 +1542,7 @@ body.theme-paper .aboutUpdated{color:#8a7c62;border-left-color:#d5c9b0}
 <h3>🗺 流程视图（程序框图）</h3>
 <p>「分支」面板切到 <b>「🗺 流程视图」</b>：从 <b>▶ 开始</b> 一路往下，剧情是方框、条件判定是菱形（左右分叉，边上写着条件）、选项是六边形，没出口的分支会亮黄提醒。</p>
 <p>拖动节点摆位置（会记住）；节点右上角 <b>✎</b> 写标注；右下角 <b>＋</b> 新建跳转；左侧 <b>⇢</b> 拖到另一个节点就直接连线。</p>
-<p>想看得更大：点 <b>⛶ 独立窗口</b> 单独开一个窗口放流程图，里面按住拖动平移、滚轮/双指缩放。主窗口里也可以用 <b>Ctrl + 滚轮</b> 缩放。</p>
+<p>想看得更大：点 <b>⛶ 独立窗口</b> 单独开一个窗口放流程图——里面<b>点节点就能编辑那一分支的剧本</b>，也能拖节点摆位置、点 ＋ 新建跳转、点 ✕ 删分支、按住 ⇢ 拖到另一个节点连线；滚轮/双指缩放，空白处拖动平移。主窗口里也可以用 <b>Ctrl + 滚轮</b> 缩放。</p>
 <h3>⚡ 批量导入立绘</h3>
 <p>「＋ 角色」→ <b>⚡ 批量</b> 或表情弹窗里的 <b>⚡ 批量</b>：选完图会先列出<b>缩略图 + 文件名 + 要用的名字</b>，可以逐张改。</p>
 <p>带 <b>_talk</b> / <b>_说话</b> 的会自动拼成上一个表情的说话差分；公共前缀（sakura_微笑 → 微笑）自动去掉；重名会提前标出来。</p>
@@ -1647,7 +1647,7 @@ body.theme-paper .aboutUpdated{color:#8a7c62;border-left-color:#d5c9b0}
       <div class="aboutTitle" id="aboutTitle">✦ 关于作者</div>
       <div class="aboutRow"><span>作者</span><b>@Teasssss</b></div>
       <div class="aboutRow"><span>辅助制作工具</span><b>Deepseek</b></div>
-      <div class="aboutRow"><span>版本</span><b class="aboutVer" id="aboutVer" title="多戳几下看看……">v6.5</b><span class="aboutUpdated" id="aboutUpdated">2026-11-12 更新</span></div>
+      <div class="aboutRow"><span>版本</span><b class="aboutVer" id="aboutVer" title="多戳几下看看……">v6.6</b><span class="aboutUpdated" id="aboutUpdated">2026-11-12 更新</span></div>
       <div class="aboutQuote">“每一个像素，都是你亲手写下的世界。”<br>—— 把故事讲出来的人，永远是作者。</div>
       <div class="aboutBtns">
         <button id="eggCat">🐱 摸一下</button>
@@ -6609,6 +6609,7 @@ function renderBranchList(){
 }
 /* ===== v6.4 流程图浏览：独立窗口 + 拖动平移 + 滚轮/双指缩放 ===== */
 let flowViewer = null;
+let flowSyncMuted = false;
 let flowZoomVal = 1;
 
 function flowViewerCss(){
@@ -6631,7 +6632,22 @@ function flowViewerCss(){
     'body.theme-paper .vnsVP{background-color:#f1e9da;background-image:linear-gradient(#e0d5bf 1px,transparent 1px),linear-gradient(90deg,#e0d5bf 1px,transparent 1px)}',
     '.vnsVP.grabbing{cursor:grabbing}',
     '.vnsVC{position:absolute;left:0;top:0;transform-origin:0 0;will-change:transform}',
-    '.vnsVC button{display:none!important}',
+    '.vnsVC .flowBlock{cursor:move}',
+    '.vnsVModal{position:absolute;inset:0;background:rgba(0,0,0,.66);display:flex;align-items:center;justify-content:center;z-index:60}',
+    '.vnsVCard{width:min(680px,92%);max-height:86%;display:flex;flex-direction:column;background:#0d0d14;border:2px solid #5b8cff;box-shadow:4px 4px 0 0 #000}',
+    'body.theme-paper .vnsVCard{background:#fffdf7;border-color:#6d5f47}',
+    '.vnsVCardHead{padding:8px 12px;border-bottom:2px solid #33333f;font-size:12.5px;color:#fff}',
+    'body.theme-paper .vnsVCardHead{color:#2f2a21;border-bottom-color:#d5c9b0}',
+    '.vnsVCardTa{flex:1;min-height:260px;margin:10px 12px;padding:8px;font-family:inherit;font-size:12px;line-height:1.7;background:#07070b;color:#e8e8f2;border:2px solid #3a3a48;outline:none;resize:none}',
+    'body.theme-paper .vnsVCardTa{background:#fffefb;color:#2f2a21;border-color:#bfb196}',
+    '.vnsVCardBody{padding:12px;display:flex;gap:8px}',
+    '.vnsVCardFoot{display:flex;gap:8px;padding:10px 12px;border-top:2px solid #33333f;align-items:center}',
+    'body.theme-paper .vnsVCardFoot{border-top-color:#d5c9b0}',
+    '.vnsVHint{font-size:10.5px;color:#7a7a8c;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
+    '.vnsVInput{flex:1;min-width:0;font-family:inherit;font-size:13px;padding:6px 8px;background:#07070b;color:#fff;border:2px solid #3a3a48;outline:none}',
+    'body.theme-paper .vnsVInput{background:#fffefb;color:#2f2a21;border-color:#bfb196}',
+    '.vnsVBtn.primary{background:#5b8cff;border-color:#5b8cff;color:#04102a}',
+    'body.theme-paper .vnsVBtn.primary{background:#6d5f47;border-color:#6d5f47;color:#fcf9f1}',
     '.vnsVOverlay{position:fixed;inset:0;z-index:9999;display:flex;flex-direction:column;background:#08080c}'
   ].join('\n');
 }
@@ -6731,16 +6747,22 @@ function buildFlowSnapshot(){
   const w = (flowCtx && flowCtx.baseW) || parseFloat(inner.style.width) || inner.offsetWidth;
   const h = (flowCtx && flowCtx.baseH) || parseFloat(inner.style.height) || inner.offsetHeight;
   if (!w || !h) return null;
-  return { html: inner.innerHTML, w: Math.ceil(w), h: Math.ceil(h) };
+  const contents = {};
+  splitBranches(scriptInput.value).forEach(b => { contents[b.label] = b.contentLines.join('\n'); });
+  return { html: inner.innerHTML, w: Math.ceil(w), h: Math.ceil(h), contents };
 }
 
 function flowViewerApply(snap){
   if (!flowViewer || !snap) return;
-  const cv = flowViewer.cv;
+  const fv = flowViewer;
+  const cv = fv.cv;
   if (!cv) return;
   cv.innerHTML = snap.html;
   cv.style.width = snap.w + 'px';
   cv.style.height = snap.h + 'px';
+  fv.contents = snap.contents || {};
+  fv.svg = cv.querySelector('svg');
+  bindViewerNodes(fv);
 }
 
 function flowSyncViewer(){
@@ -6784,7 +6806,8 @@ function openFlowViewer(){
   const parts = buildViewerDom(doc, snap, false);
   doc.body.appendChild(parts.bar);
   doc.body.appendChild(parts.vp);
-  flowViewer = { win, cv: parts.cv, ctl: parts.ctl };
+  flowViewer = { win, doc, cv: parts.cv, vp: parts.vp, ctl: parts.ctl, svg: parts.svg, contents: snap.contents || {} };
+  bindViewerNodes(flowViewer);
   try { win.focus(); } catch(e){}
 }
 
@@ -6800,7 +6823,8 @@ function buildFlowOverlay(snap){
   box.appendChild(parts.bar);
   box.appendChild(parts.vp);
   document.body.appendChild(box);
-  flowViewer = { win: null, cv: parts.cv, ctl: parts.ctl, overlay: box };
+  flowViewer = { win: null, doc: document, cv: parts.cv, vp: parts.vp, ctl: parts.ctl, svg: parts.svg, contents: snap.contents || {}, overlay: box };
+  bindViewerNodes(flowViewer);
 }
 
 function closeFlowOverlay(){
@@ -6817,7 +6841,7 @@ function buildViewerDom(doc, snap, showClose){
   ttl.textContent = '🗺 流程图';
   const tips = doc.createElement('div');
   tips.className = 'vnsVTips';
-  tips.textContent = '滚轮 / 双指缩放 · 按住拖动平移 · 双击适应窗口';
+  tips.textContent = '点节点编辑 · 拖节点改位置 · 滚轮/双指缩放 · 空白拖动平移';
   const pct = doc.createElement('span');
   pct.className = 'vnsVPct';
   pct.textContent = '100%';
@@ -6865,7 +6889,311 @@ function buildViewerDom(doc, snap, showClose){
   requestAnimationFrame(tryFit);
   setTimeout(tryFit, 120);
   setTimeout(tryFit, 520);
-  return { bar, vp, cv, ctl };
+  return { bar, vp, cv, ctl, svg: cv.querySelector('svg'), doc };
+}
+
+
+/* ===== v6.6 独立窗口编辑：写回主窗口 ===== */
+function replaceBranchContent(label, text){
+  const branches = splitBranches(scriptInput.value);
+  const b = branches.find(x => x.label === label);
+  if (!b) return false;
+  const lines = scriptInput.value.split('\n');
+  const start = b.startLine;
+  const count = Math.max(0, b.endLine - b.startLine + 1);
+  lines.splice(start, count, ...String(text).split('\n'));
+  commitScriptChange(lines.join('\n'));
+  return true;
+}
+function addJumpBranch(fromLabel, name){
+  if (!name || /\s/.test(name)) return false;
+  const branches = splitBranches(scriptInput.value);
+  const b = branches.find(x => x.label === fromLabel);
+  if (!b) return false;
+  const exists = branches.some(x => !x.isEntry && x.label === name);
+  const lines = scriptInput.value.split('\n');
+  let at = b.endLine + 1;
+  if (at < 0) at = 0;
+  if (at > lines.length) at = lines.length;
+  lines.splice(at, 0, '@jump ' + name);
+  let text = lines.join('\n');
+  if (!exists){
+    if (text && !text.endsWith('\n')) text += '\n';
+    text += '\n::' + name + '\n';
+  }
+  commitScriptChange(text);
+  return true;
+}
+function setFlowNote(label, text){
+  if (!label) return;
+  settings.flowNotes = settings.flowNotes || {};
+  if (text) settings.flowNotes[label] = text;
+  else delete settings.flowNotes[label];
+  saveSettings();
+  renderBranchFlow();
+}
+
+/* ===== 独立窗口内的编辑交互 ===== */
+function viewerConfirm(fv, msg){
+  try {
+    if (fv && fv.win && !fv.win.closed) return fv.win.confirm(msg);
+    return window.confirm(msg);
+  } catch(e){ return window.confirm(msg); }
+}
+
+function startViewerLink(fv, e, fromLabel){
+  e.preventDefault(); e.stopPropagation();
+  if (!fromLabel) return;
+  const doc = fv.doc || document;
+  const block = e.target.closest('.flowBlock');
+  if (!block) return;
+  const r = block.getBoundingClientRect();
+  const overlay = doc.createElement('div');
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:80;pointer-events:none';
+  const svg = doc.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('width', '100%'); svg.setAttribute('height', '100%');
+  svg.style.cssText = 'position:absolute;inset:0;overflow:visible';
+  const path = doc.createElementNS('http://www.w3.org/2000/svg', 'path');
+  path.setAttribute('stroke', '#7dfba0');
+  path.setAttribute('stroke-width', '3');
+  path.setAttribute('fill', 'none');
+  path.setAttribute('stroke-dasharray', '7 5');
+  svg.appendChild(path);
+  overlay.appendChild(svg);
+  doc.body.appendChild(overlay);
+  const x0 = r.left + r.width / 2, y0 = r.top + r.height / 2;
+  const move = ev => {
+    path.setAttribute('d', 'M ' + x0 + ' ' + y0 + ' Q ' + ((x0 + ev.clientX) / 2) + ' ' + (Math.min(y0, ev.clientY) - 30) + ' ' + ev.clientX + ' ' + ev.clientY);
+  };
+  const up = ev => {
+    doc.removeEventListener('pointermove', move);
+    doc.removeEventListener('pointerup', up);
+    if (overlay.parentNode) overlay.remove();
+    const el = doc.elementFromPoint(ev.clientX, ev.clientY);
+    const target = el && el.closest ? el.closest('.flowBlock') : null;
+    if (!target || target === block) return;
+    const to = target.dataset.label;
+    if (!to || to === fromLabel) return;
+    const res = addJumpLink(fromLabel, to);
+    if (res === 'exists') showToast('这条跳转已经存在了', 'warn');
+    else if (res) showToast('已建立跳转：' + fromLabel + ' → ' + to, 'ok');
+  };
+  doc.addEventListener('pointermove', move);
+  doc.addEventListener('pointerup', up);
+}
+
+function openViewerBranch(fv, label){
+  const doc = fv.doc || document;
+  const old = doc.getElementById('vnsVBranch');
+  if (old) old.remove();
+  const mask = doc.createElement('div');
+  mask.className = 'vnsVModal';
+  mask.id = 'vnsVBranch';
+  const card = doc.createElement('div');
+  card.className = 'vnsVCard';
+  const head = doc.createElement('div');
+  head.className = 'vnsVCardHead';
+  head.textContent = '📖 编辑分支 · ' + (label === '（开头）' ? '开头' : label);
+  const ta = doc.createElement('textarea');
+  ta.className = 'vnsVCardTa';
+  ta.spellcheck = false;
+  ta.value = (fv.contents && fv.contents[label]) || '';
+  const foot = doc.createElement('div');
+  foot.className = 'vnsVCardFoot';
+  const hint = doc.createElement('span');
+  hint.className = 'vnsVHint';
+  hint.textContent = '一行一条指令 · Ctrl+Enter 保存 · Esc 关闭';
+  const bCancel = doc.createElement('button');
+  bCancel.className = 'vnsVBtn'; bCancel.textContent = '取消';
+  const bSave = doc.createElement('button');
+  bSave.className = 'vnsVBtn primary'; bSave.textContent = '保存';
+  foot.append(hint, bCancel, bSave);
+  card.append(head, ta, foot);
+  mask.appendChild(card);
+  (doc.body || doc.documentElement).appendChild(mask);
+  const close = () => { if (mask.parentNode) mask.remove(); };
+  bCancel.onclick = close;
+  bSave.onclick = () => {
+    const text = ta.value;
+    close();
+    if (!replaceBranchContent(label, text)) showToast('这个分支已经不存在了', 'warn');
+    else showToast('已保存「' + (label === '（开头）' ? '开头' : label) + '」', 'ok');
+  };
+  mask.addEventListener('pointerdown', ev => { if (ev.target === mask) close(); });
+  ta.addEventListener('keydown', ev => {
+    if (ev.key === 'Escape') close();
+    if ((ev.ctrlKey || ev.metaKey) && ev.key === 'Enter') bSave.onclick();
+  });
+  setTimeout(() => { try { ta.focus(); } catch(e){} }, 30);
+}
+
+function openViewerPrompt(fv, title, value, onOk){
+  const doc = fv.doc || document;
+  const old = doc.getElementById('vnsVPrompt');
+  if (old) old.remove();
+  const mask = doc.createElement('div');
+  mask.className = 'vnsVModal';
+  mask.id = 'vnsVPrompt';
+  const card = doc.createElement('div');
+  card.className = 'vnsVCard';
+  card.style.width = 'min(460px,92%)';
+  const head = doc.createElement('div');
+  head.className = 'vnsVCardHead';
+  head.textContent = title;
+  const body = doc.createElement('div');
+  body.className = 'vnsVCardBody';
+  const inp = doc.createElement('input');
+  inp.className = 'vnsVInput';
+  inp.value = value || '';
+  body.appendChild(inp);
+  const foot = doc.createElement('div');
+  foot.className = 'vnsVCardFoot';
+  const hint = doc.createElement('span');
+  hint.className = 'vnsVHint';
+  hint.textContent = '回车确定 · Esc 取消';
+  const bCancel = doc.createElement('button');
+  bCancel.className = 'vnsVBtn'; bCancel.textContent = '取消';
+  const bOk = doc.createElement('button');
+  bOk.className = 'vnsVBtn primary'; bOk.textContent = '确定';
+  foot.append(hint, bCancel, bOk);
+  card.append(head, body, foot);
+  mask.appendChild(card);
+  (doc.body || doc.documentElement).appendChild(mask);
+  const close = () => { if (mask.parentNode) mask.remove(); };
+  bCancel.onclick = close;
+  bOk.onclick = () => { const v = inp.value; close(); if (onOk) onOk(v); };
+  mask.addEventListener('pointerdown', ev => { if (ev.target === mask) close(); });
+  inp.addEventListener('keydown', ev => {
+    if (ev.key === 'Escape') close();
+    if (ev.key === 'Enter') bOk.onclick();
+  });
+  setTimeout(() => { try { inp.focus(); inp.select(); } catch(e){} }, 30);
+}
+
+function bindViewerNodes(fv){
+  const cv = fv.cv;
+  if (!cv) return;
+  cv.querySelectorAll('.flowBlock').forEach(block => {
+    if (block.dataset.vbound) return;
+    block.dataset.vbound = '1';
+    const label = block.dataset.label;
+    let drag = null;
+    block.addEventListener('pointerdown', e => {
+      if (e.button !== 0 && e.pointerType === 'mouse') return;
+      if (e.target.closest('button')) return;
+      e.stopPropagation();
+      drag = {
+        k: (fv.ctl && fv.ctl.k) ? fv.ctl.k : 1,
+        x: e.clientX, y: e.clientY,
+        left: parseFloat(block.style.left) || 0,
+        top: parseFloat(block.style.top) || 0,
+        moved: false
+      };
+      try { block.setPointerCapture(e.pointerId); } catch(err){}
+      if (fv.svg) fv.svg.style.opacity = '0.2';
+    });
+    block.addEventListener('pointermove', e => {
+      if (!drag) return;
+      const dx = (e.clientX - drag.x) / drag.k, dy = (e.clientY - drag.y) / drag.k;
+      if (!drag.moved && Math.abs(dx) + Math.abs(dy) < 4) return;
+      drag.moved = true;
+      block.style.left = (drag.left + dx) + 'px';
+      block.style.top = (drag.top + dy) + 'px';
+    });
+    const finish = () => {
+      if (!drag) return;
+      const moved = drag.moved;
+      drag = null;
+      if (fv.svg) fv.svg.style.opacity = '';
+      if (moved){
+        const left = parseFloat(block.style.left) || 0;
+        const top = parseFloat(block.style.top) || 0;
+        const bl = parseFloat(block.dataset.baseLeft) || 0;
+        const bt = parseFloat(block.dataset.baseTop) || 0;
+        branchFlowPos[label] = { dx: left - bl, dy: top - bt };
+        settings.flowPos = Object.assign({}, branchFlowPos);
+        saveSettings();
+        flowSyncMuted = true;
+        try { renderBranchFlow(); } finally { flowSyncMuted = false; }
+      } else {
+        openViewerBranch(fv, label);
+      }
+    };
+    block.addEventListener('pointerup', finish);
+    block.addEventListener('pointercancel', () => {
+      drag = null;
+      if (fv.svg) fv.svg.style.opacity = '';
+    });
+  });
+
+  cv.querySelectorAll('.flowNote').forEach(note => {
+    if (note.dataset.vbound) return;
+    note.dataset.vbound = '1';
+    const block = note.closest('.flowBlock');
+    const label = block ? block.dataset.label : null;
+    note.onclick = ev => {
+      ev.stopPropagation();
+      openViewerPrompt(fv, '标注 · ' + (label === '（开头）' ? '开头' : label), note.textContent.replace(/^📌s*/, ''), v => {
+        setFlowNote(label, (v || '').trim());
+      });
+    };
+  });
+
+  cv.querySelectorAll('.flowNoteEdit').forEach(btn => {
+    if (btn.dataset.vbound) return;
+    btn.dataset.vbound = '1';
+    const block = btn.closest('.flowBlock');
+    const label = block ? block.dataset.label : null;
+    btn.title = '给这个节点写标注';
+    btn.onclick = ev => {
+      ev.stopPropagation();
+      openViewerPrompt(fv, '标注 · ' + (label === '（开头）' ? '开头' : label), (settings.flowNotes || {})[label] || '', v => {
+        setFlowNote(label, (v || '').trim());
+      });
+    };
+  });
+
+  cv.querySelectorAll('.flowNodeAdd').forEach(btn => {
+    if (btn.dataset.vbound) return;
+    btn.dataset.vbound = '1';
+    const block = btn.closest('.flowBlock');
+    const label = block ? block.dataset.label : null;
+    btn.title = '在这个分支后新建一个跳转分支';
+    btn.onclick = ev => {
+      ev.stopPropagation();
+      openViewerPrompt(fv, '新建分支 · 标签名', '', v => {
+        const name = (v || '').trim();
+        if (!name || /\s/.test(name)){ showToast('标签名不能为空或带空格', 'warn'); return; }
+        if (addJumpBranch(label, name)) showToast('已新建分支「' + name + '」', 'ok');
+        else showToast('这个分支已经不存在了', 'warn');
+      });
+    };
+  });
+
+  cv.querySelectorAll('.flowNodeDel').forEach(btn => {
+    if (btn.dataset.vbound) return;
+    btn.dataset.vbound = '1';
+    const block = btn.closest('.flowBlock');
+    const label = block ? block.dataset.label : null;
+    btn.title = '删除这个分支';
+    btn.onclick = ev => {
+      ev.stopPropagation();
+      if (!label) return;
+      if (viewerConfirm(fv, '确定删除分支「' + label + '」及其内容？')){
+        deleteBranch(label);
+        showToast('已删除分支「' + label + '」', 'ok');
+      }
+    };
+  });
+
+  cv.querySelectorAll('.flowLink').forEach(handle => {
+    if (handle.dataset.vbound) return;
+    handle.dataset.vbound = '1';
+    const block = handle.closest('.flowBlock');
+    const label = block ? block.dataset.label : null;
+    handle.addEventListener('pointerdown', ev => startViewerLink(fv, ev, label));
+  });
+
 }
 
 /* 主窗口缩放（Ctrl/⌘ + 滚轮 或 触控板双指） */
@@ -7257,16 +7585,17 @@ function renderBranchFlow(){
       '<div class="flowTitle">' + escapeHtml(e.isEntry ? '▶ 开始' : e.label) + '</div>' +
       '<div class="flowBrief">' + escapeHtml(e.brief) + '</div>' +
       '<div class="flowMeta">' + e.lines + ' 行' + (e.isEntry ? '' : '') + '</div>';
-    const mkBtn = (txt, title, css, handler) => {
+    const mkBtn = (txt, title, css, handler, cls) => {
       const b = document.createElement('button');
       b.textContent = txt; b.title = title;
+      if (cls) b.className = cls;
       b.style.cssText = 'position:absolute;padding:0;cursor:pointer;line-height:1;font-size:11px;background:#0a0a16;border:2px solid #5b8cff;color:#8fb0ff;' + css;
       b.addEventListener('pointerdown', ev => ev.stopPropagation());
       b.onclick = ev => { ev.stopPropagation(); handler(ev); };
       proc.appendChild(b);
       return b;
     };
-    mkBtn('＋', '在这个分支后新建一个跳转分支', 'right:3px;bottom:3px;width:20px;height:20px;font-size:13px;', () => createJumpBranchFrom(e.branch));
+    mkBtn('＋', '在这个分支后新建一个跳转分支', 'right:3px;bottom:3px;width:20px;height:20px;font-size:13px;', () => createJumpBranchFrom(e.branch), 'flowNodeAdd');
     mkBtn('✎', '给这个节点写标注', 'right:3px;top:26px;width:20px;height:18px;border-color:#ffd96f;color:#ffd96f;font-size:10px;', () => {
       askText('标注「' + (e.isEntry ? '开始' : e.label) + '」', (settings.flowNotes || {})[e.label] || '', v => {
         settings.flowNotes = settings.flowNotes || {};
@@ -7274,9 +7603,9 @@ function renderBranchFlow(){
         if (val) settings.flowNotes[e.label] = val; else delete settings.flowNotes[e.label];
         saveSettings(); renderBranchFlow();
       });
-    });
+    }, 'flowNoteEdit');
     if (!e.isEntry){
-      mkBtn('✕', '删除这个分支', 'right:3px;top:3px;width:20px;height:20px;border-color:#ff6b6b;color:#ff8a8a;font-size:12px;', () => confirmDeleteBranch(e.label));
+      mkBtn('✕', '删除这个分支', 'right:3px;top:3px;width:20px;height:20px;border-color:#ff6b6b;color:#ff8a8a;font-size:12px;', () => confirmDeleteBranch(e.label), 'flowNodeDel');
     }
     const linkHandle = document.createElement('button');
     linkHandle.className = 'flowLink';
@@ -7376,7 +7705,7 @@ function renderBranchFlow(){
   ctx.scale = k;
   applyFlowZoom(k, true);
   drawFlowEdges();
-  flowSyncViewer();
+  if (!flowSyncMuted) flowSyncViewer();
 }
 
 /* v5.8 拖拽连线：按住节点左侧⇢拖到另一个节点即建立 @jump */
@@ -7608,7 +7937,14 @@ safeBind('#featureToggle', () => {
 });
 
 const CHANGELOG = [
-  { version: 'v6.5', date: '2026-11-12', title: '素材面板大整理：筛选 / 分组 / CG 关联终于有用了 ୧(๑•̀⌄•́๑)૭', current: true, items: [
+  { version: 'v6.6', date: '2026-11-12', title: '独立窗口也能改了：点节点直接编辑剧本 (๑•̀ㅂ•́)و✧', current: true, items: [
+    { tag: 'add', text: '✍ 独立窗口里点节点 → 小窗口里直接编辑这个分支的剧本，Ctrl+Enter 保存，改完主窗口同步' },
+    { tag: 'add', text: '🖱 窗口里也能拖节点摆位置、点 ＋ 新建跳转分支、点 ✕ 删分支、按住 ⇢ 拖到别的节点直接连线' },
+    { tag: 'add', text: '📌 节点上的 ✎ 也能在窗口里写标注，两个窗口看到的是同一份' },
+    { tag: 'fix', text: '🧩 主窗口节点的 ＋ / ✎ / ✕ 按钮补齐了类名，两个窗口行为终于一致' },
+    { tag: 'add', text: '🔁 窗口里的改动会即时写回剧本，主窗口的流程图、列表、高亮跟着变' },
+  ]},
+  { version: 'v6.5', date: '2026-11-12', title: '素材面板大整理：筛选 / 分组 / CG 关联终于有用了 ୧(๑•̀⌄•́๑)૭', items: [
     { tag: 'add', text: '🔎 素材面板新增筛选：全部 / 已关联 / 未关联 / 有热点 / 未使用，并能按名称或「用得最多」排序' },
     { tag: 'add', text: '🎭 CG 按关联角色自动分组，组头带角色头像和张数，一眼看完某角色的所有 CG' },
     { tag: 'add', text: '🎭 关联终于有用了：CG 行上点 🎭 就把它加成该角色的表情差分，@show 角色 CG名 直接能用' },
