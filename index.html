@@ -745,7 +745,7 @@ body.theme-paper .miniBtn{background:#fffefb;border-color:#9a8a6a;color:#4a4236}
 
 /* ===== v6.3 流程图：程序框图（菱形判定 / 六边形选项 / 可标注） ===== */
 .flowBlock{position:absolute;width:172px;touch-action:none}
-.flowNode.proc{position:relative;box-sizing:border-box;display:flex;flex-direction:column;justify-content:center;background:#000;border:2px solid #6a6a90;padding:6px 30px 6px 10px;overflow:hidden;cursor:pointer;user-select:none}
+.flowNode.proc{position:relative;box-sizing:border-box;display:flex;flex-direction:column;justify-content:center;background:#000;border:2px solid #6a6a90;padding:6px 34px 6px 10px;overflow:hidden;cursor:pointer;user-select:none}
 .flowNode.proc.entry{border-color:#7dfba0;background:#07130c;border-radius:14px}
 .flowTitle{font-size:12px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .flowNode.proc.entry .flowTitle{color:#aef5c4}
@@ -1486,7 +1486,7 @@ body.theme-paper .aboutUpdated{color:#8a7c62;border-left-color:#d5c9b0}
       </div>
       <div class="branchScroll" id="branchScroll"></div>
       <div class="branchFlowWrap" id="branchFlowWrap" style="display:none"><div class="branchFlow" id="branchFlow"></div></div>
-      <div class="footerBar"><span>点卡片 / 节点编辑分支 · 拖动节点摆位置 · 右上角 ✎ 写标注</span></div>
+      <div class="footerBar"><span>点卡片 / 节点编辑分支 · 拖动节点摆位置 · 右上角 📌 写标注</span></div>
     </div>
 
     <div class="panel" id="panel-help">
@@ -1541,7 +1541,7 @@ body.theme-paper .aboutUpdated{color:#8a7c62;border-left-color:#d5c9b0}
 
 <h3>🗺 流程视图（程序框图）</h3>
 <p>「分支」面板切到 <b>「🗺 流程视图」</b>：从 <b>▶ 开始</b> 一路往下，剧情是方框、条件判定是菱形（左右分叉，边上写着条件）、选项是六边形，没出口的分支会亮黄提醒。</p>
-<p>拖动节点摆位置（会记住）；节点右上角 <b>✎</b> 写标注；右下角 <b>＋</b> 新建跳转；左侧 <b>⇢</b> 拖到另一个节点就直接连线。</p>
+<p>拖动节点摆位置（会记住）；节点右上角 <b>📌</b> 写标注；右下角 <b>＋</b> 新建跳转；左侧 <b>⇢</b> 拖到另一个节点就直接连线。</p>
 <p>想看得更大：点 <b>⛶ 独立窗口</b> 单独开一个窗口放流程图——里面<b>点节点就能编辑那一分支的剧本</b>，也能拖节点摆位置、点 ＋ 新建跳转、点 ✕ 删分支、按住 ⇢ 拖到另一个节点连线；滚轮/双指缩放，空白处拖动平移。主窗口里也可以用 <b>Ctrl + 滚轮</b> 缩放。</p>
 <h3>⚡ 批量导入立绘</h3>
 <p>「＋ 角色」→ <b>⚡ 批量</b> 或表情弹窗里的 <b>⚡ 批量</b>：选完图会先列出<b>缩略图 + 文件名 + 要用的名字</b>，可以逐张改。</p>
@@ -1647,7 +1647,7 @@ body.theme-paper .aboutUpdated{color:#8a7c62;border-left-color:#d5c9b0}
       <div class="aboutTitle" id="aboutTitle">✦ 关于作者</div>
       <div class="aboutRow"><span>作者</span><b>@Teasssss</b></div>
       <div class="aboutRow"><span>辅助制作工具</span><b>Deepseek</b></div>
-      <div class="aboutRow"><span>版本</span><b class="aboutVer" id="aboutVer" title="多戳几下看看……">v6.6</b><span class="aboutUpdated" id="aboutUpdated">2026-11-12 更新</span></div>
+      <div class="aboutRow"><span>版本</span><b class="aboutVer" id="aboutVer" title="多戳几下看看……">v6.6.1</b><span class="aboutUpdated" id="aboutUpdated">2026-11-12 更新</span></div>
       <div class="aboutQuote">“每一个像素，都是你亲手写下的世界。”<br>—— 把故事讲出来的人，永远是作者。</div>
       <div class="aboutBtns">
         <button id="eggCat">🐱 摸一下</button>
@@ -6647,6 +6647,10 @@ function flowViewerCss(){
     '.vnsVInput{flex:1;min-width:0;font-family:inherit;font-size:13px;padding:6px 8px;background:#07070b;color:#fff;border:2px solid #3a3a48;outline:none}',
     'body.theme-paper .vnsVInput{background:#fffefb;color:#2f2a21;border-color:#bfb196}',
     '.vnsVBtn.primary{background:#5b8cff;border-color:#5b8cff;color:#04102a}',
+    '.vnsVToast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:#0a0a16;border:2px solid #7dfba0;color:#cfe8d4;padding:6px 14px;font-size:12px;z-index:90;opacity:0;transition:opacity .2s;pointer-events:none;white-space:nowrap}',
+    '.vnsVToast.warn{border-color:#ffcf6f;color:#ffe7ad}',
+    'body.theme-paper .vnsVToast{background:#fffdf7;border-color:#4a7a3a;color:#2f5a22}',
+    'body.theme-paper .vnsVToast.warn{background:#fffdf7;border-color:#b08a2a;color:#7a5a10}',
     'body.theme-paper .vnsVBtn.primary{background:#6d5f47;border-color:#6d5f47;color:#fcf9f1}',
     '.vnsVOverlay{position:fixed;inset:0;z-index:9999;display:flex;flex-direction:column;background:#08080c}'
   ].join('\n');
@@ -6934,6 +6938,21 @@ function setFlowNote(label, text){
 }
 
 /* ===== 独立窗口内的编辑交互 ===== */
+function viewerToast(fv, msg, kind){
+  const doc = (fv && fv.doc) || document;
+  let el = doc.getElementById('vnsVToast');
+  if (!el){
+    el = doc.createElement('div');
+    el.id = 'vnsVToast';
+    (doc.body || doc.documentElement).appendChild(el);
+  }
+  el.className = 'vnsVToast' + (kind ? ' ' + kind : '');
+  el.textContent = msg;
+  el.style.opacity = '1';
+  clearTimeout(el._vnsT);
+  el._vnsT = setTimeout(() => { el.style.opacity = '0'; }, 1900);
+}
+
 function viewerConfirm(fv, msg){
   try {
     if (fv && fv.win && !fv.win.closed) return fv.win.confirm(msg);
@@ -6975,8 +6994,8 @@ function startViewerLink(fv, e, fromLabel){
     const to = target.dataset.label;
     if (!to || to === fromLabel) return;
     const res = addJumpLink(fromLabel, to);
-    if (res === 'exists') showToast('这条跳转已经存在了', 'warn');
-    else if (res) showToast('已建立跳转：' + fromLabel + ' → ' + to, 'ok');
+    if (res === 'exists') viewerToast(fv, '这条跳转已经存在了', 'warn');
+    else if (res) viewerToast(fv, '已建立跳转：' + fromLabel + ' → ' + to, 'ok');
   };
   doc.addEventListener('pointermove', move);
   doc.addEventListener('pointerup', up);
@@ -7016,8 +7035,8 @@ function openViewerBranch(fv, label){
   bSave.onclick = () => {
     const text = ta.value;
     close();
-    if (!replaceBranchContent(label, text)) showToast('这个分支已经不存在了', 'warn');
-    else showToast('已保存「' + (label === '（开头）' ? '开头' : label) + '」', 'ok');
+    if (!replaceBranchContent(label, text)) viewerToast(fv, '这个分支已经不存在了', 'warn');
+    else viewerToast(fv, '已保存「' + (label === '（开头）' ? '开头' : label) + '」', 'ok');
   };
   mask.addEventListener('pointerdown', ev => { if (ev.target === mask) close(); });
   ta.addEventListener('keydown', ev => {
@@ -7095,7 +7114,7 @@ function bindViewerNodes(fv){
     block.addEventListener('pointermove', e => {
       if (!drag) return;
       const dx = (e.clientX - drag.x) / drag.k, dy = (e.clientY - drag.y) / drag.k;
-      if (!drag.moved && Math.abs(dx) + Math.abs(dy) < 4) return;
+      if (!drag.moved && Math.abs(dx) + Math.abs(dy) < 6) return;
       drag.moved = true;
       block.style.left = (drag.left + dx) + 'px';
       block.style.top = (drag.top + dy) + 'px';
@@ -7113,12 +7132,13 @@ function bindViewerNodes(fv){
         branchFlowPos[label] = { dx: left - bl, dy: top - bt };
         settings.flowPos = Object.assign({}, branchFlowPos);
         saveSettings();
-        flowSyncMuted = true;
-        try { renderBranchFlow(); } finally { flowSyncMuted = false; }
+        renderBranchFlow();
       } else {
         openViewerBranch(fv, label);
       }
     };
+    block.title = '点击编辑这一分支 · 拖动可移动';
+    block.addEventListener('dblclick', ev => { ev.preventDefault(); openViewerBranch(fv, label); });
     block.addEventListener('pointerup', finish);
     block.addEventListener('pointercancel', () => {
       drag = null;
@@ -7163,9 +7183,9 @@ function bindViewerNodes(fv){
       ev.stopPropagation();
       openViewerPrompt(fv, '新建分支 · 标签名', '', v => {
         const name = (v || '').trim();
-        if (!name || /\s/.test(name)){ showToast('标签名不能为空或带空格', 'warn'); return; }
-        if (addJumpBranch(label, name)) showToast('已新建分支「' + name + '」', 'ok');
-        else showToast('这个分支已经不存在了', 'warn');
+        if (!name || /\s/.test(name)){ viewerToast(fv, '标签名不能为空或带空格', 'warn'); return; }
+        if (addJumpBranch(label, name)) viewerToast(fv, '已新建分支「' + name + '」', 'ok');
+        else viewerToast(fv, '这个分支已经不存在了', 'warn');
       });
     };
   });
@@ -7181,7 +7201,7 @@ function bindViewerNodes(fv){
       if (!label) return;
       if (viewerConfirm(fv, '确定删除分支「' + label + '」及其内容？')){
         deleteBranch(label);
-        showToast('已删除分支「' + label + '」', 'ok');
+        viewerToast(fv, '已删除分支「' + label + '」', 'ok');
       }
     };
   });
@@ -7595,8 +7615,8 @@ function renderBranchFlow(){
       proc.appendChild(b);
       return b;
     };
-    mkBtn('＋', '在这个分支后新建一个跳转分支', 'right:3px;bottom:3px;width:20px;height:20px;font-size:13px;', () => createJumpBranchFrom(e.branch), 'flowNodeAdd');
-    mkBtn('✎', '给这个节点写标注', 'right:3px;top:26px;width:20px;height:18px;border-color:#ffd96f;color:#ffd96f;font-size:10px;', () => {
+    mkBtn('＋', '在这个分支后新建一个跳转分支', 'right:3px;bottom:3px;width:18px;height:18px;font-size:12px;', () => createJumpBranchFrom(e.branch), 'flowNodeAdd');
+    mkBtn('📌', '给这个节点写标注', 'right:24px;top:3px;width:18px;height:18px;border-color:#ffd96f;color:#ffd96f;font-size:9px;', () => {
       askText('标注「' + (e.isEntry ? '开始' : e.label) + '」', (settings.flowNotes || {})[e.label] || '', v => {
         settings.flowNotes = settings.flowNotes || {};
         const val = (v || '').trim();
@@ -7605,7 +7625,7 @@ function renderBranchFlow(){
       });
     }, 'flowNoteEdit');
     if (!e.isEntry){
-      mkBtn('✕', '删除这个分支', 'right:3px;top:3px;width:20px;height:20px;border-color:#ff6b6b;color:#ff8a8a;font-size:12px;', () => confirmDeleteBranch(e.label), 'flowNodeDel');
+      mkBtn('✕', '删除这个分支', 'right:3px;top:3px;width:18px;height:18px;border-color:#ff6b6b;color:#ff8a8a;font-size:11px;', () => confirmDeleteBranch(e.label), 'flowNodeDel');
     }
     const linkHandle = document.createElement('button');
     linkHandle.className = 'flowLink';
@@ -7937,10 +7957,16 @@ safeBind('#featureToggle', () => {
 });
 
 const CHANGELOG = [
-  { version: 'v6.6', date: '2026-11-12', title: '独立窗口也能改了：点节点直接编辑剧本 (๑•̀ㅂ•́)و✧', current: true, items: [
+  { version: 'v6.6.1', date: '2026-11-12', title: '独立窗口修正：按钮不挡字、操作有提示 (・∀・)', current: true, items: [
+    { tag: 'fix', text: '🔧 节点按钮重新排：✕ 和 📌 并排右上、＋ 在右下、⇢ 在左侧，不会再压在文字上（标注图标顺手改成 📌，不再跟「编辑」搞混）' },
+    { tag: 'fix', text: '🔧 窗口里拖完节点，连线立刻跟着重画，不再留着旧线' },
+    { tag: 'add', text: '💬 窗口里的保存 / 新建 / 删除 / 连线都会在窗口底部弹提示，不用回头看主窗口' },
+    { tag: 'add', text: '🖱 双击节点也能打开编辑；单击的容错变大了，手抖一下不会变成拖动' },
+  ]},
+  { version: 'v6.6', date: '2026-11-12', title: '独立窗口也能改了：点节点直接编辑剧本 (๑•̀ㅂ•́)و✧', items: [
     { tag: 'add', text: '✍ 独立窗口里点节点 → 小窗口里直接编辑这个分支的剧本，Ctrl+Enter 保存，改完主窗口同步' },
     { tag: 'add', text: '🖱 窗口里也能拖节点摆位置、点 ＋ 新建跳转分支、点 ✕ 删分支、按住 ⇢ 拖到别的节点直接连线' },
-    { tag: 'add', text: '📌 节点上的 ✎ 也能在窗口里写标注，两个窗口看到的是同一份' },
+    { tag: 'add', text: '📌 节点上的 📌 也能在窗口里写标注，两个窗口看到的是同一份' },
     { tag: 'fix', text: '🧩 主窗口节点的 ＋ / ✎ / ✕ 按钮补齐了类名，两个窗口行为终于一致' },
     { tag: 'add', text: '🔁 窗口里的改动会即时写回剧本，主窗口的流程图、列表、高亮跟着变' },
   ]},
