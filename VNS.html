@@ -343,9 +343,15 @@ body.playing .editOnly{display:none}
 .fileStatus{font-size:11px;color:#7a7a8c;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .thumbPreview{width:74px;height:74px;border:2px solid #4a4a58;background:#111 center/contain no-repeat}
 .exprPicker{display:flex;flex-wrap:wrap;gap:8px;padding:4px 0}
-.exprPick{width:54px;height:54px;flex:none;border:2px solid #4a4a58;background:#111 center/contain no-repeat;cursor:pointer;position:relative}
+.exprPick{width:58px;height:62px;flex:none;border:2px solid #4a4a58;background:#111 center/contain no-repeat;cursor:pointer;position:relative;overflow:hidden}
 .exprPick.active{border-color:#fff}
-.exprPick.active::after{content:'✓';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:22px;color:#fff;background:rgba(0,0,0,.45)}
+.exprPick.active::after{content:'✓';position:absolute;right:2px;top:2px;width:15px;height:15px;line-height:15px;text-align:center;font-size:11px;color:#fff;background:#5b8cff;border-radius:2px}
+.charSetList{display:flex;flex-wrap:wrap;gap:6px;padding:4px 0}
+.charSetRow{display:flex!important;flex-direction:row!important;align-items:center;gap:6px;font-size:11.5px;border:2px solid #3a3a48;padding:4px 8px;cursor:pointer;min-width:88px}
+.charSetRow input{accent-color:#5b8cff;width:14px;height:14px}
+body.theme-paper .charSetRow{border-color:#bfb196;background:#fffefb}
+.exprPickName{position:absolute;left:0;right:0;bottom:0;height:15px;line-height:15px;font-size:9px;text-align:center;color:#fff;background:rgba(0,0,0,.68);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 2px}
+.exprPick.active .exprPickName{background:rgba(91,140,255,.9)}
 
 .miniStage{position:relative;width:100%;aspect-ratio:16/9;background:repeating-linear-gradient(45deg,#14141c 0 8px,#181822 8px 16px);background-size:cover;background-position:center;border:2px solid #4a4a58;overflow:hidden;cursor:grab;user-select:none}
 .miniStage .previewSprite{position:absolute;bottom:0;left:50%;transform:translateX(-50%);display:flex;align-items:flex-end;justify-content:center;pointer-events:none;z-index:1}
@@ -1374,6 +1380,7 @@ body.theme-paper .aboutUpdated{color:#8a7c62;border-left-color:#d5c9b0}
         <button data-insert="bg">🖼 场景</button><button data-insert="choice">🔀 选项</button>
         <button data-insert="textcolor">🎨 颜色</button><button data-insert="textfx">📝 文字动</button>
         <button data-insert="fx">✨ 特效</button><button data-insert="charlayer">🎭 立绘层</button>
+        <button data-insert="charset">👥 角色显隐</button>
         <button data-insert="audio">🎵 音频</button><button data-insert="wait">⏸ 等待</button>
         <button data-insert="jump">↪ 跳转</button><button data-insert="label">🚩 标签</button>
         <button data-insert="dialogpos">📐 对话框位置</button><button data-insert="dialogbox">🗨 对话框显示</button>
@@ -1509,7 +1516,10 @@ body.theme-paper .aboutUpdated{color:#8a7c62;border-left-color:#d5c9b0}
 @stopbgm / @stopaudio / @pauseaudio / @resumeaudio
 @sfx 音效名        // 一次性</pre>
         <h3>立绘层 / 黑屏转场</h3>
-        <pre>@charlayer off / on
+        <pre>@charlayer off / on      // 整个立绘层
+@hide 角色A 角色B        // 一次藏多个
+@only 角色A 角色B        // 只留这几个，其它全藏
+@hideall                 // 全部藏起来
 @bg 教室 black</pre>
         <h3>文字颜色 / 动效</h3>
         <pre>@textcolor #ff6b6b
@@ -1652,7 +1662,7 @@ body.theme-paper .aboutUpdated{color:#8a7c62;border-left-color:#d5c9b0}
       <div class="aboutTitle" id="aboutTitle">✦ 关于作者</div>
       <div class="aboutRow"><span>作者</span><b>@Teasssss</b></div>
       <div class="aboutRow"><span>辅助制作工具</span><b>Deepseek</b></div>
-      <div class="aboutRow"><span>版本</span><b class="aboutVer" id="aboutVer" title="多戳几下看看……">v7.0.1</b><span class="aboutUpdated" id="aboutUpdated">2026-11-12 更新</span></div>
+      <div class="aboutRow"><span>版本</span><b class="aboutVer" id="aboutVer" title="多戳几下看看……">v7.1</b><span class="aboutUpdated" id="aboutUpdated">2026-11-12 更新</span></div>
       <div class="aboutQuote">“每一个像素，都是你亲手写下的世界。”<br>—— 把故事讲出来的人，永远是作者。</div>
       <div class="aboutBtns">
         <button id="eggCat">🐱 摸一下</button>
@@ -3356,7 +3366,15 @@ function execCmd(n){
       showChar(name, pos, expr, anim);
       break;
     }
-    case 'hide': hideChar(n.args[0] || ''); break;
+    case 'hide': {
+      n.args.filter(Boolean).forEach(nm => hideChar(nm));
+      break;
+    }
+    case 'only': {
+      const _keep = new Set(n.args.filter(Boolean));
+      [...shownChars.keys()].forEach(nm => { if (!_keep.has(nm)) hideChar(nm); });
+      break;
+    }
     case 'hideall': clearChars(); break;
     case 'charlayer': {
       const state = (n.args[0] || 'on').toLowerCase();
@@ -6190,6 +6208,7 @@ function refreshSayExpr(){
     box.style.backgroundImage = `url("${defaultData.url}")`;
     box.dataset.expr = '';
     box.title = '默认';
+    { const lb = document.createElement('span'); lb.className = 'exprPickName'; lb.textContent = '默认'; box.appendChild(lb); }
     box.onclick = () => { sheetSayExpr = null; picker.querySelectorAll('.exprPick').forEach(b => b.classList.toggle('active', b.dataset.expr === '')); updateSayMini(); };
     picker.appendChild(box);
   }
@@ -6198,7 +6217,8 @@ function refreshSayExpr(){
     const e = characters[name].expressions[ex];
     const box = document.createElement('div');
     box.className = 'exprPick' + (ex === sheetSayExpr ? ' active' : '');
-    box.style.backgroundImage = `url("${e.normal}")`; box.dataset.expr = ex;
+    box.style.backgroundImage = `url("${e.normal}")`; box.dataset.expr = ex; box.title = ex;
+    { const lb = document.createElement('span'); lb.className = 'exprPickName'; lb.textContent = ex; box.appendChild(lb); }
     box.onclick = () => { sheetSayExpr = ex; picker.querySelectorAll('.exprPick').forEach(b => b.classList.toggle('active', b.dataset.expr === ex)); updateSayMini(); };
     picker.appendChild(box);
   });
@@ -6262,7 +6282,8 @@ function refreshShowExpr(){
     const box = document.createElement('div');
     box.className = 'exprPick' + (!sheetShowExpr ? ' active' : '');
     box.style.backgroundImage = `url("${defaultData.url}")`;
-    box.dataset.expr = '';
+    box.dataset.expr = ''; box.title = '默认';
+    { const lb = document.createElement('span'); lb.className = 'exprPickName'; lb.textContent = '默认'; box.appendChild(lb); }
     box.onclick = () => { sheetShowExpr = null; picker.querySelectorAll('.exprPick').forEach(b => b.classList.toggle('active', b.dataset.expr === '')); updateShowMini(); };
     picker.appendChild(box);
   }
@@ -6271,7 +6292,8 @@ function refreshShowExpr(){
     const e = characters[name].expressions[ex];
     const box = document.createElement('div');
     box.className = 'exprPick' + (ex === sheetShowExpr ? ' active' : '');
-    box.style.backgroundImage = `url("${e.normal}")`; box.dataset.expr = ex;
+    box.style.backgroundImage = `url("${e.normal}")`; box.dataset.expr = ex; box.title = ex;
+    { const lb = document.createElement('span'); lb.className = 'exprPickName'; lb.textContent = ex; box.appendChild(lb); }
     box.onclick = () => { sheetShowExpr = ex; picker.querySelectorAll('.exprPick').forEach(b => b.classList.toggle('active', b.dataset.expr === ex)); updateShowMini(); };
     picker.appendChild(box);
   });
@@ -6303,6 +6325,15 @@ function openSheet(type){
   } else if (type === 'label'){
     sheetTitle.textContent = '🚩 插入标签';
     sheetBody.innerHTML = `<label>标签名<input type="text" id="fLabel"></label>`;
+  } else if (type === 'charset'){
+    sheetTitle.textContent = '👥 角色显隐';
+    const cn = Object.keys(characters);
+    const listHtml = cn.length
+      ? cn.map(n => `<label class="charSetRow"><input type="checkbox" value="${escapeHtml(n)}" checked><span>${escapeHtml(n)}</span></label>`).join('')
+      : '<div class="hintTip" style="margin:0">还没有角色。</div>';
+    sheetBody.innerHTML = `<div class="hintTip" style="margin:0">只显示勾选的角色，其它会藏起来；也可以反过来只隐藏勾选的。</div>` +
+      `<label>操作<select id="fCharSetOp"><option value="only">@only：只显示勾选的角色</option><option value="hide">@hide：隐藏勾选的角色</option><option value="all">全部显示（@charlayer on）</option><option value="none">全部隐藏（@charlayer off）</option></select></label>` +
+      `<label>角色<div class="charSetList" id="fCharSetList">${listHtml}</div></label>`;
   } else if (type === 'charlayer'){
     sheetTitle.textContent = '🎭 立绘层控制';
     sheetBody.innerHTML = `<div class="hintTip" style="margin:0">隐藏/显示整个立绘层。</div><label>操作<select id="fCharLayerState"><option value="off">@charlayer off</option><option value="on">@charlayer on</option></select></label>`;
@@ -6430,6 +6461,15 @@ function doInsert(){
   } else if (sheetType === 'label'){
     const v = $('#fLabel').value.trim(); if (!v){ alert('请填写标签'); return; }
     text = `::${v}`;
+  } else if (sheetType === 'charset'){
+    const op = $('#fCharSetOp').value;
+    if (op === 'all') text = '@charlayer on';
+    else if (op === 'none') text = '@charlayer off';
+    else {
+      const picked = [...document.querySelectorAll('#fCharSetList input:checked')].map(i => i.value);
+      if (!picked.length){ alert('请至少勾选一个角色'); return; }
+      text = (op === 'only' ? '@only ' : '@hide ') + picked.join(' ');
+    }
   } else if (sheetType === 'charlayer'){
     text = `@charlayer ${$('#fCharLayerState').value}`;
   } else if (sheetType === 'audio'){
@@ -8356,7 +8396,13 @@ safeBind('#featureToggle', () => {
 });
 
 const CHANGELOG = [
-  { version: 'v7.0.1', date: '2026-11-12', title: '互动场景致命 bug 修复 (@_@;)', current: true, items: [
+  { version: 'v7.1', date: '2026-11-15', title: '表情可选了 + 角色分批显隐 (•̀ᴗ•́)و', current: true, items: [
+    { tag: 'add', text: '🖼 插入台词 / 插入立绘的表情缩略图下面现在写着表情名（默认 / 微笑 / 惊讶…），勾选态改成角标，不再挡住图' },
+    { tag: 'add', text: '👥 新增 @only 角色A 角色B：只显示这几个角色，其它自动藏起来' },
+    { tag: 'add', text: '🎭 @hide 支持一次藏多个角色：@hide 小明 小红 小刚' },
+    { tag: 'add', text: '⚡ 快捷栏新增「👥 角色显隐」：勾选角色 + 选操作（只显示 / 只隐藏 / 全部显示 / 全部隐藏），自动生成指令' },
+  ]},
+  { version: 'v7.0.1', date: '2026-11-12', title: '互动场景致命 bug 修复 (@_@;)', items: [
     { tag: 'fix', text: '⚠ 修好 @wait 失效：上一版为了「没热点时跳过」动了循环判断，结果 @wait 不再暂停，剧情一路自动跑（对话框挡场景、不输密码也能开门、自动进分支都是它引起的）' },
     { tag: 'fix', text: '🎮 对话进行中不再生成热点标记，画面干净、也不会误触；到了 @wait 才出现' },
     { tag: 'fix', text: '🔐 播放器里的 @input 改用自研输入框（浏览器原生 prompt 会被拦或直接跳过），不输入/输错就不放行' },
@@ -9241,7 +9287,7 @@ function showChoices(opts){
 function endStory(title,sub){vm.running=false;clearInterval(typing.timer);typing.active=false;hint.classList.remove('show');dlg.classList.remove('show');hotspotsEl.innerHTML='';stopAll();setFb(0);fadeBlack=false;document.getElementById('endTitle').textContent=title||'END';document.getElementById('endSub').textContent=sub||'';endEl.classList.remove('show');void endEl.offsetWidth;endEl.classList.add('show');}
 function playCredits(done){var list=(credits.items||[]).filter(function(it){return it.text||it.image;});if(!list.length){if(done)done();return;}creditsScr.innerHTML='';var layout=credits.layout||'text';list.forEach(function(it){var div=document.createElement('div');var cls='ci';if(it.image){if(layout==='leftimg')cls+=' leftimg';else if(layout==='rightimg')cls+=' rightimg';else if(layout==='center')cls+=' centerimg';}div.className=cls;var im=null;if(it.image){im=document.createElement('img');im.src=it.image;}var tx=null;if(it.text){tx=document.createElement('div');tx.className='ct';tx.textContent=it.text;}if(layout==='rightimg'&&im){if(tx)div.appendChild(tx);div.appendChild(im);}else{if(im)div.appendChild(im);if(tx)div.appendChild(tx);}creditsScr.appendChild(div);});var fixedDiv=document.createElement('div');fixedDiv.className='ci';var ft=document.createElement('div');ft.className='ct';ft.textContent=FIXED_CREDIT_TEXT;fixedDiv.appendChild(ft);creditsScr.appendChild(fixedDiv);creditsScr.style.transition='none';creditsScr.style.top='100%';creditsEl.classList.add('show');void creditsScr.offsetHeight;var speed=Math.max(1,credits.speed||40);var totalH=creditsScr.scrollHeight;var duration=Math.max(2000,Math.round((totalH+(creditsEl.clientHeight||720))*1000/speed));creditsScr.style.transition='top '+duration+'ms linear';creditsScr.style.top='-'+totalH+'px';setTimeout(function(){creditsEl.classList.remove('show');if(done)done();},duration+200);}
 function endWithCredits(title,sub){if((credits.items||[]).some(function(it){return it.text||it.image;})&&!creditsShown){creditsShown=true;playCredits(function(){endStory(title,sub);});}else endStory(title,sub);}
-function execCmd(n){switch(n.cmd){case 'bg':setBg(n.args[0]||'',n.args[1]||'fade');break;case 'cg':setBg(n.args[0]||'',n.args[1]||'fade');break;case 'show':{var name=n.args[0]||'';var ce=chs[name]&&chs[name].expressions?Object.keys(chs[name].expressions):[];var pos='中',expr=null,anim=null,posSeen=false;n.args.slice(1).forEach(function(a){if(!posSeen&&(POS_NORMAL[a]||POS_WIDE[a])){pos=a;posSeen=true;}else if(ce.indexOf(a)>=0&&!expr)expr=a;else if(!expr)expr=a;});showChar(name,pos,expr,anim);break;}case 'hide':hideChar(n.args[0]||'');break;case 'hideall':clearChars();break;case 'charlayer':{var st=(n.args[0]||'on').toLowerCase();var off=['off','关','0','hide','hidden'].indexOf(st)>=0;chars.style.display=off?'none':'';charLayerVisible=!off;break;}case 'dialogpos':{var v=(n.args[0]||'bottom').toLowerCase();dlg.classList.remove('top','mid');if(v==='top'||v==='上'||v==='顶')dlg.classList.add('top');else if(v==='middle'||v==='mid'||v==='中'||v==='中间')dlg.classList.add('mid');break;}case 'dialogbox':{var v2=(n.args[0]||'on').toLowerCase();var off2=['off','关','0','hide','hidden'].indexOf(v2)>=0;dlg.classList.toggle('hidebox',off2);break;}case 'fadeblack':{var v3=(n.args[0]||'on').toLowerCase();if(v3==='off'||v3==='关'){fadeBlack=false;setFb(0);}else{fadeBlack=true;var st2=parseFloat(n.args[1]);if(!isNaN(st2)&&st2>0&&st2<=1)fadeBlackStep=st2;}break;}case 'credits':{creditsShown=true;playCredits(function(){if(vm.running)next();});return 'stop';}case 'bgm':{if(!n.args.length)break;var m=matchAudio(n.args);if(!m){notify('未找到音频：'+n.args.join(' '));break;}var rest=n.args.slice(m.consumed);var loop=true,volume,fadeIn;for(var i=0;i<rest.length;i++){var l=rest[i].toLowerCase();if(l==='once'||l==='single')loop=false;else if(l==='fade'){var s=parseFloat(rest[i+1]);if(!isNaN(s)&&s>0){fadeIn=s*1000;i++;}}else{var v4=parseFloat(l);if(!isNaN(v4)&&volume===undefined)volume=v4;}}playBgm(m.name,{once:!loop,volume:volume,fadeIn:fadeIn});break;}case 'sfx':{if(!n.args.length)break;var m2=matchAudio(n.args);if(!m2){notify('未找到音效：'+n.args.join(' '));break;}var rest2=n.args.slice(m2.consumed);var volume2,fadeIn2;for(var j=0;j<rest2.length;j++){var l2=rest2[j].toLowerCase();if(l2==='fade'){var s2=parseFloat(rest2[j+1]);if(!isNaN(s2)&&s2>0){fadeIn2=s2*1000;j++;}}else{var v5=parseFloat(l2);if(!isNaN(v5)&&volume2===undefined)volume2=v5;}}playSfx(m2.name,volume2,fadeIn2);break;}case 'stopbgm':case 'stopaudio':stopAll();break;case 'textcolor':textColor=n.args[0]?n.args[0]:null;break;case 'jump':if(n.args[0] in vm.labels)vm.pc=vm.labels[n.args[0]];break;case 'get':if(n.args[0]&&inv.indexOf(n.args[0])<0){inv.push(n.args[0]);showItemToast(n.args[0]);}renderHotspots();break;
+function execCmd(n){switch(n.cmd){case 'bg':setBg(n.args[0]||'',n.args[1]||'fade');break;case 'cg':setBg(n.args[0]||'',n.args[1]||'fade');break;case 'show':{var name=n.args[0]||'';var ce=chs[name]&&chs[name].expressions?Object.keys(chs[name].expressions):[];var pos='中',expr=null,anim=null,posSeen=false;n.args.slice(1).forEach(function(a){if(!posSeen&&(POS_NORMAL[a]||POS_WIDE[a])){pos=a;posSeen=true;}else if(ce.indexOf(a)>=0&&!expr)expr=a;else if(!expr)expr=a;});showChar(name,pos,expr,anim);break;}case 'hide':{var _hs2=n.args.filter(Boolean);_hs2.forEach(function(nm){hideChar(nm);});break;}case 'only':{var _keep2={};n.args.filter(Boolean).forEach(function(nm){_keep2[nm]=1;});Object.keys(shown).forEach(function(nm){if(!_keep2[nm])hideChar(nm);});break;}case 'hideall':clearChars();break;case 'charlayer':{var st=(n.args[0]||'on').toLowerCase();var off=['off','关','0','hide','hidden'].indexOf(st)>=0;chars.style.display=off?'none':'';charLayerVisible=!off;break;}case 'dialogpos':{var v=(n.args[0]||'bottom').toLowerCase();dlg.classList.remove('top','mid');if(v==='top'||v==='上'||v==='顶')dlg.classList.add('top');else if(v==='middle'||v==='mid'||v==='中'||v==='中间')dlg.classList.add('mid');break;}case 'dialogbox':{var v2=(n.args[0]||'on').toLowerCase();var off2=['off','关','0','hide','hidden'].indexOf(v2)>=0;dlg.classList.toggle('hidebox',off2);break;}case 'fadeblack':{var v3=(n.args[0]||'on').toLowerCase();if(v3==='off'||v3==='关'){fadeBlack=false;setFb(0);}else{fadeBlack=true;var st2=parseFloat(n.args[1]);if(!isNaN(st2)&&st2>0&&st2<=1)fadeBlackStep=st2;}break;}case 'credits':{creditsShown=true;playCredits(function(){if(vm.running)next();});return 'stop';}case 'bgm':{if(!n.args.length)break;var m=matchAudio(n.args);if(!m){notify('未找到音频：'+n.args.join(' '));break;}var rest=n.args.slice(m.consumed);var loop=true,volume,fadeIn;for(var i=0;i<rest.length;i++){var l=rest[i].toLowerCase();if(l==='once'||l==='single')loop=false;else if(l==='fade'){var s=parseFloat(rest[i+1]);if(!isNaN(s)&&s>0){fadeIn=s*1000;i++;}}else{var v4=parseFloat(l);if(!isNaN(v4)&&volume===undefined)volume=v4;}}playBgm(m.name,{once:!loop,volume:volume,fadeIn:fadeIn});break;}case 'sfx':{if(!n.args.length)break;var m2=matchAudio(n.args);if(!m2){notify('未找到音效：'+n.args.join(' '));break;}var rest2=n.args.slice(m2.consumed);var volume2,fadeIn2;for(var j=0;j<rest2.length;j++){var l2=rest2[j].toLowerCase();if(l2==='fade'){var s2=parseFloat(rest2[j+1]);if(!isNaN(s2)&&s2>0){fadeIn2=s2*1000;j++;}}else{var v5=parseFloat(l2);if(!isNaN(v5)&&volume2===undefined)volume2=v5;}}playSfx(m2.name,volume2,fadeIn2);break;}case 'stopbgm':case 'stopaudio':stopAll();break;case 'textcolor':textColor=n.args[0]?n.args[0]:null;break;case 'jump':if(n.args[0] in vm.labels)vm.pc=vm.labels[n.args[0]];break;case 'get':if(n.args[0]&&inv.indexOf(n.args[0])<0){inv.push(n.args[0]);showItemToast(n.args[0]);}renderHotspots();break;
   case 'use':if(n.args[0]){var uix=inv.indexOf(n.args[0]);if(uix>=0){inv.splice(uix,1);showItemToast(n.args[0],'lost');}}renderHotspots();break;
   case 'endsay':dlg.classList.remove('show');nameEl.style.display='none';textEl.textContent='';hint.classList.remove('show');vm.sayEnded=true;break;
   case 'timer':{var tsec=parseFloat(n.args[0]);var tix=n.args.indexOf('->');var ttg=tix>0?n.args[tix+1]:null;if(!isNaN(tsec)&&tsec>0)vm.choiceTimer={sec:tsec,target:ttg};break;}
