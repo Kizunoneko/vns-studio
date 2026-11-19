@@ -1662,7 +1662,7 @@ body.theme-paper .aboutUpdated{color:#8a7c62;border-left-color:#d5c9b0}
       <div class="aboutTitle" id="aboutTitle">✦ 关于作者</div>
       <div class="aboutRow"><span>作者</span><b>@Teasssss</b></div>
       <div class="aboutRow"><span>辅助制作工具</span><b>Deepseek</b></div>
-      <div class="aboutRow"><span>版本</span><b class="aboutVer" id="aboutVer" title="多戳几下看看……">v7.1</b><span class="aboutUpdated" id="aboutUpdated">2026-11-12 更新</span></div>
+      <div class="aboutRow"><span>版本</span><b class="aboutVer" id="aboutVer" title="多戳几下看看……">v7.2</b><span class="aboutUpdated" id="aboutUpdated">2026-11-12 更新</span></div>
       <div class="aboutQuote">“每一个像素，都是你亲手写下的世界。”<br>—— 把故事讲出来的人，永远是作者。</div>
       <div class="aboutBtns">
         <button id="eggCat">🐱 摸一下</button>
@@ -8396,7 +8396,13 @@ safeBind('#featureToggle', () => {
 });
 
 const CHANGELOG = [
-  { version: 'v7.1', date: '2026-11-15', title: '表情可选了 + 角色分批显隐 (•̀ᴗ•́)و', current: true, items: [
+  { version: 'v7.2', date: '2026-11-19', title: '桌面版自动更新 + 仓库整理 (๑•̀ㅂ•́)و✧', current: true, items: [
+    { tag: 'add', text: '🖥 桌面版打开后会自动检查更新：有新版本会弹窗，点「立即更新」直接下载并拉起安装程序' },
+    { tag: 'add', text: '🧭 桌面版「帮助」菜单新增「检查更新…」和「下载页」，随时手动查' },
+    { tag: 'add', text: '📦 安装包同时放到仓库 downloads/ 目录，网页版页面也随时能下到' },
+    { tag: 'fix', text: '📄 README 更新到当前版本，补上桌面版的安装与更新说明' },
+  ]},
+  { version: 'v7.1', date: '2026-11-15', title: '表情可选了 + 角色分批显隐 (•̀ᴗ•́)و', items: [
     { tag: 'add', text: '🖼 插入台词 / 插入立绘的表情缩略图下面现在写着表情名（默认 / 微笑 / 惊讶…），勾选态改成角标，不再挡住图' },
     { tag: 'add', text: '👥 新增 @only 角色A 角色B：只显示这几个角色，其它自动藏起来' },
     { tag: 'add', text: '🎭 @hide 支持一次藏多个角色：@hide 小明 小红 小刚' },

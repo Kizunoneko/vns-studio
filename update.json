@@ -1,0 +1,8 @@
+{
+  "version": "7.2.0",
+  "url": "https://kizunoneko.github.io/vns-studio/downloads/VNS-Studio-Setup-7.2.0.exe",
+  "fallback": "https://raw.githubusercontent.com/Kizunoneko/vns-studio/main/downloads/VNS-Studio-Setup-7.2.0.exe",
+  "page": "https://github.com/Kizunoneko/vns-studio/releases",
+  "publishedAt": "2026-11-19",
+  "notes": ""
+}
